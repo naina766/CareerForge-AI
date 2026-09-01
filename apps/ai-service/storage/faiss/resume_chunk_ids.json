@@ -1,0 +1,38 @@
+{
+  "0": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "1": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
+  },
+  "2": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "3": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
+  },
+  "4": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "5": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
+  }
+}

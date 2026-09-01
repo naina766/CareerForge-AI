@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@careerforge/types": ["./packages/types/src/index.ts"],
+      "@careerforge/types/*": ["./packages/types/src/*"],
+      "@careerforge/config": ["./packages/config/src/index.ts"],
+      "@careerforge/config/*": ["./packages/config/src/*"],
+      "@careerforge/database": ["./packages/database/src/index.ts"],
+      "@careerforge/database/*": ["./packages/database/src/*"]
+    }
+  },
+  "include": [
+    "packages/**/*",
+    "apps/**/*",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/.next"
+  ]
+}

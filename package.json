@@ -1,0 +1,34 @@
+{
+  "name": "careerforge-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered Career & Job Intelligence Platform",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "pnpm --filter \"@careerforge/*\" --parallel dev",
+    "dev:web": "pnpm --filter @careerforge/web dev",
+    "dev:api": "pnpm --filter @careerforge/api dev",
+    "build": "pnpm --filter \"@careerforge/*\" build",
+    "lint": "pnpm --filter \"@careerforge/*\" lint",
+    "typecheck": "pnpm --filter \"@careerforge/*\" typecheck",
+    "test": "pnpm --filter \"@careerforge/*\" test",
+    "clean": "pnpm --filter \"@careerforge/*\" clean",
+    "prisma:generate": "pnpm --filter @careerforge/database prisma:generate",
+    "prisma:validate": "pnpm --filter @careerforge/database prisma:validate",
+    "prisma:migrate": "pnpm --filter @careerforge/database prisma:migrate",
+    "prisma:push": "pnpm --filter @careerforge/database prisma:push",
+    "prisma:seed": "pnpm --filter @careerforge/database prisma:seed"
+  },
+  "devDependencies": {
+    "@careerforge/config": "workspace:*",
+    "@careerforge/database": "workspace:*",
+    "@careerforge/types": "workspace:*",
+    "@prisma/client": "^5.22.0",
+    "@types/supertest": "^7.2.1",
+    "prettier": "^3.3.3",
+    "prisma": "^5.22.0",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.5.4"
+  }
+}
