@@ -201,6 +201,12 @@ enum ConversationStatus {
   ARCHIVED
 }
 
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
 enum AIAnalysisStatus {
   PENDING
   PROCESSING
@@ -1054,3 +1060,62 @@ model AuditLog {
   @@index([entityType])
   @@index([createdAt])
 }
+
+// ==============================================================================
+// KAFKA EVENT-DRIVEN BACKBONE & OUTBOX PATTERN (PHASE 17)
+// ==============================================================================
+
+model OutboxEvent {
+  id            String       @id @default(uuid())
+  eventId       String       @unique
+  eventType     String
+  topic         String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  headers       Json?        @default("{}")
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  maxAttempts   Int          @default(5)
+  lastError     String?      @db.Text
+  availableAt   DateTime     @default(now())
+  publishedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now()) @updatedAt
+
+  @@index([status])
+  @@index([availableAt])
+  @@index([topic])
+  @@index([createdAt])
+}
+
+model ProcessedEvent {
+  id            String   @id @default(uuid())
+  eventId       String
+  eventType     String
+  consumerGroup String
+  status        String   @default("COMPLETED")
+  processedAt   DateTime @default(now())
+
+  @@unique([eventId, consumerGroup])
+  @@index([consumerGroup])
+  @@index([processedAt])
+}
+
+model DeadLetterEvent {
+  id            String   @id @default(uuid())
+  eventId       String   @unique
+  eventType     String
+  topic         String
+  consumerGroup String?
+  payload       Json
+  error         String   @db.Text
+  stackTrace    String?  @db.Text
+  attempts      Int      @default(1)
+  failedAt      DateTime @default(now())
+
+  @@index([topic])
+  @@index([eventType])
+  @@index([failedAt])
+}
+

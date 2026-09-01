@@ -126,6 +126,7 @@ uvicorn app.main:app --reload --port 8000
 - [x] **Phase 14: Skill Gap Analysis & Personalized Learning Path Engine**
 - [x] **Phase 15: Personalized Candidate Job Recommendation Engine**
 - [x] **Phase 16: Grounded RAG Career Assistant & Multi-Source Copilot**
+- [x] **Phase 17: Kafka Event-Driven Backbone & Transactional Outbox**
 
 ---
 
@@ -148,6 +149,15 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
+## 📨 Kafka Event-Driven Backbone & Transactional Outbox (Phase 17)
+
+- **Transactional Outbox Pattern**: Guarantees zero DB/Kafka dual-write anomalies by persisting `OutboxEvent` records within the primary business transaction.
+- **Idempotent Consumers**: Deduplicates repeated Kafka deliveries across consumer groups (`careerforge-resume-worker`, `careerforge-ai-worker`, `careerforge-notification-worker`) using PostgreSQL `ProcessedEvent(eventId, consumerGroup)`.
+- **Dead-Letter Queue (DLQ) & Exponential Retries**: Transient failures automatically back off; unrecoverable payloads route to `careerforge.dlq` without blocking partition threads.
+- **Admin Observability UI**: Full SaaS monitoring interface at `/dashboard/admin/events` displaying real-time counters, topic distributions, JSON payload inspectors, and manual DLQ retry triggers.
+
+---
+
 ## 📐 Key Architecture Decisions
 
 - **[ADR-001: Monorepo Architecture](docs/architecture/ADR-001-monorepo-polyglot-structure.md)**
@@ -163,5 +173,7 @@ uvicorn app.main:app --reload --port 8000
 - **[ADR-018: Skill Gap Analysis & Personalized Learning Path](docs/architecture/ADR-018-skill-gap-learning-path.md)**
 - **[ADR-019: Personalized Candidate Job Recommendation Engine](docs/architecture/ADR-019-job-recommendation-engine.md)**
 - **[ADR-020: Grounded RAG Career Assistant Architecture](docs/architecture/ADR-020-grounded-rag-career-assistant.md)**
+- **[ADR-021: Kafka Event-Driven Backbone & Transactional Outbox](docs/architecture/ADR-021-kafka-event-driven-backbone.md)**
+
 
 

@@ -609,6 +609,8 @@ export type MatchRecommendation =
   | 'STRONGLY_APPLY'
   | 'APPLY'
   | 'CONSIDER'
+  | 'DEVELOP_SKILLS'
+  | 'EXPLORE_LATER'
   | 'WEAK_MATCH'
   | 'NOT_RECOMMENDED'
   | 'strongly_apply'

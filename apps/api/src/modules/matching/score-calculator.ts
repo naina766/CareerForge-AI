@@ -62,8 +62,8 @@ export class ScoreCalculator {
     if (finalScore >= 85 && requiredSkillCoverage >= 80) return 'STRONGLY_APPLY';
     if (finalScore >= 70) return 'APPLY';
     if (finalScore >= 50) return 'CONSIDER';
-    if (finalScore >= 35) return 'WEAK_MATCH';
-    return 'NOT_RECOMMENDED';
+    if (finalScore >= 35) return 'DEVELOP_SKILLS';
+    return 'EXPLORE_LATER';
   }
 
   /**

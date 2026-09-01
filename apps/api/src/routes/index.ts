@@ -44,6 +44,11 @@ apiV1Router.use('/recommendations', recommendationRouter);
 import { careerAssistantRouter } from '../modules/career-assistant/career-assistant.routes.js';
 apiV1Router.use('/career-assistant', careerAssistantRouter);
 
+// Kafka Event-Driven Backbone & Observability (Phase 17)
+import { adminEventRouter } from '../modules/admin/event.routes.js';
+apiV1Router.use('/admin/events', adminEventRouter);
+
+
 
 
 
