@@ -127,6 +127,7 @@ uvicorn app.main:app --reload --port 8000
 - [x] **Phase 15: Personalized Candidate Job Recommendation Engine**
 - [x] **Phase 16: Grounded RAG Career Assistant & Multi-Source Copilot**
 - [x] **Phase 17: Kafka Event-Driven Backbone & Transactional Outbox**
+- [x] **Phase 18: Production Observability, Notifications & Reliability Platform**
 
 ---
 
@@ -158,6 +159,16 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
+## 🔔 Production Observability, Notifications & Reliability Platform (Phase 18)
+
+- **Multi-Service Health & Latency Probing**: Probes PostgreSQL, Redis, Kafka, and FastAPI with real-time health badges and latency tracking.
+- **Worker Execution Lifecycle**: Logs every background worker job (`STARTED` $\rightarrow$ `SUCCESS` / `FAILED` / `RETRYING` / `DLQ`), execution durations, retry attempts, and stack traces.
+- **Circuit Breaker & Fallback Protection**: Isolates failing external AI and vector dependencies (`CLOSED` $\rightarrow$ `OPEN` $\rightarrow$ `HALF_OPEN`) with non-blocking fallback mechanisms.
+- **Candidate Notification Center & Preferences**: Multi-channel notification engine (In-App, Email) responding to domain events (`match.completed`, `skill-gap.analyzed`, `application.status.changed`, `recommendation.refresh.completed`) with 60s storm deduplication and customizable user preferences.
+- **Centralized Error Trace Explorer**: Admin-only telemetry console at `/dashboard/admin/observability` featuring API latency percentiles (P50, P90, P95), error traces, and correlated request IDs.
+
+---
+
 ## 📐 Key Architecture Decisions
 
 - **[ADR-001: Monorepo Architecture](docs/architecture/ADR-001-monorepo-polyglot-structure.md)**
@@ -174,6 +185,7 @@ uvicorn app.main:app --reload --port 8000
 - **[ADR-019: Personalized Candidate Job Recommendation Engine](docs/architecture/ADR-019-job-recommendation-engine.md)**
 - **[ADR-020: Grounded RAG Career Assistant Architecture](docs/architecture/ADR-020-grounded-rag-career-assistant.md)**
 - **[ADR-021: Kafka Event-Driven Backbone & Transactional Outbox](docs/architecture/ADR-021-kafka-event-driven-backbone.md)**
+- **[ADR-022: Production Observability, Notifications & Reliability Platform](docs/architecture/ADR-022-observability-notifications-reliability.md)**
 
 
 

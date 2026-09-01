@@ -48,6 +48,17 @@ apiV1Router.use('/career-assistant', careerAssistantRouter);
 import { adminEventRouter } from '../modules/admin/event.routes.js';
 apiV1Router.use('/admin/events', adminEventRouter);
 
+// Notifications & Candidate Preferences (Phase 18)
+import { notificationRouter } from '../modules/notifications/notification.routes.js';
+apiV1Router.use('/notifications', notificationRouter);
+
+// Admin Observability & Reliability Platform (Phase 18)
+import { adminObservabilityRouter } from '../modules/admin/observability/observability.routes.js';
+apiV1Router.use('/admin/observability', adminObservabilityRouter);
+apiV1Router.use('/admin', adminObservabilityRouter);
+
+
+
 
 
 

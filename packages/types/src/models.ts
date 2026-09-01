@@ -971,4 +971,127 @@ export interface SendMessageRequest {
  * Subscription Tiers
  */
 export type SubscriptionPlan = 'free' | 'pro';
+
+// ==============================================================================
+// OBSERVABILITY, NOTIFICATIONS & RELIABILITY TYPES (PHASE 18)
+// ==============================================================================
+
+export type NotificationType =
+  | 'MATCH_COMPLETED'
+  | 'SKILL_GAP_UPDATED'
+  | 'LEARNING_PATH_UPDATED'
+  | 'JOB_RECOMMENDED'
+  | 'APPLICATION_STATUS_CHANGED'
+  | 'RESUME_PROCESSED'
+  | 'CAREER_ASSISTANT_RESPONSE'
+  | 'SYSTEM_ALERT';
+
+export type NotificationChannel = 'IN_APP' | 'EMAIL';
+
+export type NotificationStatus = 'UNREAD' | 'READ' | 'ARCHIVED';
+
+export interface NotificationItem {
+  id: string;
+  candidateId?: string | null;
+  userId?: string | null;
+  type: NotificationType;
+  title: string;
+  message: string;
+  status: NotificationStatus;
+  channel: NotificationChannel;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
+  readAt?: string | null;
+}
+
+export interface NotificationPreference {
+  id: string;
+  candidateId: string;
+  matchNotifications: boolean;
+  skillGapNotifications: boolean;
+  learningNotifications: boolean;
+  applicationNotifications: boolean;
+  recommendationNotifications: boolean;
+  emailNotifications: boolean;
+  inAppNotifications: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotificationPreferenceUpdate {
+  matchNotifications?: boolean;
+  skillGapNotifications?: boolean;
+  learningNotifications?: boolean;
+  applicationNotifications?: boolean;
+  recommendationNotifications?: boolean;
+  emailNotifications?: boolean;
+  inAppNotifications?: boolean;
+}
+
+export type ServiceHealthStatus = 'HEALTHY' | 'DEGRADED' | 'UNHEALTHY' | 'UNKNOWN';
+
+export interface ServiceHealthItem {
+  service: string;
+  status: ServiceHealthStatus;
+  latencyMs: number;
+  message?: string;
+  lastChecked: string;
+}
+
+export interface SystemHealthResponse {
+  status: ServiceHealthStatus;
+  timestamp: string;
+  uptimeSeconds: number;
+  environment: string;
+  services: Record<string, ServiceHealthItem>;
+}
+
+export type WorkerJobStatus = 'STARTED' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'RETRYING' | 'DLQ';
+
+export interface WorkerExecutionRecord {
+  id: string;
+  workerName: string;
+  eventId: string;
+  eventType: string;
+  status: WorkerJobStatus;
+  durationMs?: number | null;
+  attempt: number;
+  error?: string | null;
+  stackTrace?: string | null;
+  startedAt: string;
+  completedAt?: string | null;
+}
+
+export interface SystemMetricPoint {
+  id: string;
+  metricName: string;
+  metricValue: number;
+  service: string;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type CircuitBreakerState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
+
+export interface CircuitBreakerStatus {
+  name: string;
+  state: CircuitBreakerState;
+  failureCount: number;
+  successCount: number;
+  lastFailureTime?: string;
+  lastStateChange: string;
+}
+
+export interface ObservabilitySummary {
+  totalRequests: number;
+  errorRate: number;
+  avgLatencyMs: number;
+  p95LatencyMs: number;
+  kafkaEventsTotal: number;
+  dlqTotal: number;
+  workersCount: number;
+  healthyServicesCount: number;
+  totalServicesCount: number;
+}
+
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing';

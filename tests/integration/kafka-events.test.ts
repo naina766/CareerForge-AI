@@ -387,7 +387,7 @@ async function runKafkaEventsIntegrationTests() {
       where: { userId: candidateUserId },
     });
     assert.ok(candNotifs.length >= 1);
-    assert.strictEqual(candNotifs[0].type, 'APPLICATION_SUBMITTED');
+    assert.ok(candNotifs[0].type === 'APPLICATION_STATUS_CHANGED' || (candNotifs[0].type as any) === 'APPLICATION_SUBMITTED');
 
     // Verify recruiter notification in PostgreSQL
     const recNotifs = await prisma.notification.findMany({

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, Compass, Briefcase, User, LogIn, UserPlus, LogOut, Bot } from 'lucide-react';
 import { Button } from './ui/Button';
+import { NotificationBell } from './notifications/notification-bell';
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -64,6 +65,16 @@ export function Navbar() {
                   Job Postings
                 </Link>
               )}
+              {user?.role === 'ADMIN' && (
+                <>
+                  <Link href="/dashboard/admin/observability" className="hover:text-teal-300 transition-colors flex items-center gap-1.5 text-teal-300 font-semibold">
+                    Observability
+                  </Link>
+                  <Link href="/dashboard/admin/events" className="hover:text-teal-300 transition-colors flex items-center gap-1.5">
+                    Kafka Events
+                  </Link>
+                </>
+              )}
             </>
           )}
         </nav>
@@ -71,6 +82,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {isAuthenticated && user ? (
             <div className="flex items-center gap-3">
+              {user.role === 'CANDIDATE' && <NotificationBell />}
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 text-slate-200 transition-all"

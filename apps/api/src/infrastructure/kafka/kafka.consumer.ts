@@ -4,6 +4,8 @@ import { DomainEvent, KafkaTopics } from '@careerforge/types';
 import { getKafkaClient } from './kafka.client.js';
 import { KafkaProducerService } from './kafka.producer.js';
 import { logger } from '../../utils/logger.js';
+import { WorkerExecutionService } from '../observability/worker-execution.service.js';
+import { MetricsService } from '../observability/metrics.js';
 
 export type EventHandler = (event: DomainEvent) => Promise<void>;
 
@@ -125,6 +127,7 @@ export class KafkaConsumerService {
     let attempts = 0;
     const maxRetries = 3;
     let lastError: any = null;
+    const executionId = await WorkerExecutionService.recordStart(this.groupId, eventId, eventType, 1);
 
     while (attempts < maxRetries) {
       attempts++;
@@ -134,6 +137,9 @@ export class KafkaConsumerService {
         // 3. Mark Processed in PostgreSQL
         await this.markEventProcessed(eventId, eventType);
         const durationMs = Date.now() - startTime;
+        await WorkerExecutionService.recordSuccess(executionId, durationMs);
+        MetricsService.recordKafkaProcessed();
+
         logger.info(
           `[KafkaConsumer:${this.groupId}] Processed ${eventType} (EventId=${eventId}, CorrelationId=${correlationId}, Duration=${durationMs}ms)`
         );
@@ -144,6 +150,7 @@ export class KafkaConsumerService {
           `[KafkaConsumer:${this.groupId}] Attempt ${attempts}/${maxRetries} failed for ${eventType} (${eventId}): ${err.message}`
         );
         if (attempts < maxRetries) {
+          await WorkerExecutionService.recordFailure(executionId, err, 'RETRYING', Date.now() - startTime);
           // Exponential backoff
           await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempts) * 100));
         }
@@ -151,6 +158,9 @@ export class KafkaConsumerService {
     }
 
     // 4. Exceeded Retries -> Route to Dead Letter Queue
+    const totalDuration = Date.now() - startTime;
+    await WorkerExecutionService.recordFailure(executionId, lastError, 'DLQ', totalDuration);
+    MetricsService.recordKafkaDlq();
     logger.error(`[KafkaConsumer:${this.groupId}] Permanent failure for ${eventType} (${eventId}). Routing to DLQ.`);
     await this.sendToDLQ(event, lastError, attempts);
     return false;

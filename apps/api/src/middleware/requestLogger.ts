@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger.js';
+import { MetricsService } from '../infrastructure/observability/metrics.js';
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
@@ -17,6 +18,8 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       durationMs: duration,
       ip: req.ip
     };
+
+    MetricsService.recordHttpRequest(method, originalUrl.split('?')[0], duration, statusCode);
 
     if (statusCode >= 500) {
       logger.error(`HTTP ${method} ${originalUrl} ${statusCode} - ${duration}ms`, logData);

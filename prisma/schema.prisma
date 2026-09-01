@@ -233,6 +233,44 @@ enum MessageRole {
   SYSTEM
 }
 
+enum NotificationType {
+  MATCH_COMPLETED
+  SKILL_GAP_UPDATED
+  LEARNING_PATH_UPDATED
+  JOB_RECOMMENDED
+  APPLICATION_STATUS_CHANGED
+  RESUME_PROCESSED
+  CAREER_ASSISTANT_RESPONSE
+  SYSTEM_ALERT
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+enum ServiceHealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+  UNKNOWN
+}
+
+enum WorkerJobStatus {
+  STARTED
+  PROCESSING
+  SUCCESS
+  FAILED
+  RETRYING
+  DLQ
+}
+
 // ==============================================================================
 // AUTHENTICATION & USERS
 // ==============================================================================
@@ -315,6 +353,8 @@ model CandidateProfile {
   skillGapAnalyses    SkillGapAnalysis[]
   learningPaths       LearningPath[]
   careerConversations CareerConversation[]
+  notifications       Notification[]
+  notificationPreference NotificationPreference?
 
   @@index([userId])
   @@index([location])
@@ -952,24 +992,8 @@ model CareerMessageSource {
 
 
 // ==============================================================================
-// NOTIFICATIONS, SUBSCRIPTIONS & PAYMENTS
+// SUBSCRIPTIONS & PAYMENTS
 // ==============================================================================
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  type      String
-  title     String
-  message   String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([read])
-  @@index([createdAt])
-}
 
 model Subscription {
   id                     String             @id @default(uuid())
@@ -1117,5 +1141,94 @@ model DeadLetterEvent {
   @@index([topic])
   @@index([eventType])
   @@index([failedAt])
+}
+
+// ==============================================================================
+// OBSERVABILITY, NOTIFICATIONS & RELIABILITY (PHASE 18)
+// ==============================================================================
+
+model Notification {
+  id          String              @id @default(uuid())
+  candidateId String?
+  userId      String?
+  type        NotificationType    @default(SYSTEM_ALERT)
+  title       String
+  message     String              @db.Text
+  status      NotificationStatus  @default(UNREAD)
+  channel     NotificationChannel @default(IN_APP)
+  metadata    Json?               @default("{}")
+  createdAt   DateTime            @default(now())
+  readAt      DateTime?
+
+  candidate CandidateProfile? @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  user      User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@index([candidateId, status])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  id                          String   @id @default(uuid())
+  candidateId                 String   @unique
+  matchNotifications          Boolean  @default(true)
+  skillGapNotifications       Boolean  @default(true)
+  learningNotifications       Boolean  @default(true)
+  applicationNotifications    Boolean  @default(true)
+  recommendationNotifications Boolean  @default(true)
+  emailNotifications          Boolean  @default(false)
+  inAppNotifications          Boolean  @default(true)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @default(now()) @updatedAt
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model SystemMetric {
+  id          String   @id @default(uuid())
+  metricName  String
+  metricValue Float
+  service     String
+  timestamp   DateTime @default(now())
+  metadata    Json?    @default("{}")
+
+  @@index([metricName])
+  @@index([service])
+  @@index([timestamp])
+}
+
+model ServiceHealthSnapshot {
+  id          String              @id @default(uuid())
+  serviceName String
+  status      ServiceHealthStatus @default(HEALTHY)
+  latencyMs   Float               @default(0)
+  errorRate   Float               @default(0)
+  metadata    Json?               @default("{}")
+  checkedAt   DateTime            @default(now())
+
+  @@index([serviceName])
+  @@index([checkedAt])
+}
+
+model WorkerExecution {
+  id          String          @id @default(uuid())
+  workerName  String
+  eventId     String
+  eventType   String
+  status      WorkerJobStatus @default(STARTED)
+  durationMs  Float?
+  attempt     Int             @default(1)
+  error       String?         @db.Text
+  stackTrace  String?         @db.Text
+  startedAt   DateTime        @default(now())
+  completedAt DateTime?
+
+  @@index([workerName])
+  @@index([eventType])
+  @@index([status])
+  @@index([startedAt])
 }
 
