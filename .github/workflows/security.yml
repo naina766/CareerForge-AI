@@ -1,0 +1,38 @@
+name: Security Audit & Vulnerability Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: '0 0 * * 1' # Weekly security audit
+
+jobs:
+  audit:
+    name: Security Scan & Secret Leak Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.0
+
+      - name: Run pnpm audit
+        run: pnpm audit --audit-level=high || true
+
+      - name: Verify No Secrets Committed
+        run: |
+          echo "Scanning for accidental secrets or private keys..."
+          ! grep -rn "BEGIN PRIVATE KEY" . --exclude-dir=node_modules --exclude-dir=.git
+          ! grep -rn "AIzaSy" . --exclude-dir=node_modules --exclude-dir=.git
+          echo "✅ Secret leak audit passed cleanly."

@@ -271,6 +271,24 @@ enum WorkerJobStatus {
   DLQ
 }
 
+enum HealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
 // ==============================================================================
 // AUTHENTICATION & USERS
 // ==============================================================================
@@ -1188,16 +1206,51 @@ model NotificationPreference {
 }
 
 model SystemMetric {
-  id          String   @id @default(uuid())
-  metricName  String
-  metricValue Float
-  service     String
-  timestamp   DateTime @default(now())
-  metadata    Json?    @default("{}")
+  id         String   @id @default(uuid())
+  service    String
+  metricName String
+  value      Float    @default(0)
+  unit       String?
+  labels     Json?    @default("{}")
+  recordedAt DateTime @default(now())
 
-  @@index([metricName])
   @@index([service])
-  @@index([timestamp])
+  @@index([metricName])
+  @@index([recordedAt])
+}
+
+model SystemAlert {
+  id             String        @id @default(uuid())
+  service        String
+  severity       AlertSeverity
+  status         AlertStatus   @default(OPEN)
+  title          String
+  description    String        @db.Text
+  metricName     String?
+  threshold      Float?
+  actualValue    Float?
+  correlationId  String?
+  createdAt      DateTime      @default(now())
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+
+  @@index([service])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+}
+
+model ServiceHealthCheck {
+  id        String       @id @default(uuid())
+  service   String
+  status    HealthStatus
+  latencyMs Float?
+  version   String?
+  metadata  Json?        @default("{}")
+  checkedAt DateTime     @default(now())
+
+  @@index([service])
+  @@index([checkedAt])
 }
 
 model ServiceHealthSnapshot {
@@ -1231,4 +1284,5 @@ model WorkerExecution {
   @@index([status])
   @@index([startedAt])
 }
+
 

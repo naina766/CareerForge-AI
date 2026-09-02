@@ -1094,4 +1094,74 @@ export interface ObservabilitySummary {
   totalServicesCount: number;
 }
 
+export type HealthStatus = 'HEALTHY' | 'DEGRADED' | 'UNHEALTHY';
+export type AlertSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
+export type AlertStatus = 'OPEN' | 'ACKNOWLEDGED' | 'RESOLVED';
+
+export interface ServiceHealth {
+  service: string;
+  status: HealthStatus;
+  latencyMs?: number;
+  version?: string;
+  metadata?: Record<string, unknown>;
+  checkedAt: string;
+}
+
+export interface SystemMetric {
+  id?: string;
+  service: string;
+  metricName: string;
+  value: number;
+  unit?: string;
+  labels?: Record<string, unknown>;
+  recordedAt: string;
+}
+
+export interface SystemAlert {
+  id: string;
+  service: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  title: string;
+  description: string;
+  metricName?: string | null;
+  threshold?: number | null;
+  actualValue?: number | null;
+  correlationId?: string | null;
+  createdAt: string;
+  acknowledgedAt?: string | null;
+  resolvedAt?: string | null;
+}
+
+export interface TraceSpan {
+  spanId: string;
+  parentSpanId?: string | null;
+  name: string;
+  service: string;
+  timestamp: string;
+  durationMs?: number;
+  status: 'SUCCESS' | 'ERROR' | 'IN_PROGRESS';
+  metadata?: Record<string, unknown>;
+}
+
+export interface TraceTimeline {
+  traceId: string;
+  correlationId?: string;
+  requestId?: string;
+  eventId?: string;
+  totalDurationMs?: number;
+  status: 'SUCCESS' | 'ERROR' | 'IN_PROGRESS';
+  spans: TraceSpan[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface FaissMetrics {
+  indexSize: number;
+  embeddingDimension: number;
+  searchCount: number;
+  averageLatencyMs: number;
+  emptySearches: number;
+  failedSearches: number;
+}
+
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing';

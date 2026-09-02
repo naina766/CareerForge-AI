@@ -1,65 +1,85 @@
 # CareerForge AI
 
-> Enterprise-grade, AI-powered Career & Job Intelligence Platform with Explainable Matching, ATS Analysis, Grounded RAG Career Assistant, Kafka Event Streaming, and Asynchronous Workers.
+> Enterprise-grade, AI-powered Career & Job Intelligence Platform with Explainable Matching, ATS Analysis, Grounded RAG Career Assistant, Kafka Event Streaming, FAISS Semantic Retrieval, Production Observability, and Hardened Security.
 
 ---
 
-## 🏛️ Architecture Overview
+## 🏛️ Production Architecture Overview
 
 ```text
-                         ┌───────────────────┐
-                         │   Next.js 14+ Web │ (Tailwind, TanStack Query, Lucide)
-                         └─────────┬─────────┘
-                                   │ HTTP (X-Correlation-ID)
-                         ┌─────────▼─────────┐
-                         │   Express REST    │ (TypeScript, Zod, Winston)
-                         │       API         │
-                         └─────────┬─────────┘
-                                   │
-              ┌────────────────────┼────────────────────┐
-              │                    │                    │
-              ▼                    ▼                    ▼
-        PostgreSQL 16            Redis 7              Kafka
-         + pgvector              Cache &             (KRaft Mode)
-       (Source of Truth)       Rate Limiter             │
-                                                        ▼
-                                                  Domain Events
-                                             (resume.uploaded, etc.)
-                                                        │
-                                                        ▼
-                                               Asynchronous Workers
-                                             (Resume / AI / Notify)
-                                                        │
-                                                        ▼
-                                                FastAPI AI Service
-                                             (Pydantic, pgvector, LLM)
+                    ┌─────────────────────────┐
+                    │      Nginx Ingress      │ (Port 80/443, SSL, Rate Limiting)
+                    └────────────┬────────────┘
+                                 │
+             ┌───────────────────┴───────────────────┐
+             │                                       │
+      ┌──────▼──────┐                         ┌──────▼──────┐
+      │ Next.js Web │                         │ Express API │
+      └──────┬──────┘                         └──────┬──────┘
+             │                                       │
+             │           ┌───────────────────────────┼───────────────────────────┐
+             │           │                           │                           │
+             │     ┌─────▼──────┐              ┌─────▼──────┐              ┌─────▼──────┐
+             │     │ PostgreSQL │              │   Redis    │              │   Kafka    │
+             │     │  (Source)  │              │ (Cache/RL) │              │  Backbone  │
+             │     └────────────┘              └────────────┘              └─────┬──────┘
+             │                                                                   │
+             │                     ┌─────────────────────────┬───────────────────┤
+             │                     │                         │                   │
+             │               ┌─────▼──────┐            ┌─────▼──────┐      ┌─────▼──────┐
+             │               │   Resume   │            │     AI     │      │Notification│
+             │               │   Worker   │            │   Worker   │      │   Worker   │
+             │               └─────┬──────┘            └─────┬──────┘      └────────────┘
+             │                     │                         │
+             │                     └────────────┬────────────┘
+             │                                  │
+             │                            ┌─────▼──────┐
+             │                            │ FastAPI AI │
+             │                            │  Service   │
+             │                            └─────┬──────┘
+             │                                  │
+             │                            ┌─────▼──────┐
+             │                            │   FAISS    │
+             │                            │  (Vectors) │
+             │                            └────────────┘
+             └───────────────────────────────────────────────────────────────────
 ```
+
+### Architectural Invariants
+- **PostgreSQL**: Transactional ground truth for candidates, jobs, applications, preferences, metrics, and alerts.
+- **FAISS**: High-performance dense vector similarity retrieval engine in FastAPI AI microservice.
+- **Kafka**: Asynchronous event streaming backbone for non-blocking worker execution.
+- **Redis**: Distributed caching, token blacklists, and multi-tier rate limiting.
+- **Next.js**: Modern, high-performance Dark SaaS interface.
 
 ---
 
-## 📁 Repository Monorepo Layout
+## 📁 Monorepo Layout
 
 ```text
 careerforge-ai/
 ├── apps/
-│   ├── web/                     # Next.js 14 App Router client
+│   ├── web/                     # Next.js 14 App Router client (Dark SaaS UI)
 │   ├── api/                     # Node.js / Express TypeScript REST API
-│   └── ai-service/              # Python FastAPI AI & LLM microservice
-├── workers/                     # Asynchronous background worker processes
+│   └── ai-service/              # Python FastAPI AI & FAISS vector microservice
+├── workers/
+│   ├── resume-worker/           # Resume PDF extraction & taxonomy worker
+│   ├── ai-worker/               # AI matching, skill gaps & recommendations worker
+│   └── notification-worker/     # Real-time event notifications & alerts worker
 ├── packages/
 │   ├── types/                   # Shared TypeScript models, envelopes, event schemas
-│   ├── config/                  # Centralized Zod-validated environment config
-│   └── eslint-config/           # Shared linting & code styling configs
-├── prisma/                      # Database schema & seeders (Milestone 1)
-├── infrastructure/
-│   ├── docker/                  # Multi-stage production container definitions
-│   └── kubernetes/              # Production K8s manifests & HPA (Milestone 6)
+│   ├── database/                # Prisma client & database repositories
+│   └── config/                  # Centralized Zod-validated environment config
+├── infra/
+│   └── nginx/                   # Nginx reverse proxy configuration & security headers
 ├── docs/
-│   ├── architecture/            # Architecture Decision Records (ADRs)
-│   ├── api/                     # API contracts & OpenAPI specs
-│   └── security/                # Security policies & RAG isolation rules
-├── tests/                       # Integration & E2E test suites
-└── docker-compose.yml           # PostgreSQL (pgvector), Redis, Kafka (KRaft mode)
+│   ├── architecture/            # Architecture Decision Records (ADR-001 to ADR-024)
+│   ├── deployment/              # Production deployment & incident response guides
+│   └── operations/              # Database backup and recovery SOPs
+├── tests/
+│   └── integration/             # Comprehensive multi-phase integration test suites
+├── docker-compose.prod.yml      # Production multi-container orchestration
+└── .github/workflows/           # CI/CD, security audit, and dependabot automation
 ```
 
 ---
@@ -67,125 +87,44 @@ careerforge-ai/
 ## 🚀 Quick Start (Local Development)
 
 ### 1. Prerequisites
-- **Node.js**: `v20+` or `v22+`
-- **pnpm**: `pnpm@9+` (or run `npx pnpm`)
-- **Python**: `3.11+`
+- **Node.js**: `v20+`
+- **pnpm**: `v9+`
 - **Docker & Docker Compose**
+- **Python**: `3.11+`
 
 ### 2. Environment Setup
 ```bash
 cp .env.example .env
+pnpm install
+pnpm exec prisma db push
 ```
 
-### 3. Start Core Infrastructure (PostgreSQL, Redis, Kafka KRaft)
+### 3. Start Infrastructure & Development Servers
 ```bash
 docker compose up -d
+pnpm dev
 ```
 
-### 4. Install Dependencies
+---
+
+## 🚢 Production Deployment
+
 ```bash
-npx pnpm install
+# Validate production compose config
+docker compose -f docker-compose.prod.yml config
+
+# Launch production cluster
+docker compose -f docker-compose.prod.yml up -d --build
+
+# Run automated tests
+pnpm tsx tests/integration/production-readiness.test.ts
+pnpm tsx tests/integration/observability.test.ts
 ```
 
-### 5. Start TypeScript Services (Web & API)
-```bash
-# In one terminal:
-npx pnpm dev
-```
-- Web Client: [http://localhost:3000](http://localhost:3000)
-- REST API: [http://localhost:4000/api/v1/health](http://localhost:4000/api/v1/health)
-
-### 6. Start Python AI Service
-```bash
-cd apps/ai-service
-python -m venv .venv
-source .venv/bin/activate  # Or on Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-- AI Service Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-- AI Service Health: [http://localhost:8000/health](http://localhost:8000/health)
-
 ---
 
-## 🧭 Phased Build Progress
-
-- [x] **Phase 1: Repository Foundation, Monorepo Setup, Docker Compose (KRaft) & Core Scaffolding**
-- [x] **Phase 2: PostgreSQL + Prisma Foundation & Data Modeling**
-- [x] **Phase 3: Secure Authentication + JWT Rotation + Multi-Tenant RBAC Middleware**
-- [x] **Phase 4: Candidate Profile Management, Work Experience & Education Modeling**
-- [x] **Phase 5: Secure Resume Upload, S3/Local Storage Engine & Cryptographic Integrity**
-- [x] **Phase 6: Resume Parsing Service, PDF Text Extraction & Structured Intelligence**
-- [x] **Phase 7: Skill Taxonomy, Canonical Aliasing & Deterministic Normalization Engine**
-- [x] **Phase 8: Dense Vector Embeddings + FAISS Semantic Search Engine**
-- [x] **Phase 9: Deterministic + Explainable ATS Resume Scoring Engine**
-- [x] **Phase 10: Recruiter Job Lifecycle Management, State Machine & Multi-Tenant RBAC**
-- [x] **Phase 11: Candidate Job Discovery, Faceted Search, Skill Normalization & Pagination**
-- [x] **Phase 12: Job Applications & Application Lifecycle State Machine**
-- [x] **Phase 13: Hybrid AI Job Matching & Explainable Scoring Engine**
-- [x] **Phase 14: Skill Gap Analysis & Personalized Learning Path Engine**
-- [x] **Phase 15: Personalized Candidate Job Recommendation Engine**
-- [x] **Phase 16: Grounded RAG Career Assistant & Multi-Source Copilot**
-- [x] **Phase 17: Kafka Event-Driven Backbone & Transactional Outbox**
-- [x] **Phase 18: Production Observability, Notifications & Reliability Platform**
-
----
-
-## ⚡ Personalized Candidate Job Recommendation Engine (Phase 15)
-
-- **Deterministic Multi-Signal Scoring**: $0.40 \times \text{Skills} + 0.25 \times \text{FAISS Semantic} + 0.15 \times \text{Experience} + 0.15 \times \text{Preferences} + 0.05 \times \text{Freshness}$.
-- **Categorical Match Bands**: `TOP_MATCH` ($\ge 90$), `EXCELLENT_MATCH` ($80–89$), `STRONG_MATCH` ($70–79$), `GOOD_MATCH` ($60–69$), `POSSIBLE_MATCH` ($50–59$), and `LOW_MATCH` ($< 50$).
-- **PostgreSQL Caching & Provenance**: Caches results in `JobRecommendation` with automatic invalidation on candidate updates, version bumps (`engineVersion = "1.0"`), or manual refresh.
-- **Application Exclusion & Hard Filtering**: Excludes applied/withdrawn vacancies and expired deadlines.
-
----
-
-## 🤖 Grounded RAG Career Assistant (Phase 16)
-
-- **Candidate-Isolated Context**: Multi-source retrieval querying PostgreSQL candidate facts, skills, match reports, skill gaps, learning roadmaps, and FAISS resume vector chunks strictly scoped to `candidateId`.
-- **PromptGuard Pre-Retrieval Defense**: Intercepts jailbreaks, instruction overrides, system prompt exfiltration, and cross-candidate data snooping (`status: "BLOCKED"`).
-- **Structured Relational Citations**: Answers return verifiable `CareerMessageSource` records (Resume snippets, Vacancies, Gap reports, Learning catalogs) with relevance scoring.
-- **Hallucination Protection & Speculative Handling**: Ensures scores and learning recommendations conform strictly to database ground truth. Speculative questions return `status: "INSUFFICIENT_CONTEXT"`.
-- **Interactive Chat SaaS UI**: Full chat interface at `/dashboard/career-assistant` with multi-chat drawer, quick prompts, Markdown rendering, source drawer, and feedback loop (`👍 / 👎`).
-
----
-
-## 📨 Kafka Event-Driven Backbone & Transactional Outbox (Phase 17)
-
-- **Transactional Outbox Pattern**: Guarantees zero DB/Kafka dual-write anomalies by persisting `OutboxEvent` records within the primary business transaction.
-- **Idempotent Consumers**: Deduplicates repeated Kafka deliveries across consumer groups (`careerforge-resume-worker`, `careerforge-ai-worker`, `careerforge-notification-worker`) using PostgreSQL `ProcessedEvent(eventId, consumerGroup)`.
-- **Dead-Letter Queue (DLQ) & Exponential Retries**: Transient failures automatically back off; unrecoverable payloads route to `careerforge.dlq` without blocking partition threads.
-- **Admin Observability UI**: Full SaaS monitoring interface at `/dashboard/admin/events` displaying real-time counters, topic distributions, JSON payload inspectors, and manual DLQ retry triggers.
-
----
-
-## 🔔 Production Observability, Notifications & Reliability Platform (Phase 18)
-
-- **Multi-Service Health & Latency Probing**: Probes PostgreSQL, Redis, Kafka, and FastAPI with real-time health badges and latency tracking.
-- **Worker Execution Lifecycle**: Logs every background worker job (`STARTED` $\rightarrow$ `SUCCESS` / `FAILED` / `RETRYING` / `DLQ`), execution durations, retry attempts, and stack traces.
-- **Circuit Breaker & Fallback Protection**: Isolates failing external AI and vector dependencies (`CLOSED` $\rightarrow$ `OPEN` $\rightarrow$ `HALF_OPEN`) with non-blocking fallback mechanisms.
-- **Candidate Notification Center & Preferences**: Multi-channel notification engine (In-App, Email) responding to domain events (`match.completed`, `skill-gap.analyzed`, `application.status.changed`, `recommendation.refresh.completed`) with 60s storm deduplication and customizable user preferences.
-- **Centralized Error Trace Explorer**: Admin-only telemetry console at `/dashboard/admin/observability` featuring API latency percentiles (P50, P90, P95), error traces, and correlated request IDs.
-
----
-
-## 📐 Key Architecture Decisions
-
-- **[ADR-001: Monorepo Architecture](docs/architecture/ADR-001-monorepo-polyglot-structure.md)**
-- **[ADR-002: PostgreSQL + FAISS Vector Separation](docs/architecture/ADR-002-postgresql-pgvector-unified-store.md)**
-- **[ADR-003: Apache Kafka in KRaft Mode for Domain Event Streaming](docs/architecture/ADR-003-kafka-kraft-event-streaming.md)**
-- **[ADR-004: Distributed Tracing with Request & Correlation IDs](docs/architecture/ADR-004-distributed-tracing-correlation-ids.md)**
-- **[ADR-005: Hybrid Deterministic & LLM-Enriched Match Architecture](docs/architecture/ADR-005-hybrid-deterministic-llm-matching.md)**
-- **[ADR-012: FAISS Vector Similarity Retrieval](docs/architecture/ADR-012-faiss-vector-search.md)**
-- **[ADR-014: Recruiter Job Lifecycle Management](docs/architecture/ADR-014-recruiter-job-lifecycle.md)**
-- **[ADR-015: Candidate Job Discovery & Faceted Search](docs/architecture/ADR-015-candidate-job-search.md)**
-- **[ADR-016: Job Applications & Application Lifecycle](docs/architecture/ADR-016-application-lifecycle.md)**
-- **[ADR-017: Hybrid AI Job Matching Engine](docs/architecture/ADR-017-hybrid-job-matching.md)**
-- **[ADR-018: Skill Gap Analysis & Personalized Learning Path](docs/architecture/ADR-018-skill-gap-learning-path.md)**
-- **[ADR-019: Personalized Candidate Job Recommendation Engine](docs/architecture/ADR-019-job-recommendation-engine.md)**
-- **[ADR-020: Grounded RAG Career Assistant Architecture](docs/architecture/ADR-020-grounded-rag-career-assistant.md)**
-- **[ADR-021: Kafka Event-Driven Backbone & Transactional Outbox](docs/architecture/ADR-021-kafka-event-driven-backbone.md)**
-- **[ADR-022: Production Observability, Notifications & Reliability Platform](docs/architecture/ADR-022-observability-notifications-reliability.md)**
-
-
-
+## 📜 Architecture Decision Records (ADRs)
+- [ADR-001 to ADR-021: Core Domain, AI, Search & Event Backbone](docs/architecture/)
+- [ADR-022: Observability, Notifications & Reliability Platform](docs/architecture/ADR-022-observability-notifications-reliability.md)
+- [ADR-023: Observability, Monitoring & Reliability Architecture](docs/architecture/ADR-023-observability-monitoring-reliability.md)
+- [ADR-024: Production Deployment, Security Hardening & CI/CD Platform](docs/architecture/ADR-024-production-deployment-security-cicd.md)

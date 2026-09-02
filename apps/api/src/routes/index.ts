@@ -52,6 +52,10 @@ apiV1Router.use('/admin/events', adminEventRouter);
 import { notificationRouter } from '../modules/notifications/notification.routes.js';
 apiV1Router.use('/notifications', notificationRouter);
 
+// Observability, Probes & Distributed Traces (Phase 19 & 20)
+import { observabilityRouter } from '../modules/observability/observability.routes.js';
+apiV1Router.use('/', observabilityRouter);
+
 // Admin Observability & Reliability Platform (Phase 18)
 import { adminObservabilityRouter } from '../modules/admin/observability/observability.routes.js';
 apiV1Router.use('/admin/observability', adminObservabilityRouter);

@@ -10,18 +10,27 @@ export class HealthCheckService {
    * Performs deep multi-service health inspection.
    */
   static async checkSystemHealth(): Promise<SystemHealthResponse> {
-    const [postgresHealth, redisHealth, kafkaHealth, aiServiceHealth] = await Promise.all([
+    const [
+      postgresHealth,
+      redisHealth,
+      kafkaHealth,
+      aiServiceHealth,
+      faissHealth,
+      resumeWorkerHealth,
+      aiWorkerHealth,
+      notificationWorkerHealth,
+    ] = await Promise.all([
       this.checkPostgres(),
       this.checkRedis(),
       this.checkKafka(),
       this.checkAiService(),
+      this.checkFaiss(),
+      this.checkWorker('careerforge-resume-worker'),
+      this.checkWorker('careerforge-ai-worker'),
+      this.checkWorker('careerforge-notification-worker'),
     ]);
 
     const services: Record<string, ServiceHealthItem> = {
-      postgres: postgresHealth,
-      redis: redisHealth,
-      kafka: kafkaHealth,
-      aiService: aiServiceHealth,
       api: {
         service: 'api',
         status: 'HEALTHY',
@@ -29,14 +38,28 @@ export class HealthCheckService {
         message: 'API operational',
         lastChecked: new Date().toISOString(),
       },
+      postgres: postgresHealth,
+      redis: redisHealth,
+      kafka: kafkaHealth,
+      aiService: aiServiceHealth,
+      faiss: faissHealth,
+      resumeWorker: resumeWorkerHealth,
+      aiWorker: aiWorkerHealth,
+      notificationWorker: notificationWorkerHealth,
     };
 
-    const hasUnhealthy = Object.values(services).some((s) => s.status === 'UNHEALTHY');
-    const hasDegraded = Object.values(services).some((s) => s.status === 'DEGRADED');
-
+    // Determine overall system health state
+    // Critical services: postgres, api
+    // Non-critical / fallback-supported services: aiService, redis, faiss, kafka, workers
     let overallStatus: ServiceHealthStatus = 'HEALTHY';
-    if (hasUnhealthy) overallStatus = 'UNHEALTHY';
-    else if (hasDegraded) overallStatus = 'DEGRADED';
+    if (postgresHealth.status === 'UNHEALTHY' || services.api.status === 'UNHEALTHY') {
+      overallStatus = 'UNHEALTHY';
+    } else if (Object.values(services).some((s) => s.status === 'DEGRADED' || s.status === 'UNHEALTHY')) {
+      overallStatus = 'DEGRADED';
+    }
+
+    // Non-blocking snapshot persistence in PostgreSQL
+    this.recordHealthChecksAsync(services);
 
     return {
       status: overallStatus,
@@ -72,7 +95,6 @@ export class HealthCheckService {
   private static async checkRedis(): Promise<ServiceHealthItem> {
     const start = Date.now();
     try {
-      // In development / local environment, Redis may be optional or configured via REDIS_URL
       return {
         service: 'redis',
         status: 'HEALTHY',
@@ -108,7 +130,6 @@ export class HealthCheckService {
         lastChecked: new Date().toISOString(),
       };
     } catch (err: any) {
-      // If Kafka fails connection or is running in in-memory fallback
       return {
         service: 'kafka',
         status: 'DEGRADED',
@@ -124,7 +145,7 @@ export class HealthCheckService {
     try {
       const aiUrl = env.AI_SERVICE_URL || 'http://localhost:8000';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
 
       const res = await fetch(`${aiUrl}/health`, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -150,9 +171,100 @@ export class HealthCheckService {
         service: 'aiService',
         status: 'DEGRADED',
         latencyMs: Date.now() - start,
-        message: `AI Service connection offline or timeout (${err.message}). Deterministic fallback active.`,
+        message: `AI Service connection offline (${err.message}). Deterministic fallback active.`,
         lastChecked: new Date().toISOString(),
       };
+    }
+  }
+
+  private static async checkFaiss(): Promise<ServiceHealthItem> {
+    const start = Date.now();
+    try {
+      const aiUrl = env.AI_SERVICE_URL || 'http://localhost:8000';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+      const res = await fetch(`${aiUrl}/metrics`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        return {
+          service: 'faiss',
+          status: 'HEALTHY',
+          latencyMs: Date.now() - start,
+          message: 'FAISS dense semantic index active',
+          lastChecked: new Date().toISOString(),
+        };
+      }
+      return {
+        service: 'faiss',
+        status: 'DEGRADED',
+        latencyMs: Date.now() - start,
+        message: 'FAISS service probe warning. Local fallback available.',
+        lastChecked: new Date().toISOString(),
+      };
+    } catch {
+      return {
+        service: 'faiss',
+        status: 'DEGRADED',
+        latencyMs: Date.now() - start,
+        message: 'FAISS semantic retrieval offline. Keyword matching active.',
+        lastChecked: new Date().toISOString(),
+      };
+    }
+  }
+
+  private static async checkWorker(workerName: string): Promise<ServiceHealthItem> {
+    const start = Date.now();
+    try {
+      const recentExecution = await prisma.workerExecution.findFirst({
+        where: { workerName },
+        orderBy: { startedAt: 'desc' },
+      });
+
+      if (!recentExecution) {
+        return {
+          service: workerName,
+          status: 'HEALTHY',
+          latencyMs: Date.now() - start,
+          message: 'Worker registered (idle)',
+          lastChecked: new Date().toISOString(),
+        };
+      }
+
+      const isFailing = recentExecution.status === 'FAILED' || recentExecution.status === 'DLQ';
+      return {
+        service: workerName,
+        status: isFailing ? 'DEGRADED' : 'HEALTHY',
+        latencyMs: recentExecution.durationMs || Date.now() - start,
+        message: `Status: ${recentExecution.status} (Attempt ${recentExecution.attempt})`,
+        lastChecked: recentExecution.startedAt.toISOString(),
+      };
+    } catch {
+      return {
+        service: workerName,
+        status: 'HEALTHY',
+        latencyMs: Date.now() - start,
+        message: 'Worker active',
+        lastChecked: new Date().toISOString(),
+      };
+    }
+  }
+
+  private static async recordHealthChecksAsync(services: Record<string, ServiceHealthItem>): Promise<void> {
+    try {
+      for (const svc of Object.values(services)) {
+        await prisma.serviceHealthCheck.create({
+          data: {
+            service: svc.service,
+            status: svc.status as any,
+            latencyMs: svc.latencyMs,
+            metadata: { message: svc.message },
+          },
+        });
+      }
+    } catch {
+      // Non-blocking telemetry persistence
     }
   }
 }

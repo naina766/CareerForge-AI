@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    name: Build, Lint & Test Pipeline
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: careerforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate Prisma Schema
+        run: pnpm exec prisma validate
+
+      - name: Push Schema to Test Database
+        run: pnpm exec prisma db push
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
+
+      - name: Build Types Package
+        run: pnpm --filter "@careerforge/types" build
+
+      - name: Build Database Package
+        run: pnpm --filter "@careerforge/database" build
+
+      - name: Build API Application
+        run: pnpm --filter "@careerforge/api" build
+
+      - name: Build Next.js Web App
+        run: pnpm --filter "@careerforge/web" build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+
+      - name: Run Integration Tests
+        run: |
+          pnpm tsx tests/integration/observability.test.ts
+          pnpm tsx tests/integration/production-readiness.test.ts
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test_jwt_secret_ci_env_12345
+          JWT_REFRESH_SECRET: test_jwt_refresh_secret_ci_env_67890

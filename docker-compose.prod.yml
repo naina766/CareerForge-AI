@@ -1,0 +1,197 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: careerforge-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - careerforge-network
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: careerforge-web-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost/api/v1
+    networks:
+      - careerforge-network
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: careerforge-api-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/careerforge?schema=public
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+      - AI_SERVICE_URL=http://ai-service:8000
+      - JWT_SECRET=prod_secret_do_not_share_in_git_12345
+      - JWT_REFRESH_SECRET=prod_refresh_secret_do_not_share_67890
+      - CORS_ORIGIN=http://localhost
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - careerforge-network
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: apps/ai-service/Dockerfile
+    container_name: careerforge-ai-service-prod
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - LLM_PROVIDER=mock
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - careerforge-network
+
+  resume-worker:
+    build:
+      context: .
+      dockerfile: workers/resume-worker/Dockerfile
+    container_name: careerforge-resume-worker-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/careerforge?schema=public
+      - KAFKA_BROKERS=kafka:9092
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - careerforge-network
+
+  ai-worker:
+    build:
+      context: .
+      dockerfile: workers/ai-worker/Dockerfile
+    container_name: careerforge-ai-worker-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/careerforge?schema=public
+      - KAFKA_BROKERS=kafka:9092
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - careerforge-network
+
+  notification-worker:
+    build:
+      context: .
+      dockerfile: workers/notification-worker/Dockerfile
+    container_name: careerforge-notification-worker-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/careerforge?schema=public
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - careerforge-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: careerforge-postgres-prod
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=careerforge
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d careerforge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - careerforge-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: careerforge-redis-prod
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - careerforge-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: careerforge-zookeeper-prod
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - careerforge-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: careerforge-kafka-prod
+    restart: always
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - careerforge-network
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+
+networks:
+  careerforge-network:
+    driver: bridge

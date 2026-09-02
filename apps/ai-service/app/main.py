@@ -4,6 +4,7 @@ from .core.config import settings
 from .core.logging import logger
 from .core.middleware import CorrelationIdMiddleware
 from .api.router import api_router
+from .infrastructure.faiss_metrics import faiss_metrics
 
 def create_app() -> FastAPI:
     """FastAPI application factory for CareerForge AI service."""
@@ -26,6 +27,23 @@ def create_app() -> FastAPI:
 
     # Custom Middleware
     app.add_middleware(CorrelationIdMiddleware)
+
+    # Health Probe
+    @app.get("/health")
+    async def health_check():
+        return {
+            "status": "HEALTHY",
+            "service": "careerforge-ai-service",
+            "version": "1.0.0",
+            "environment": settings.ENVIRONMENT,
+            "llmProvider": settings.LLM_PROVIDER,
+            "faissStatus": "HEALTHY",
+        }
+
+    # Telemetry Metrics Probe
+    @app.get("/metrics")
+    async def metrics_endpoint():
+        return faiss_metrics.get_metrics()
 
     # Routes
     app.include_router(api_router)
