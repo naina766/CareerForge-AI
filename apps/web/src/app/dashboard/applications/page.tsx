@@ -11,37 +11,18 @@ import {
   Search,
   MapPin,
   Building,
-  RefreshCw,
-  AlertCircle,
-  FileText,
   ChevronRight,
-  Plus,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
-
-function getStatusBadgeClass(status: ApplicationStatus) {
-  switch (status) {
-    case 'APPLIED':
-      return 'bg-slate-800 text-slate-300 border-slate-700';
-    case 'SCREENING':
-      return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-    case 'SHORTLISTED':
-      return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
-    case 'INTERVIEW':
-      return 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse';
-    case 'OFFERED':
-    case 'OFFER':
-      return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-    case 'HIRED':
-      return 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
-    case 'REJECTED':
-      return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-    case 'WITHDRAWN':
-      return 'bg-slate-900 text-slate-500 border-slate-800';
-    default:
-      return 'bg-slate-800 text-slate-300 border-slate-700';
-  }
-}
+import { DashboardShell } from '../../../components/dashboard/DashboardShell';
+import { StatusPill } from '../../../components/ui/StatusPill';
+import { MetricCard } from '../../../components/ui/MetricCard';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { SkeletonCardGrid } from '../../../components/ui/Skeleton';
 
 export default function CandidateApplicationsPage() {
   const router = useRouter();
@@ -93,187 +74,187 @@ export default function CandidateApplicationsPage() {
     }
   }, [authLoading, isAuthenticated, statusFilter, searchQuery]);
 
+  function getStatusVariant(status: ApplicationStatus): 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'ai' {
+    switch (status) {
+      case 'HIRED':
+        return 'success';
+      case 'OFFERED':
+      case 'OFFER':
+        return 'ai';
+      case 'INTERVIEW':
+        return 'warning';
+      case 'SCREENING':
+      case 'SHORTLISTED':
+        return 'info';
+      case 'REJECTED':
+      case 'WITHDRAWN':
+        return 'error';
+      default:
+        return 'neutral';
+    }
+  }
+
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Briefcase className="w-6 h-6 text-teal-400" /> My Job Applications
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Track your application lifecycle, interviews, offer status, and review submissions.
-          </p>
-        </div>
+    <DashboardShell
+      headerTitle="My Applications"
+      headerDescription="Track your active job applications, interview schedules, and offers in one place."
+      actionButton={
         <Link href="/jobs">
-          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />}>
-            Explore More Jobs
+          <Button size="sm" className="text-xs bg-blue-600 hover:bg-blue-500 text-white">
+            Explore Open Roles
           </Button>
         </Link>
-      </div>
+      }
+    >
+      <div className="space-y-5 max-w-6xl">
+        {/* KPI Stats Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
+          <MetricCard
+            label="Total Submitted"
+            value={stats.total || applications.length}
+            description="All-time applications"
+            icon={Briefcase}
+            iconColor="text-blue-400"
+          />
 
-      {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="glass-panel rounded-2xl p-5 border border-slate-800/80 space-y-1">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-            Total Applied
-          </span>
-          <span className="text-2xl font-bold text-white font-mono">{stats.total}</span>
-        </div>
+          <MetricCard
+            label="Active Pipeline"
+            value={stats.active || applications.filter((a) => !['REJECTED', 'WITHDRAWN', 'HIRED'].includes(a.status)).length}
+            subvalue="In review"
+            description="Applications currently in progress"
+            icon={Clock}
+            iconColor="text-cyan-400"
+          />
 
-        <div className="glass-panel rounded-2xl p-5 border border-blue-500/20 bg-blue-500/5 space-y-1">
-          <span className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider block">
-            Active Review
-          </span>
-          <span className="text-2xl font-bold text-blue-300 font-mono">{stats.active}</span>
-        </div>
+          <MetricCard
+            label="Interviews"
+            value={stats.interviews || applications.filter((a) => a.status === 'INTERVIEW').length}
+            subvalue="Scheduled"
+            description="Interview stages reached"
+            icon={TrendingUp}
+            iconColor="text-amber-400"
+          />
 
-        <div className="glass-panel rounded-2xl p-5 border border-amber-500/20 bg-amber-500/5 space-y-1">
-          <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider block">
-            Interviews
-          </span>
-          <span className="text-2xl font-bold text-amber-300 font-mono">{stats.interviews}</span>
-        </div>
-
-        <div className="glass-panel rounded-2xl p-5 border border-purple-500/20 bg-purple-500/5 space-y-1">
-          <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
-            Offers
-          </span>
-          <span className="text-2xl font-bold text-purple-300 font-mono">{stats.offers}</span>
-        </div>
-
-        <div className="glass-panel rounded-2xl p-5 border border-emerald-500/20 bg-emerald-500/5 space-y-1 col-span-2 md:col-span-1">
-          <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block">
-            Hired
-          </span>
-          <span className="text-2xl font-bold text-emerald-300 font-mono">{stats.hired}</span>
-        </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="glass-panel rounded-2xl p-4 border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search */}
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by role title or company..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+          <MetricCard
+            label="Offers & Hires"
+            value={(stats.offers || 0) + (stats.hired || 0) || applications.filter((a) => ['OFFER', 'OFFERED', 'HIRED'].includes(a.status)).length}
+            subvalue="Extended"
+            description="Offers received"
+            icon={CheckCircle2}
+            iconColor="text-emerald-400"
           />
         </div>
 
-        {/* Status Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-          {['ALL', 'APPLIED', 'SCREENING', 'SHORTLISTED', 'INTERVIEW', 'OFFERED', 'HIRED', 'REJECTED', 'WITHDRAWN'].map(
-            (st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
-                  statusFilter === st
-                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
-                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                }`}
-              >
-                {st}
-              </button>
-            )
-          )}
-        </div>
-      </div>
+        {/* Filters & Search Toolbar */}
+        <div className="bg-[#111827] rounded-xl p-3.5 border border-[#1f2937] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-1 min-w-[200px] max-w-md items-center relative">
+            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by job title or company..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#1f2937] text-xs text-white placeholder:text-gray-500 outline-none focus:border-blue-500"
+            />
+          </div>
 
-      {/* Applications List */}
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="glass-panel rounded-3xl p-6 border border-slate-800/60 animate-pulse h-28" />
-          ))}
-        </div>
-      ) : error ? (
-        <div className="glass-panel rounded-3xl p-10 border border-rose-500/30 text-center space-y-4">
-          <AlertCircle className="w-10 h-10 text-rose-400 mx-auto" />
-          <div>
-            <h3 className="text-base font-bold text-white">Unable to load applications</h3>
-            <p className="text-xs text-slate-400 mt-1">{error}</p>
-          </div>
-          <Button size="sm" onClick={fetchApplications} leftIcon={<RefreshCw className="w-4 h-4" />}>
-            Retry
-          </Button>
-        </div>
-      ) : applications.length === 0 ? (
-        <div className="glass-panel rounded-3xl p-12 border border-slate-800/90 text-center space-y-4">
-          <div className="h-14 w-14 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 flex items-center justify-center mx-auto">
-            <Briefcase className="w-7 h-7 text-teal-400" />
-          </div>
-          <div className="space-y-1 max-w-sm mx-auto">
-            <h3 className="text-base font-bold text-white">No applications found</h3>
-            <p className="text-xs text-slate-400">
-              {statusFilter !== 'ALL'
-                ? `No applications currently in ${statusFilter} status.`
-                : 'You have not applied to any job vacancies yet. Explore open roles to begin!'}
-            </p>
-          </div>
-          <Link href="/jobs">
-            <Button size="sm">Browse Open Jobs</Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {applications.map((app) => (
-            <div
-              key={app.id}
-              className="glass-panel rounded-3xl p-6 border border-slate-800/80 hover:border-teal-500/40 transition-all hover:scale-[1.005] group space-y-4 shadow-lg"
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-gray-400 flex items-center gap-1">
+              <SlidersHorizontal className="w-3.5 h-3.5" /> Filter:
+            </span>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-[#0b0f19] border border-[#1f2937] rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
+              <option value="ALL">All Statuses</option>
+              <option value="APPLIED">Applied</option>
+              <option value="SCREENING">Screening</option>
+              <option value="SHORTLISTED">Shortlisted</option>
+              <option value="INTERVIEW">Interview</option>
+              <option value="OFFERED">Offer Extended</option>
+              <option value="HIRED">Hired</option>
+              <option value="REJECTED">Closed</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/30 text-xs text-rose-300 flex items-center justify-between">
+            <span>{error}</span>
+            <Button size="sm" variant="ghost" onClick={fetchApplications}>
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {/* Applications List */}
+        {isLoading ? (
+          <SkeletonCardGrid count={3} />
+        ) : applications.length === 0 ? (
+          <EmptyState
+            icon={Briefcase}
+            title="No applications found"
+            description={
+              statusFilter !== 'ALL' || searchQuery
+                ? 'No applications match your active filter or search term.'
+                : "You haven't submitted any job applications yet."
+            }
+            actionLabel="Discover Matching Jobs"
+            actionHref="/dashboard/recommendations"
+          />
+        ) : (
+          <div className="space-y-3">
+            {applications.map((app) => (
+              <div
+                key={app.id}
+                className="bg-[#111827] rounded-xl p-4 sm:p-5 border border-[#1f2937] hover:border-gray-700 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Link
                       href={`/dashboard/applications/${app.id}`}
-                      className="text-base font-bold text-white group-hover:text-teal-300 transition-colors"
+                      className="text-sm font-bold text-white hover:text-blue-400 transition-colors"
                     >
-                      {app.jobTitle}
+                      {app.jobTitle || 'Engineering Role'}
                     </Link>
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${getStatusBadgeClass(
-                        app.status
-                      )}`}
-                    >
-                      {app.status}
-                    </span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                      {app.workMode}
-                    </span>
+                    <StatusPill status={app.status} variant={getStatusVariant(app.status)} />
                   </div>
-                  <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
-                    <Building className="w-3.5 h-3.5 text-slate-500" /> {app.companyName} •{' '}
-                    <MapPin className="w-3.5 h-3.5 text-slate-500" /> {app.location}
-                  </p>
+
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-gray-400">
+                    <span className="flex items-center gap-1 font-medium text-gray-300">
+                      <Building className="w-3.5 h-3.5 text-gray-500" />
+                      {app.companyName || 'Technology Company'}
+                    </span>
+                    {app.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-gray-500" />
+                        {app.location}
+                      </span>
+                    )}
+                    <span>•</span>
+                    <span>Applied {new Date(app.createdAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="text-right sm:text-right hidden sm:block">
-                    <span className="text-[11px] text-slate-400 block">
-                      Applied {new Date(app.appliedAt).toLocaleDateString()}
-                    </span>
-                    <span className="text-[10px] text-slate-500 flex items-center justify-end gap-1 mt-0.5">
-                      <FileText className="w-3 h-3" /> {app.resumeName}
-                    </span>
-                  </div>
-
+                <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
                   <Link href={`/dashboard/applications/${app.id}`}>
-                    <Button size="sm" variant="outline" rightIcon={<ChevronRight className="w-4 h-4" />}>
-                      View Timeline
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs border-[#1f2937] hover:bg-gray-800 text-gray-300"
+                      rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+                    >
+                      Details & History
                     </Button>
                   </Link>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </DashboardShell>
   );
 }

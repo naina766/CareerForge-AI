@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 import { api } from '../../../lib/api';
@@ -18,8 +17,8 @@ import {
 } from '@careerforge/types';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
+import { DashboardShell } from '../../../components/dashboard/DashboardShell';
 import {
-  ArrowLeft,
   User,
   Briefcase,
   GraduationCap,
@@ -333,61 +332,44 @@ export default function CandidateProfilePage() {
 
   if (isLoading || !profile) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 rounded-full border-2 border-teal-400 border-t-transparent animate-spin" />
-          <span className="text-xs text-slate-400 font-medium">Loading candidate profile...</span>
+      <DashboardShell headerTitle="Profile & Goals">
+        <div className="py-12 flex justify-center">
+          <div className="h-6 w-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
         </div>
-      </div>
+      </DashboardShell>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {/* Toast Alert */}
-      {toast && (
-        <div
-          className={`fixed top-20 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl border shadow-2xl backdrop-blur-md transition-all animate-slideIn ${
-            toast.type === 'success'
-              ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
-              : 'bg-rose-950/90 border-rose-500/50 text-rose-200'
-          }`}
+    <DashboardShell
+      headerTitle="Profile & Goals"
+      headerDescription="Maintain your career identity, structured skills, and job preferences for explainable AI matching."
+      actionButton={
+        <Button
+          size="sm"
+          onClick={handleSaveProfile}
+          isLoading={isSaving}
+          className="text-xs bg-blue-600 hover:bg-blue-500 text-white"
+          leftIcon={<Save className="w-3.5 h-3.5" />}
         >
-          {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
-          <span className="text-xs font-medium">{toast.message}</span>
-        </div>
-      )}
-
-      {/* Top Header & Breadcrumb */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Link href="/dashboard" className="hover:text-teal-300 transition-colors flex items-center gap-1">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
-            </Link>
-            <span>/</span>
-            <span className="text-teal-400">Profile Management</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            My Career Profile
-          </h1>
-          <p className="text-xs text-slate-400">
-            Maintain your career identity, structured skills, and job preferences for explainable AI matching.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleSaveProfile}
-            isLoading={isSaving}
-            leftIcon={<Save className="w-4 h-4" />}
+          Save Changes
+        </Button>
+      }
+    >
+      <div className="space-y-6 max-w-6xl">
+        {/* Toast Alert */}
+        {toast && (
+          <div
+            className={`fixed top-16 right-6 z-50 flex items-center gap-2 px-3.5 py-2.5 rounded-xl border shadow-xl backdrop-blur-md transition-all ${
+              toast.type === 'success'
+                ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
+                : 'bg-rose-950/90 border-rose-500/50 text-rose-200'
+            }`}
           >
-            Save Changes
-          </Button>
-        </div>
-      </div>
+            {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
+            <span className="text-xs font-medium">{toast.message}</span>
+          </div>
+        )}
 
       {/* Profile Strength Hero Banner */}
       {completeness && (
@@ -1032,6 +1014,8 @@ export default function CandidateProfilePage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardShell>
   );
 }
+

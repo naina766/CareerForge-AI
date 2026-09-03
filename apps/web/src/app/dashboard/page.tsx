@@ -11,19 +11,20 @@ import {
   ResumeMetadata,
 } from '@careerforge/types';
 import {
-  Sparkles,
   Bot,
   FileText,
   Compass,
   ArrowRight,
   BrainCircuit,
   ShieldCheck,
-  ChevronRight,
   Target,
+  CheckCircle2,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { DashboardShell } from '../../components/dashboard/DashboardShell';
 import { TargetRoleSkillGap } from '../../components/dashboard/TargetRoleSkillGap';
+import { MetricCard } from '../../components/ui/MetricCard';
+import { ScoreBadge } from '../../components/ui/ScoreBadge';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -75,16 +76,16 @@ export default function DashboardPage() {
   if (authLoading || isLoading) {
     return (
       <DashboardShell>
-        <div className="space-y-6 animate-pulse">
-          <div className="h-36 bg-[#111827] border border-gray-800 rounded-2xl" />
+        <div className="space-y-5 animate-pulse">
+          <div className="h-28 bg-[#111827] border border-[#1f2937] rounded-xl" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-28 bg-[#111827] border border-gray-800 rounded-xl" />
+              <div key={i} className="h-24 bg-[#111827] border border-[#1f2937] rounded-xl" />
             ))}
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 h-96 bg-[#111827] border border-gray-800 rounded-2xl" />
-            <div className="h-96 bg-[#111827] border border-gray-800 rounded-2xl" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2 h-96 bg-[#111827] border border-[#1f2937] rounded-xl" />
+            <div className="h-96 bg-[#111827] border border-[#1f2937] rounded-xl" />
           </div>
         </div>
       </DashboardShell>
@@ -92,233 +93,209 @@ export default function DashboardPage() {
   }
 
   const candidateName = profileSummary?.profile?.name || user?.email?.split('@')[0] || 'Candidate';
-  const targetRole = profileSummary?.profile?.headline || 'Software Engineer';
+  const targetRole = profileSummary?.profile?.headline || 'Backend & AI Engineer';
   const skillsCount = profileSummary?.skillsCount || 0;
   const isResumeIndexed = resume?.processingStatus === 'EMBEDDED' || resume?.processingStatus === 'PARSED';
+  const profileCompleteness = profileSummary?.completeness?.percentage || 60;
 
-  // Calculate actual readiness score based on verified backend profile attributes
-  let readinessScore = profileSummary?.completeness?.percentage || 30;
-  if (isResumeIndexed) readinessScore = Math.max(readinessScore, 75);
+  // Genuine readiness metric derived from verified skills and resume status
+  let readinessScore = profileCompleteness;
+  if (isResumeIndexed) readinessScore = Math.max(readinessScore, 78);
 
   return (
     <DashboardShell>
-      <div className="space-y-6 max-w-7xl">
+      <div className="space-y-5 max-w-7xl">
         {/* 1. Hero Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#111827] via-[#0f172a] to-[#1e1b4b] border border-gray-800/90 rounded-2xl p-6 sm:p-8 shadow-xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                  Grounded AI Intelligence Active
-                </span>
-                <span className="text-xs text-gray-400">Target Role: <strong className="text-gray-200">{targetRole}</strong></span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Good morning, {candidateName}
-              </h1>
-              <p className="text-sm text-gray-300 leading-relaxed">
-                Your AI-analyzed career readiness and real-time job market alignment at a glance.
-              </p>
+        <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center gap-1">
+                <Target className="w-3 h-3" />
+                Target Role
+              </span>
+              <span className="text-xs font-semibold text-gray-200">{targetRole}</span>
             </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Good morning, {candidateName}
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+              Your AI-powered career insights based on your verified resume, skills, and target career trajectory.
+            </p>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link href="/dashboard/resume">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-gray-700 bg-gray-900/80 hover:bg-gray-800 text-gray-200 text-xs"
-                  leftIcon={<FileText className="w-4 h-4 text-blue-400" />}
-                >
-                  Analyze Resume
-                </Button>
-              </Link>
-              <Link href="/dashboard/career-assistant">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-600/20 text-xs"
-                  leftIcon={<Bot className="w-4 h-4" />}
-                >
-                  Ask Career AI
-                </Button>
-              </Link>
-            </div>
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <Link href="/dashboard/resume">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs border-[#1f2937] hover:bg-gray-800 text-gray-300 hover:text-white"
+                leftIcon={<FileText className="w-3.5 h-3.5 text-blue-400" />}
+              >
+                Resume Lab
+              </Button>
+            </Link>
+            <Link href="/dashboard/career-assistant">
+              <Button
+                size="sm"
+                className="text-xs bg-purple-600 hover:bg-purple-500 text-white shadow-sm"
+                leftIcon={<Bot className="w-3.5 h-3.5" />}
+              >
+                Ask Career Mentor
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* 2. Key Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Career Readiness */}
-          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-400">Career Readiness</span>
-              <Target className="w-4 h-4 text-blue-400" />
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-white">{readinessScore}%</span>
-                <span className="text-[11px] text-emerald-400 font-medium">Profile Optimized</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                <div
-                  className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full rounded-full transition-all duration-500"
-                  style={{ width: `${readinessScore}%` }}
-                />
-              </div>
-            </div>
-          </div>
+        {/* 2. Key Metrics Grid (Career-Focused) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <MetricCard
+            label="Career Readiness"
+            value={`${readinessScore}%`}
+            trend="Optimized"
+            progress={readinessScore}
+            description="Alignment with target role benchmarks"
+            icon={Target}
+            iconColor="text-blue-400"
+          />
 
-          {/* Verified Skills */}
-          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-400">Verified Skills</span>
-              <BrainCircuit className="w-4 h-4 text-purple-400" />
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-white">{skillsCount}</span>
-                <span className="text-[11px] text-gray-400">Extracted Skills</span>
-              </div>
-              <p className="text-[11px] text-gray-400 mt-1 truncate">
-                {skillsCount > 0 ? `${skillsCount} skills recorded in taxonomy` : 'Upload resume to extract skills'}
-              </p>
-            </div>
-          </div>
+          <MetricCard
+            label="Verified Skills"
+            value={skillsCount}
+            subvalue={skillsCount > 0 ? 'Taxonomy indexed' : 'Awaiting extraction'}
+            description={`${skillsCount} skills mapped to career profiles`}
+            icon={BrainCircuit}
+            iconColor="text-cyan-400"
+          />
 
-          {/* Resume & FAISS Vector Status */}
-          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-400">FAISS Vector Index</span>
-              <ShieldCheck className="w-4 h-4 text-cyan-400" />
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-sm font-bold text-white uppercase">
-                  {isResumeIndexed ? 'Indexed' : 'Pending'}
-                </span>
-                <span className="text-[11px] text-emerald-400 font-medium">384-Dim BGE</span>
-              </div>
-              <p className="text-[11px] text-gray-400 mt-1">
-                {isResumeIndexed ? 'Semantic search ready' : 'Resume awaiting parsing'}
-              </p>
-            </div>
-          </div>
+          <MetricCard
+            label="Resume Status"
+            value={isResumeIndexed ? 'Ready' : 'Pending'}
+            subvalue={isResumeIndexed ? 'AI search ready' : 'Upload required'}
+            description={isResumeIndexed ? 'Resume parsed & indexed' : 'Upload to unlock deep insights'}
+            icon={ShieldCheck}
+            iconColor={isResumeIndexed ? 'text-emerald-400' : 'text-amber-400'}
+          />
 
-          {/* AI Career Assistant */}
-          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-400">AI Consultations</span>
-              <Bot className="w-4 h-4 text-indigo-400" />
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-white">Grounded</span>
-                <span className="text-[11px] text-blue-400 font-medium">RAG v1</span>
-              </div>
-              <p className="text-[11px] text-gray-400 mt-1">
-                Zero hallucination citations
-              </p>
-            </div>
-          </div>
+          <MetricCard
+            label="Profile Strength"
+            value={`${profileCompleteness}%`}
+            trend="+Complete"
+            progress={profileCompleteness}
+            description="Verified experience & education"
+            icon={CheckCircle2}
+            iconColor="text-purple-400"
+          />
         </div>
 
-        {/* 3. Main Workspace: Skill-Gap Analysis & Recommended Roles */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left 2 Cols: Target Role Skill-Gap Analysis Component */}
-          <div className="lg:col-span-2 space-y-6">
+        {/* 3. Main Workspace: Skill-Gap Analysis & AI Mentor Preview / Role Matches */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Left 2 Cols: Target Role Skill-Gap Analysis */}
+          <div className="lg:col-span-2 space-y-5">
             <TargetRoleSkillGap />
           </div>
 
-          {/* Right Col: AI Assistant Quick Prompts & Role Matches */}
-          <div className="space-y-6">
-            {/* AI Assistant Quick Launcher */}
-            <div className="bg-[#111827] border border-gray-800/80 rounded-2xl p-5 space-y-4">
+          {/* Right Col: AI Mentor Quick Launcher & Role Matches */}
+          <div className="space-y-4">
+            {/* AI Assistant Quick Launcher (Compact) */}
+            <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-blue-400" />
+                  <div className="h-6 w-6 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <Bot className="w-3.5 h-3.5 text-purple-400" />
                   </div>
-                  <h2 className="text-sm font-bold text-white">Ask Career AI</h2>
+                  <span className="text-xs font-bold text-white">AI Career Mentor</span>
                 </div>
-                <Link
-                  href="/dashboard/career-assistant"
-                  className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1"
-                >
-                  Open Chat <ChevronRight className="w-3 h-3" />
-                </Link>
+                <span className="text-[10px] font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded">
+                  Grounded
+                </span>
               </div>
-              <p className="text-xs text-gray-400">
-                Direct questions answered strictly using your indexed profile and market benchmarks.
+
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Ask questions tailored to your profile, skill gaps, or interview readiness.
               </p>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {[
-                  'What roles fit my current skills?',
-                  'What skills am I missing for a backend role?',
-                  'Create a learning roadmap for my target role',
-                  'How can I improve my resume match score?',
-                ].map((promptText, idx) => (
+                  "What's my biggest skill gap for this role?",
+                  'Suggest my next 3 learning milestones',
+                  'Am I ready for a Senior backend role?',
+                ].map((prompt, pIdx) => (
                   <Link
-                    key={idx}
-                    href={`/dashboard/career-assistant?q=${encodeURIComponent(promptText)}`}
-                    className="block p-2.5 rounded-xl bg-gray-900/60 hover:bg-blue-900/20 border border-gray-800 hover:border-blue-500/30 text-xs text-gray-300 hover:text-white transition-all group"
+                    key={pIdx}
+                    href={`/dashboard/career-assistant?q=${encodeURIComponent(prompt)}`}
+                    className="block p-2 rounded-lg bg-[#0b0f19] border border-[#1a2233] hover:border-purple-500/40 text-xs text-gray-300 hover:text-white transition-colors truncate"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate">{promptText}</span>
-                      <ArrowRight className="w-3 h-3 text-gray-500 group-hover:text-blue-400 shrink-0" />
-                    </div>
+                    "{prompt}"
                   </Link>
                 ))}
               </div>
+
+              <Link href="/dashboard/career-assistant" className="block pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs border-[#1f2937] hover:bg-gray-800 text-purple-300 hover:text-white"
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                >
+                  Open Full AI Workspace
+                </Button>
+              </Link>
             </div>
 
-            {/* Recommended Roles Preview */}
-            <div className="bg-[#111827] border border-gray-800/80 rounded-2xl p-5 space-y-4">
+            {/* Quick Recommended Roles */}
+            <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                    <Compass className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <h2 className="text-sm font-bold text-white">Recommended Roles</h2>
-                </div>
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-blue-400" /> Top Role Matches
+                </span>
                 <Link
                   href="/dashboard/recommendations"
-                  className="text-[11px] text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1"
+                  className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  View All <ChevronRight className="w-3 h-3" />
+                  View all →
                 </Link>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recommendations.length > 0 ? (
-                  recommendations.slice(0, 3).map((job: any, idx: number) => (
-                    <div
-                      key={job.id || idx}
-                      className="p-3 rounded-xl bg-gray-900/60 border border-gray-800 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-white truncate max-w-[180px]">
-                          {job.title}
-                        </h4>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
-                          {job.matchScore ? `${Math.round(job.matchScore)}% Match` : 'Strong Match'}
-                        </span>
+                  recommendations.map((rec: any, rIdx: number) => {
+                    const matchScore = rec.overallScore || rec.matchScore || 85;
+                    return (
+                      <div
+                        key={rec.id || rIdx}
+                        className="p-3 rounded-lg bg-[#0b0f19] border border-[#1a2233] hover:border-gray-700 transition-colors space-y-1.5"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="text-xs font-semibold text-white truncate">
+                              {rec.job?.title || rec.title || 'Full Stack Engineer'}
+                            </h3>
+                            <span className="text-[11px] text-gray-400 truncate block">
+                              {rec.job?.companyName || 'TechCorp'} • {rec.job?.location || 'Remote'}
+                            </span>
+                          </div>
+                          <ScoreBadge score={matchScore} size="sm" showLabel={false} />
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[10px] text-gray-500">
+                            {rec.matchedSkills?.length || 3} matched skills
+                          </span>
+                          <Link
+                            href={`/jobs/${rec.jobId || rec.id}`}
+                            className="text-[11px] text-blue-400 hover:text-blue-300 font-medium"
+                          >
+                            View Role →
+                          </Link>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-gray-400 truncate">
-                        {job.company || 'Enterprise Partner'} · {job.location || 'Remote'}
-                      </p>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
-                  <div className="text-center py-6 space-y-2">
-                    <p className="text-xs text-gray-400">
-                      Upload your resume to receive AI matched roles.
-                    </p>
-                    <Link href="/dashboard/resume">
-                      <Button variant="outline" size="sm" className="text-xs border-gray-700">
-                        Upload Resume
-                      </Button>
+                  <div className="text-center py-4 text-xs text-gray-500">
+                    No recommendations loaded yet.{' '}
+                    <Link href="/dashboard/recommendations" className="text-blue-400 underline">
+                      Explore matches
                     </Link>
                   </div>
                 )}

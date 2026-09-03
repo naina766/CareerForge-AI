@@ -6,7 +6,6 @@ import {
   Bell,
   Check,
   Trash2,
-  Settings,
   Sparkles,
   Briefcase,
   Layers,
@@ -14,15 +13,17 @@ import {
   Sliders,
   CheckCircle2,
   ArrowUpRight,
-  Loader2,
   X,
 } from 'lucide-react';
 import { NotificationItem, NotificationPreference } from '@careerforge/types';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
+import { DashboardShell } from '@/components/dashboard/DashboardShell';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function NotificationCenterPage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [preferences, setPreferences] = useState<NotificationPreference | null>(null);
   const [activeTab, setActiveTab] = useState<'ALL' | 'UNREAD' | 'APPLICATIONS' | 'JOBS' | 'LEARNING'>('ALL');
@@ -36,7 +37,7 @@ export default function NotificationCenterPage() {
       const res = await api.get<NotificationItem[]>('/notifications');
       setNotifications(res.data || []);
     } catch {
-      // Fallback
+      // Non-blocking fallback
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +48,7 @@ export default function NotificationCenterPage() {
       const res = await api.get<NotificationPreference>('/notifications/preferences');
       setPreferences(res.data);
     } catch {
-      // Fallback
+      // Non-blocking fallback
     }
   };
 
@@ -126,18 +127,18 @@ export default function NotificationCenterPage() {
         return (
           <Link
             href={`/jobs/${meta.jobId}`}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors mt-2"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors mt-1"
           >
-            View Learning Path <ArrowUpRight className="w-3.5 h-3.5" />
+            View Learning Path <ArrowUpRight className="w-3 h-3" />
           </Link>
         );
       }
       return (
         <Link
           href={`/jobs/${meta.jobId}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors mt-2"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors mt-1"
         >
-          View Match Report <ArrowUpRight className="w-3.5 h-3.5" />
+          View Match Report <ArrowUpRight className="w-3 h-3" />
         </Link>
       );
     }
@@ -145,9 +146,9 @@ export default function NotificationCenterPage() {
       return (
         <Link
           href="/dashboard/recommendations"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors mt-2"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors mt-1"
         >
-          View Recommendations <ArrowUpRight className="w-3.5 h-3.5" />
+          View Recommendations <ArrowUpRight className="w-3 h-3" />
         </Link>
       );
     }
@@ -155,9 +156,9 @@ export default function NotificationCenterPage() {
       return (
         <Link
           href={`/dashboard/applications/${meta.applicationId}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors mt-2"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors mt-1"
         >
-          View Application <ArrowUpRight className="w-3.5 h-3.5" />
+          View Application <ArrowUpRight className="w-3 h-3" />
         </Link>
       );
     }
@@ -167,68 +168,53 @@ export default function NotificationCenterPage() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'MATCH_COMPLETED':
-        return <Sparkles className="w-5 h-5 text-teal-400" />;
+        return <Sparkles className="w-4 h-4 text-blue-400" />;
       case 'JOB_RECOMMENDED':
-        return <Briefcase className="w-5 h-5 text-cyan-400" />;
+        return <Briefcase className="w-4 h-4 text-cyan-400" />;
       case 'SKILL_GAP_UPDATED':
       case 'LEARNING_PATH_UPDATED':
-        return <BookOpen className="w-5 h-5 text-emerald-400" />;
+        return <BookOpen className="w-4 h-4 text-purple-400" />;
       case 'APPLICATION_STATUS_CHANGED':
-        return <Layers className="w-5 h-5 text-purple-400" />;
+        return <Layers className="w-4 h-4 text-emerald-400" />;
       default:
-        return <Bell className="w-5 h-5 text-slate-400" />;
+        return <Bell className="w-4 h-4 text-gray-400" />;
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl font-bold tracking-tight text-white">Notification Center</h1>
-              {unreadCount > 0 && (
-                <span className="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold">
-                  {unreadCount} Unread
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-slate-400">
-              Manage your real-time alerts, match reports, learning roadmap updates, and preferences.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-sm"
-              >
-                <CheckCircle2 className="w-4 h-4 text-teal-400" /> Mark All as Read
-              </button>
-            )}
-            <button
-              onClick={() => setIsPrefModalOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-sm"
+    <DashboardShell
+      headerTitle="Notifications"
+      headerDescription="Stay updated with match reports, interview stage updates, and career advice."
+      actionButton={
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={markAllAsRead}
+              className="text-xs border-[#1f2937] hover:bg-gray-800 text-gray-300"
+              leftIcon={<CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />}
             >
-              <Sliders className="w-4 h-4 text-teal-400" /> Preferences
-            </button>
-          </div>
+              Mark All as Read
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsPrefModalOpen(true)}
+            className="text-xs border-[#1f2937] hover:bg-gray-800 text-gray-300"
+            leftIcon={<Sliders className="w-3.5 h-3.5 text-gray-400" />}
+          >
+            Preferences
+          </Button>
         </div>
-
+      }
+    >
+      <div className="space-y-4 max-w-5xl">
         {/* Tab Filters */}
-        <div className="flex items-center gap-2 pb-4 overflow-x-auto no-scrollbar mb-6">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
           {[
-            { id: 'ALL', label: 'All Notifications' },
+            { id: 'ALL', label: 'All' },
             { id: 'UNREAD', label: `Unread (${unreadCount})` },
             { id: 'JOBS', label: 'Match & Jobs' },
             { id: 'LEARNING', label: 'Learning & Gaps' },
@@ -237,10 +223,10 @@ export default function NotificationCenterPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 shadow-md shadow-teal-500/20'
-                  : 'bg-slate-900/80 border border-slate-800/80 text-slate-400 hover:text-white hover:border-slate-700'
+                  ? 'bg-blue-600/15 text-blue-400 font-semibold border border-blue-500/30'
+                  : 'bg-[#111827] border border-[#1f2937] text-gray-400 hover:text-white hover:border-gray-700'
               }`}
             >
               {tab.label}
@@ -248,146 +234,146 @@ export default function NotificationCenterPage() {
           ))}
         </div>
 
-        {/* Notification List */}
-        <div className="space-y-3">
-          {isLoading ? (
-            <div className="p-16 text-center text-slate-400 rounded-2xl bg-slate-900/40 border border-slate-800">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-400 mb-3" />
-              <p className="text-sm font-medium">Loading notifications...</p>
-            </div>
-          ) : filteredNotifications.length === 0 ? (
-            <div className="p-16 text-center text-slate-500 rounded-2xl bg-slate-900/40 border border-slate-800">
-              <Bell className="w-12 h-12 mx-auto text-slate-700 mb-3 stroke-1" />
-              <h3 className="text-base font-semibold text-slate-300 mb-1">No notifications found</h3>
-              <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                There are no notifications matching your selected filter. New alerts will appear here as domain events occur.
-              </p>
-            </div>
-          ) : (
-            filteredNotifications.map((item) => (
-              <div
-                key={item.id}
-                className={`p-5 rounded-2xl border transition-all flex items-start justify-between gap-4 ${
-                  item.status === 'UNREAD'
-                    ? 'bg-slate-900/90 border-teal-500/30 shadow-lg shadow-teal-950/20'
-                    : 'bg-slate-900/40 border-slate-800/80 opacity-85'
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
+        {/* Notifications List */}
+        {isLoading ? (
+          <div className="py-12 flex justify-center">
+            <div className="h-6 w-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+          </div>
+        ) : filteredNotifications.length === 0 ? (
+          <EmptyState
+            icon={Bell}
+            title="All caught up!"
+            description={
+              activeTab !== 'ALL'
+                ? 'No notifications in this filter category.'
+                : 'You have no new alerts. Real-time updates on job matches and applications will appear here.'
+            }
+          />
+        ) : (
+          <div className="space-y-2">
+            {filteredNotifications.map((item) => {
+              const isUnread = item.status === 'UNREAD';
+              return (
+                <div
+                  key={item.id}
+                  className={`p-3.5 rounded-xl border transition-colors flex items-start gap-3.5 ${
+                    isUnread
+                      ? 'bg-[#111827] border-blue-500/30 shadow-sm'
+                      : 'bg-[#0b0f19] border-[#1a2233] opacity-90'
+                  }`}
+                >
+                  <div className="h-8 w-8 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center shrink-0 mt-0.5">
                     {getIcon(item.type)}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold text-white">{item.title}</h3>
-                      {item.status === 'UNREAD' && (
-                        <span className="w-2 h-2 rounded-full bg-teal-400 shrink-0" />
-                      )}
+
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-xs font-semibold text-white truncate">
+                        {item.title}
+                      </h3>
+                      <span className="text-[10px] text-gray-500 shrink-0 font-mono">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">{item.message}</p>
+
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      {item.message}
+                    </p>
+
                     {getActionLink(item)}
-                    <span className="text-[11px] text-slate-500 mt-2 block">
-                      {new Date(item.createdAt).toLocaleString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0 self-center">
+                    {isUnread && (
+                      <button
+                        onClick={() => markAsRead(item.id)}
+                        className="p-1 text-gray-400 hover:text-blue-400 transition-colors"
+                        title="Mark as read"
+                        aria-label="Mark notification as read"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteNotification(item.id)}
+                      className="p-1 text-gray-500 hover:text-rose-400 transition-colors"
+                      title="Delete"
+                      aria-label="Delete notification"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {item.status === 'UNREAD' && (
-                    <button
-                      onClick={() => markAsRead(item.id)}
-                      className="p-2 rounded-lg bg-slate-950 hover:bg-teal-950/40 border border-slate-800 hover:border-teal-500/40 text-slate-400 hover:text-teal-300 transition-all text-xs"
-                      title="Mark as read"
-                    >
-                      <Check className="w-4 h-4" />
-                    </button>
-                  )}
-                  <button
-                    onClick={() => deleteNotification(item.id)}
-                    className="p-2 rounded-lg bg-slate-950 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 transition-all text-xs"
-                    title="Delete notification"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Preferences Modal */}
       {isPrefModalOpen && preferences && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 overflow-hidden">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Settings className="w-5 h-5 text-teal-400" />
-                <h3 className="font-semibold text-base text-white">Notification Preferences</h3>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-5 max-w-md w-full space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1f2937]">
+              <h3 className="text-sm font-bold text-white">Notification Preferences</h3>
               <button
                 onClick={() => setIsPrefModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                className="p-1 text-gray-400 hover:text-white"
+                aria-label="Close preferences dialog"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={savePreferences} className="mt-5 space-y-4">
-              <div className="space-y-3">
-                {[
-                  { key: 'matchNotifications', label: 'Job Match Alerts', desc: 'Notify when match score is calculated' },
-                  { key: 'skillGapNotifications', label: 'Skill Gap Updates', desc: 'Notify when new gaps or insights are found' },
-                  { key: 'learningNotifications', label: 'Learning Roadmap Alerts', desc: 'Notify on curriculum additions' },
-                  { key: 'applicationNotifications', label: 'Application Status Alerts', desc: 'Notify when application status changes' },
-                  { key: 'recommendationNotifications', label: 'Job Recommendation Feed', desc: 'Notify when top matching jobs are found' },
-                  { key: 'inAppNotifications', label: 'In-App Alerts', desc: 'Display alerts inside platform header' },
-                ].map((pref) => (
-                  <label
-                    key={pref.key}
-                    className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 cursor-pointer hover:border-slate-700 transition-all"
-                  >
-                    <div>
-                      <div className="text-xs font-semibold text-white">{pref.label}</div>
-                      <div className="text-[11px] text-slate-400">{pref.desc}</div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={(preferences as any)[pref.key]}
-                      onChange={(e) =>
-                        setPreferences({ ...preferences, [pref.key]: e.target.checked })
-                      }
-                      className="w-4 h-4 rounded text-teal-500 bg-slate-900 border-slate-700 focus:ring-teal-500"
-                    />
-                  </label>
-                ))}
-              </div>
+            <form onSubmit={savePreferences} className="space-y-3 text-xs">
+              <label className="flex items-center justify-between p-2.5 rounded-lg bg-[#0b0f19] border border-[#1a2233] cursor-pointer">
+                <span className="text-gray-200">Job Match Notifications</span>
+                <input
+                  type="checkbox"
+                  checked={preferences.matchNotifications}
+                  onChange={(e) =>
+                    setPreferences({ ...preferences, matchNotifications: e.target.checked })
+                  }
+                  className="rounded text-blue-500 focus:ring-blue-500 bg-gray-900 border-gray-700"
+                />
+              </label>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsPrefModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 transition-colors"
-                >
+              <label className="flex items-center justify-between p-2.5 rounded-lg bg-[#0b0f19] border border-[#1a2233] cursor-pointer">
+                <span className="text-gray-200">Skill Gap & Learning Updates</span>
+                <input
+                  type="checkbox"
+                  checked={preferences.skillGapNotifications}
+                  onChange={(e) =>
+                    setPreferences({ ...preferences, skillGapNotifications: e.target.checked })
+                  }
+                  className="rounded text-blue-500 focus:ring-blue-500 bg-gray-900 border-gray-700"
+                />
+              </label>
+
+              <label className="flex items-center justify-between p-2.5 rounded-lg bg-[#0b0f19] border border-[#1a2233] cursor-pointer">
+                <span className="text-gray-200">Application Status Changes</span>
+                <input
+                  type="checkbox"
+                  checked={preferences.applicationNotifications}
+                  onChange={(e) =>
+                    setPreferences({ ...preferences, applicationNotifications: e.target.checked })
+                  }
+                  className="rounded text-blue-500 focus:ring-blue-500 bg-gray-900 border-gray-700"
+                />
+              </label>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#1f2937]">
+                <Button variant="ghost" size="sm" type="button" onClick={() => setIsPrefModalOpen(false)}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSavingPrefs}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-teal-400 to-cyan-400 hover:from-teal-300 hover:to-cyan-300 transition-all shadow-md shadow-teal-500/20"
-                >
-                  {isSavingPrefs ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Preferences'}
-                </button>
+                </Button>
+                <Button size="sm" type="submit" disabled={isSavingPrefs} className="bg-blue-600 hover:bg-blue-500 text-white">
+                  {isSavingPrefs ? 'Saving...' : 'Save Preferences'}
+                </Button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </DashboardShell>
   );
 }

@@ -35,63 +35,61 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl transition-all">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full border-b border-[#1f2937] bg-[#030712]/90 backdrop-blur-md transition-all">
+      <div className="max-w-7xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Brand Logo & AI Badge */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-teal-500 to-cyan-400 p-0.5 shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
-            <div className="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Sparkles className="h-4.5 w-4.5 text-teal-400" />
-            </div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+            <Sparkles className="h-3.5 w-3.5 text-white" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-teal-300 via-cyan-200 to-blue-400 bg-clip-text text-transparent">
+            <span className="font-bold text-base tracking-tight text-white">
               CareerForge
             </span>
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
               AI
             </span>
           </div>
         </Link>
 
         {/* Center: Main Navigation (Desktop) */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-gray-300">
           <Link
             href="/jobs"
-            className="hover:text-teal-300 transition-colors flex items-center gap-1.5 font-semibold text-white"
+            className="hover:text-white transition-colors flex items-center gap-1.5"
           >
-            <Briefcase className="w-4 h-4 text-teal-400" /> Explore Jobs
+            <Briefcase className="w-3.5 h-3.5 text-blue-400" /> Explore Jobs
           </Link>
           <Link
             href={isAuthenticated ? '/dashboard/career-assistant' : '/login'}
-            className="hover:text-indigo-300 transition-colors flex items-center gap-1.5"
+            className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
           >
-            <Bot className="w-4 h-4 text-indigo-400" /> AI Mentor
+            <Bot className="w-3.5 h-3.5 text-purple-400" /> AI Mentor
           </Link>
           <Link
             href="/#how-it-works"
-            className="hover:text-cyan-300 transition-colors flex items-center gap-1.5"
+            className="hover:text-white transition-colors flex items-center gap-1.5 text-gray-400"
           >
-            <HelpCircle className="w-4 h-4 text-cyan-400" /> How It Works
+            <HelpCircle className="w-3.5 h-3.5 text-gray-500" /> How It Works
           </Link>
           <Link
             href="/architecture"
-            className="hover:text-teal-300 transition-colors flex items-center gap-1.5 text-slate-400"
+            className="hover:text-white transition-colors flex items-center gap-1.5 text-gray-400"
           >
-            <Layers className="w-4 h-4 text-slate-500" /> Architecture
+            <Layers className="w-3.5 h-3.5 text-gray-500" /> Architecture
           </Link>
 
           {isAuthenticated && (
             <>
-              <Link href="/dashboard" className="hover:text-teal-300 transition-colors flex items-center gap-1.5">
-                <User className="w-4 h-4 text-teal-400" /> Dashboard
+              <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5 text-blue-400 font-semibold">
+                <User className="w-3.5 h-3.5" /> Dashboard
               </Link>
               {user?.role === 'ADMIN' && (
                 <Link
                   href="/dashboard/admin/observability"
-                  className="hover:text-teal-300 transition-colors text-xs font-mono px-2 py-1 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20"
+                  className="hover:text-purple-300 transition-colors text-[11px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20"
                 >
-                  Admin Telemetry
+                  Admin
                 </Link>
               )}
             </>
@@ -99,20 +97,20 @@ export function Navbar() {
         </nav>
 
         {/* Right: Auth Controls & Mobile Toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {user.role === 'CANDIDATE' && <NotificationBell />}
 
               <Link
                 href="/dashboard"
-                className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 text-slate-200 transition-all"
+                className="hidden sm:flex items-center gap-2 text-xs px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 text-gray-200 transition-all"
               >
-                <div className="h-5 w-5 rounded-md bg-teal-500/20 text-teal-300 font-bold flex items-center justify-center text-[10px] uppercase">
+                <div className="h-5 w-5 rounded bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center text-[10px] uppercase">
                   {user.email.slice(0, 1)}
                 </div>
                 <span className="max-w-[120px] truncate">{user.email}</span>
-                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300">
+                <span className="text-[9px] font-semibold uppercase px-1 py-0.2 rounded bg-gray-800 text-gray-400">
                   {user.role}
                 </span>
               </Link>
@@ -121,7 +119,7 @@ export function Navbar() {
                 variant="ghost"
                 size="sm"
                 onClick={() => logout()}
-                className="text-slate-400 hover:text-rose-400"
+                className="text-gray-400 hover:text-rose-400 p-1.5 min-h-[36px]"
                 aria-label="Logout"
               >
                 <LogOut className="w-4 h-4" />
@@ -130,12 +128,12 @@ export function Navbar() {
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" size="sm" leftIcon={<LogIn className="w-4 h-4" />}>
+                <Button variant="ghost" size="sm" className="text-xs" leftIcon={<LogIn className="w-3.5 h-3.5" />}>
                   Sign In
                 </Button>
               </Link>
               <Link href="/register">
-                <Button variant="primary" size="sm" leftIcon={<UserPlus className="w-4 h-4" />}>
+                <Button size="sm" className="text-xs" leftIcon={<UserPlus className="w-3.5 h-3.5" />}>
                   Get Started
                 </Button>
               </Link>
@@ -145,7 +143,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="md:hidden p-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-navigation-menu"
@@ -161,58 +159,58 @@ export function Navbar() {
           id="mobile-navigation-menu"
           role="navigation"
           aria-label="Mobile Navigation"
-          className="md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-2xl px-4 pt-4 pb-6 space-y-4 animate-fadeIn"
+          className="md:hidden border-t border-[#1f2937] bg-[#030712]/98 backdrop-blur-xl px-4 pt-3 pb-5 space-y-3"
         >
-          <nav className="flex flex-col space-y-3 text-sm font-medium text-slate-300">
+          <nav className="flex flex-col space-y-1 text-xs font-medium text-gray-300">
             <Link
               href="/jobs"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl hover:bg-slate-900 flex items-center gap-2 text-white"
+              className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-white"
             >
-              <Briefcase className="w-4 h-4 text-teal-400" /> Explore Jobs
+              <Briefcase className="w-4 h-4 text-blue-400" /> Explore Jobs
             </Link>
             <Link
               href={isAuthenticated ? '/dashboard/career-assistant' : '/login'}
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl hover:bg-slate-900 flex items-center gap-2 text-indigo-300"
+              className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-purple-300"
             >
-              <Bot className="w-4 h-4 text-indigo-400" /> AI Mentor
+              <Bot className="w-4 h-4 text-purple-400" /> AI Mentor
             </Link>
             <Link
               href="/#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl hover:bg-slate-900 flex items-center gap-2"
+              className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-gray-400"
             >
-              <HelpCircle className="w-4 h-4 text-cyan-400" /> How It Works
+              <HelpCircle className="w-4 h-4 text-gray-500" /> How It Works
             </Link>
             <Link
               href="/architecture"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl hover:bg-slate-900 flex items-center gap-2"
+              className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-gray-400"
             >
-              <Layers className="w-4 h-4 text-slate-400" /> Architecture
+              <Layers className="w-4 h-4 text-gray-500" /> Architecture
             </Link>
 
             {isAuthenticated && (
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl hover:bg-slate-900 flex items-center gap-2"
+                className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-blue-400 font-semibold"
               >
-                <User className="w-4 h-4 text-teal-400" /> Dashboard
+                <User className="w-4 h-4" /> Dashboard
               </Link>
             )}
           </nav>
 
           {!isAuthenticated && (
-            <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
+            <div className="pt-2 border-t border-[#1f2937] flex flex-col gap-2">
               <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full">
+                <Button variant="outline" size="sm" className="w-full text-xs min-h-[44px]">
                   Sign In
                 </Button>
               </Link>
               <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="primary" size="sm" className="w-full">
+                <Button size="sm" className="w-full text-xs min-h-[44px]">
                   Get Started Free
                 </Button>
               </Link>

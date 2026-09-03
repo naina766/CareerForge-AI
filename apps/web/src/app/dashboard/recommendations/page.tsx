@@ -8,27 +8,27 @@ import { api } from '../../../lib/api';
 import {
   JobRecommendationItem,
   JobRecommendationListResponse,
-  RecommendationLevel,
 } from '@careerforge/types';
 import {
   Sparkles,
   RefreshCw,
   Briefcase,
   MapPin,
-  DollarSign,
-  Clock,
   CheckCircle2,
   AlertCircle,
-  Brain,
-  SlidersHorizontal,
   TrendingUp,
   Target,
-  BookOpen,
   ArrowRight,
-  Zap,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { DashboardShell } from '../../../components/dashboard/DashboardShell';
+import { ScoreBadge } from '../../../components/ui/ScoreBadge';
+import { MetricCard } from '../../../components/ui/MetricCard';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { SkeletonCardGrid } from '../../../components/ui/Skeleton';
 
 export default function RecommendationsPage() {
   const router = useRouter();
@@ -38,6 +38,7 @@ export default function RecommendationsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedExplain, setExpandedExplain] = useState<Record<string, boolean>>({});
 
   // Filters & Pagination
   const [workMode, setWorkMode] = useState<string>('');
@@ -46,7 +47,6 @@ export default function RecommendationsPage() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [engineVersion, setEngineVersion] = useState<string>('1.0');
 
   const fetchRecommendations = useCallback(
     async (forceRefresh = false) => {
@@ -81,7 +81,6 @@ export default function RecommendationsPage() {
           setRecommendations(res.data.items || []);
           setTotalPages(res.data.totalPages || 1);
           setTotalItems(res.data.total || 0);
-          setEngineVersion(res.data.engineVersion || '1.0');
         }
       } catch (err: any) {
         console.error('Failed to load recommendations:', err);
@@ -104,477 +103,321 @@ export default function RecommendationsPage() {
     }
   }, [authLoading, isAuthenticated, router, fetchRecommendations]);
 
-  const getScoreBadge = (score: number, level: RecommendationLevel) => {
-    let color = 'from-emerald-500 to-teal-400 text-emerald-300 border-emerald-500/30 bg-emerald-500/10';
-    let label = 'TOP MATCH';
-
-    if (score >= 90 || level === 'TOP_MATCH') {
-      color = 'from-emerald-500 to-teal-400 text-emerald-300 border-emerald-500/30 bg-emerald-500/10';
-      label = 'TOP MATCH';
-    } else if (score >= 80 || level === 'EXCELLENT_MATCH') {
-      color = 'from-teal-500 to-cyan-400 text-teal-300 border-teal-500/30 bg-teal-500/10';
-      label = 'EXCELLENT';
-    } else if (score >= 70 || level === 'STRONG_MATCH') {
-      color = 'from-blue-500 to-indigo-400 text-blue-300 border-blue-500/30 bg-blue-500/10';
-      label = 'STRONG FIT';
-    } else if (score >= 60 || level === 'GOOD_MATCH') {
-      color = 'from-indigo-500 to-purple-400 text-indigo-300 border-indigo-500/30 bg-indigo-500/10';
-      label = 'GOOD MATCH';
-    } else if (score >= 50 || level === 'POSSIBLE_MATCH') {
-      color = 'from-amber-500 to-orange-400 text-amber-300 border-amber-500/30 bg-amber-500/10';
-      label = 'POSSIBLE';
-    } else {
-      color = 'from-slate-500 to-slate-400 text-slate-300 border-slate-700 bg-slate-800/40';
-      label = 'LOW FIT';
-    }
-
-    return { color, label };
-  };
-
-  const getProgressBarColor = (val: number) => {
-    if (val >= 80) return 'bg-emerald-400';
-    if (val >= 60) return 'bg-teal-400';
-    if (val >= 40) return 'bg-blue-400';
-    if (val >= 20) return 'bg-amber-400';
-    return 'bg-slate-600';
-  };
-
   if (authLoading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-2 border-teal-400 border-t-transparent animate-spin" />
-      </div>
+      <DashboardShell headerTitle="Job Matches">
+        <div className="py-12 flex justify-center">
+          <div className="h-6 w-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+        </div>
+      </DashboardShell>
     );
   }
 
+  const strongMatchesCount = recommendations.filter((r) => r.recommendationScore >= 70).length;
+
   return (
     <DashboardShell
-      headerTitle="Role Recommendations & AI Matches"
-      headerDescription={`Multi-signal candidate matching (Engine v${engineVersion}) combining skills, FAISS semantic vectors, and preferences.`}
+      headerTitle="Job Matches"
+      headerDescription="Personalized job recommendations ranked by verified skill overlap and resume compatibility."
       actionButton={
         <Button
-          variant="secondary"
+          variant="outline"
+          size="sm"
           onClick={() => fetchRecommendations(true)}
           disabled={refreshing || loading}
-          className="flex items-center gap-2 border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-xs"
+          className="text-xs border-[#1f2937] hover:bg-gray-800 text-gray-200"
+          leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-400' : ''}`} />}
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-400' : ''}`} />
-          {refreshing ? 'Recomputing Matches...' : 'Refresh Matches'}
+          {refreshing ? 'Recomputing...' : 'Refresh Matches'}
         </Button>
       }
     >
-      <div className="space-y-6 max-w-7xl">
+      <div className="space-y-5 max-w-6xl">
+        {/* KPI Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <MetricCard
+            label="Total Matched Roles"
+            value={totalItems}
+            description="Open vacancies aligned with your profile"
+            icon={Briefcase}
+            iconColor="text-blue-400"
+          />
 
-      {/* KPI Stats Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Eligible Vacancies</p>
-            <p className="text-2xl font-bold text-white mt-1">{totalItems}</p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
-            <Briefcase className="w-5 h-5" />
-          </div>
+          <MetricCard
+            label="Strong Matches"
+            value={strongMatchesCount}
+            subvalue="≥70% compatibility"
+            description="Roles with high skill alignment"
+            icon={TrendingUp}
+            iconColor="text-emerald-400"
+          />
+
+          <MetricCard
+            label="Matching Engine"
+            value="Semantic + Skills"
+            subvalue="Multi-signal ranking"
+            description="Continuous alignment recalculation"
+            icon={Target}
+            iconColor="text-purple-400"
+          />
         </div>
 
-        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">High Match Potential</p>
-            <p className="text-2xl font-bold text-emerald-400 mt-1">
-              {recommendations.filter((r) => r.recommendationScore >= 70).length} Roles
-            </p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <TrendingUp className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Engine Provenance</p>
-            <p className="text-sm font-semibold text-slate-300 mt-1.5 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
-              Hybrid Deterministic + FAISS
-            </p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-            <Brain className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and Sorting Controls */}
-      <div className="glass-card rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mr-1">
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            Filters:
-          </div>
-
-          {/* Work Mode Filter */}
-          <select
-            value={workMode}
-            onChange={(e) => {
-              setWorkMode(e.target.value);
-              setPage(1);
-            }}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
-          >
-            <option value="">All Work Modes</option>
-            <option value="REMOTE">Remote Only</option>
-            <option value="HYBRID">Hybrid</option>
-            <option value="ONSITE">Onsite</option>
-          </select>
-
-          {/* Min Score Filter */}
-          <select
-            value={minScore}
-            onChange={(e) => {
-              setMinScore(Number(e.target.value));
-              setPage(1);
-            }}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
-          >
-            <option value="0">All Match Scores</option>
-            <option value="60">60%+ Good Match</option>
-            <option value="70">70%+ Strong Fit</option>
-            <option value="80">80%+ Excellent Fit</option>
-            <option value="90">90%+ Top Match</option>
-          </select>
-        </div>
-
-        {/* Sort By Dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-medium">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setPage(1);
-            }}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
-          >
-            <option value="recommended">Recommended Fit</option>
-            <option value="highest_match">Highest Skill Match</option>
-            <option value="newest">Newest Published</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Loading Skeleton */}
-      {loading && (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="glass-card rounded-3xl p-6 border border-slate-800 animate-pulse space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <div className="h-6 w-64 bg-slate-800 rounded-lg" />
-                  <div className="h-4 w-40 bg-slate-800/60 rounded-md" />
-                </div>
-                <div className="h-12 w-20 bg-slate-800 rounded-2xl" />
-              </div>
-              <div className="h-2 bg-slate-800 rounded-full w-full" />
+        {/* Filters & Sorting Toolbar */}
+        <div className="bg-[#111827] rounded-xl p-3.5 border border-[#1f2937] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium mr-1">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Filters:</span>
             </div>
-          ))}
-        </div>
-      )}
 
-      {/* Error Message */}
-      {error && !loading && (
-        <div className="glass-card rounded-3xl p-8 border border-rose-500/30 bg-rose-500/5 text-center space-y-3">
-          <AlertCircle className="w-8 h-8 text-rose-400 mx-auto" />
-          <h3 className="text-lg font-bold text-white">Failed to load recommendations</h3>
-          <p className="text-sm text-slate-400">{error}</p>
-          <Button variant="secondary" onClick={() => fetchRecommendations()}>
-            Try Again
-          </Button>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!loading && !error && recommendations.length === 0 && (
-        <div className="glass-card rounded-3xl p-12 border border-slate-800 text-center space-y-4">
-          <div className="h-16 w-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 mx-auto">
-            <Target className="w-8 h-8" />
-          </div>
-          <h3 className="text-xl font-bold text-white">No Matching Vacancies Found</h3>
-          <p className="text-sm text-slate-400 max-w-md mx-auto">
-            Try broadening your work mode or score filters, or complete your candidate profile with skills and experience to unlock AI-powered recommendations.
-          </p>
-          <div className="flex items-center justify-center gap-3 pt-2">
-            <Link href="/dashboard/profile">
-              <Button variant="primary">Update Profile Skills</Button>
-            </Link>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setWorkMode('');
-                setMinScore(0);
-                setSortBy('recommended');
+            {/* Work Mode Filter */}
+            <select
+              value={workMode}
+              onChange={(e) => {
+                setWorkMode(e.target.value);
+                setPage(1);
               }}
+              aria-label="Filter by work mode"
+              className="bg-[#0b0f19] border border-[#1f2937] rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500"
             >
-              Reset Filters
+              <option value="">All Work Modes</option>
+              <option value="REMOTE">Remote Only</option>
+              <option value="HYBRID">Hybrid</option>
+              <option value="ONSITE">Onsite</option>
+            </select>
+
+            {/* Min Score Filter */}
+            <select
+              value={minScore}
+              onChange={(e) => {
+                setMinScore(Number(e.target.value));
+                setPage(1);
+              }}
+              aria-label="Filter by minimum score"
+              className="bg-[#0b0f19] border border-[#1f2937] rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500"
+            >
+              <option value="0">All Match Scores</option>
+              <option value="60">60%+ Match</option>
+              <option value="70">70%+ Strong Fit</option>
+              <option value="80">80%+ Excellent</option>
+              <option value="90">90%+ Top Match</option>
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+              aria-label="Sort recommendations"
+              className="bg-[#0b0f19] border border-[#1f2937] rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500"
+            >
+              <option value="recommended">Best Match</option>
+              <option value="score">Highest Score</option>
+              <option value="recent">Recently Added</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/30 text-xs text-rose-300 flex items-center justify-between">
+            <span>{error}</span>
+            <Button size="sm" variant="ghost" onClick={() => fetchRecommendations()}>
+              Retry
             </Button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Recommendations Feed */}
-      {!loading && !error && recommendations.length > 0 && (
-        <div className="space-y-6">
-          {recommendations.map((rec) => {
-            const badge = getScoreBadge(rec.recommendationScore, rec.recommendationLevel);
-            const { job } = rec;
+        {/* Loading State */}
+        {loading ? (
+          <SkeletonCardGrid count={4} />
+        ) : recommendations.length === 0 ? (
+          /* Empty State */
+          <EmptyState
+            icon={Briefcase}
+            title="No strong matches found"
+            description="Try broadening your work mode filters or adding more verified skills to your profile."
+            actionLabel="Reset Filters"
+            onAction={() => {
+              setWorkMode('');
+              setMinScore(0);
+              setSortBy('recommended');
+            }}
+          />
+        ) : (
+          /* Job Recommendation Cards Grid */
+          <div className="space-y-3.5">
+            {recommendations.map((rec) => {
+              const jobId = rec.jobId || rec.id;
+              const jobTitle = rec.job?.title || 'Engineering Role';
+              const companyName = rec.job?.companyName || 'Technology Company';
+              const location = rec.job?.location;
+              const workMode = rec.job?.workMode;
+              const isExplained = expandedExplain[jobId] ?? false;
 
-            return (
-              <div
-                key={rec.id}
-                className="glass-card rounded-3xl p-6 sm:p-7 border border-slate-800 hover:border-slate-700 transition-all shadow-xl space-y-6 group"
-              >
-                {/* Card Header: Job Details + Score Badge */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-semibold text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-0.5 rounded-lg">
-                        {job.companyName}
-                      </span>
-                      <span
-                        className={`text-xs font-semibold px-2.5 py-0.5 rounded-lg border ${
-                          job.workMode === 'REMOTE'
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                            : job.workMode === 'HYBRID'
-                            ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
-                            : 'bg-slate-800 border-slate-700 text-slate-300'
-                        }`}
-                      >
-                        {job.workMode}
-                      </span>
-                      <span className="text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800/80 px-2.5 py-0.5 rounded-lg">
-                        {job.employmentType.replace('_', ' ')}
-                      </span>
+              return (
+                <div
+                  key={jobId}
+                  className="bg-[#111827] rounded-xl p-4 sm:p-5 border border-[#1f2937] hover:border-gray-700 transition-colors space-y-3"
+                >
+                  {/* Card Header: Job Title, Company, Location, Match Badge */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link
+                          href={`/jobs/${jobId}`}
+                          className="text-base font-bold text-white hover:text-blue-400 transition-colors"
+                        >
+                          {jobTitle}
+                        </Link>
+                        <span className="text-xs text-gray-400 font-medium">
+                          {companyName}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5 text-xs text-gray-400">
+                        {location && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-gray-500" />
+                            {location}
+                          </span>
+                        )}
+                        {workMode && (
+                          <span className="px-2 py-0.2 rounded bg-gray-800 text-gray-300 text-[11px] capitalize">
+                            {workMode.toLowerCase()}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <Link href={`/jobs/${job.slug}`}>
-                      <h3 className="text-xl font-bold text-white group-hover:text-teal-300 transition-colors">
-                        {job.title}
-                      </h3>
-                    </Link>
-
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                        {job.location}
-                      </span>
-                      {job.salaryMin && job.salaryMax ? (
-                        <span className="flex items-center gap-1.5 text-slate-300 font-medium">
-                          <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
-                          ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}{' '}
-                          {job.currency}
-                        </span>
-                      ) : null}
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-slate-500" />
-                        Posted {new Date(job.createdAt).toLocaleDateString()}
-                      </span>
+                    <div className="shrink-0 self-start sm:self-auto">
+                      <ScoreBadge score={rec.recommendationScore} size="md" />
                     </div>
                   </div>
 
-                  {/* Recommendation Score Gauge */}
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2">
-                    <div
-                      className={`px-4 py-2 rounded-2xl border flex items-center gap-2 ${badge.color}`}
-                    >
-                      <Zap className="w-4 h-4 fill-current" />
-                      <div className="text-right">
-                        <span className="text-xl font-extrabold tracking-tight">
-                          {Math.round(rec.recommendationScore)}%
-                        </span>
-                        <span className="text-[10px] font-bold block uppercase tracking-wider">
-                          {badge.label}
-                        </span>
+                  {/* Skills Grid: Matched vs Missing */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
+                    {/* Matched Skills */}
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Matched Skills ({rec.matchedSkills?.length || 0})
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {rec.matchedSkills && rec.matchedSkills.length > 0 ? (
+                          rec.matchedSkills.map((s, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px]"
+                            >
+                              ✓ {s}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-500 text-[11px]">No direct skills extracted</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Skill Gaps */}
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-semibold text-amber-400 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Skill Gaps ({rec.missingSkills?.length || 0})
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {rec.missingSkills && rec.missingSkills.length > 0 ? (
+                          rec.missingSkills.map((s, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px]"
+                            >
+                              • {s}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-emerald-400 text-[11px]">All required skills verified</span>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* 5-Signal Breakdown Meters */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  {/* Signal 1: Skills */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-400 font-medium">Skills (40%)</span>
-                      <span className="text-white font-bold">{Math.round(rec.breakdown.skillScore)}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressBarColor(rec.breakdown.skillScore)}`}
-                        style={{ width: `${rec.breakdown.skillScore}%` }}
-                      />
-                    </div>
-                  </div>
+                  {/* Explainability Breakdown (Collapsible) */}
+                  {rec.reason && (
+                    <div className="pt-2 border-t border-[#1f2937]/70">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedExplain((prev) => ({
+                            ...prev,
+                            [jobId]: !isExplained,
+                          }))
+                        }
+                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium transition-colors"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Why this matches your profile</span>
+                        {isExplained ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
 
-                  {/* Signal 2: Semantic FAISS */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-400 font-medium">Semantic (25%)</span>
-                      <span className="text-white font-bold">{Math.round(rec.breakdown.semanticScore)}%</span>
+                      {isExplained && (
+                        <div className="mt-2 p-3 rounded-lg bg-[#0b0f19] border border-[#1a2233] space-y-2 text-xs">
+                          <p className="text-gray-300 leading-relaxed">{rec.reason}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressBarColor(rec.breakdown.semanticScore)}`}
-                        style={{ width: `${rec.breakdown.semanticScore}%` }}
-                      />
-                    </div>
-                  </div>
+                  )}
 
-                  {/* Signal 3: Experience */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-400 font-medium">Experience (15%)</span>
-                      <span className="text-white font-bold">{Math.round(rec.breakdown.experienceScore)}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressBarColor(rec.breakdown.experienceScore)}`}
-                        style={{ width: `${rec.breakdown.experienceScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Signal 4: Preferences */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-400 font-medium">Preferences (15%)</span>
-                      <span className="text-white font-bold">{Math.round(rec.breakdown.preferenceScore)}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressBarColor(rec.breakdown.preferenceScore)}`}
-                        style={{ width: `${rec.breakdown.preferenceScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Signal 5: Freshness */}
-                  <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-400 font-medium">Freshness (5%)</span>
-                      <span className="text-white font-bold">{Math.round(rec.breakdown.freshnessScore)}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressBarColor(rec.breakdown.freshnessScore)}`}
-                        style={{ width: `${rec.breakdown.freshnessScore}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Skills Taxonomy Tags */}
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-xs font-semibold text-slate-400 mr-1">Matched Skills:</span>
-                    {rec.matchedSkills.length > 0 ? (
-                      rec.matchedSkills.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2.5 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center gap-1"
-                        >
-                          <CheckCircle2 className="w-3 h-3" />
-                          {skill}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-slate-500">No direct skill matches</span>
-                    )}
-
-                    {rec.missingSkills.length > 0 && (
-                      <>
-                        <span className="text-xs font-semibold text-slate-400 ml-2 mr-1">Skill Gaps:</span>
-                        {rec.missingSkills.slice(0, 3).map((skill, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-300"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Explainable AI "Why Recommended" Box */}
-                <div className="p-3.5 rounded-2xl bg-teal-500/5 border border-teal-500/20 text-xs text-slate-300 flex items-start gap-2.5">
-                  <Sparkles className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <p className="leading-relaxed">
-                    <strong className="text-teal-300 font-semibold">Why this job: </strong>
-                    {rec.reason}
-                  </p>
-                </div>
-
-                {/* Actions Row */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/jobs/${job.slug}`}>
-                      <Button variant="secondary" className="text-xs py-1.5 px-3">
-                        View Vacancy
+                  {/* Card Footer: View Role Button */}
+                  <div className="flex items-center justify-end pt-1">
+                    <Link href={`/jobs/${jobId}`}>
+                      <Button
+                        size="sm"
+                        className="text-xs bg-blue-600 hover:bg-blue-500 text-white"
+                        rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                      >
+                        View Role & Apply
                       </Button>
                     </Link>
-
-                    <Link href={`/jobs/${job.slug}#match-report`}>
-                      <button className="text-xs font-medium text-slate-400 hover:text-teal-300 transition-colors flex items-center gap-1 px-2.5 py-1.5">
-                        <Target className="w-3.5 h-3.5" />
-                        Match Analysis
-                      </button>
-                    </Link>
-
-                    <Link href={`/jobs/${job.slug}#learning-path`}>
-                      <button className="text-xs font-medium text-slate-400 hover:text-teal-300 transition-colors flex items-center gap-1 px-2.5 py-1.5">
-                        <BookOpen className="w-3.5 h-3.5" />
-                        Learning Roadmap
-                      </button>
-                    </Link>
                   </div>
-
-                  <Link href={`/jobs/${job.slug}#apply`}>
-                    <Button variant="primary" className="text-xs py-1.5 px-4 flex items-center gap-1.5">
-                      Apply Now
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Button>
-                  </Link>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between p-4 glass-card rounded-2xl border border-slate-800">
-              <Button
-                variant="secondary"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="text-xs"
-              >
-                Previous
-              </Button>
-              <span className="text-xs text-slate-400 font-medium">
-                Page {page} of {totalPages} ({totalItems} Total Vacancies)
-              </span>
-              <Button
-                variant="secondary"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="text-xs"
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="text-xs border-[#1f2937]"
+                >
+                  Previous
+                </Button>
+                <span className="text-xs text-gray-400 px-2">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="text-xs border-[#1f2937]"
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </DashboardShell>
   );
 }
