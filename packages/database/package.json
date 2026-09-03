@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@careerforge/config": "workspace:*",
-    "@prisma/client": "^5.19.1"
+    "@prisma/client": "^7.10.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
