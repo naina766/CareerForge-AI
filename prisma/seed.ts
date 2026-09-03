@@ -9,13 +9,7 @@ const DEMO_PASSWORD_HASH = bcrypt.hashSync('Password123!', 10);
 async function main() {
   console.log('🌱 Starting CareerForge AI Database Seeding (Phase 2)...');
 
-  // Enable pgvector extension
-  try {
-    await prisma.$executeRawUnsafe(`CREATE EXTENSION IF NOT EXISTS vector;`);
-    console.log('✅ pgvector extension ensured in PostgreSQL');
-  } catch (err) {
-    console.warn('⚠️  Could not enable vector extension automatically (may already exist or requires superuser):', (err as Error).message);
-  }
+  // PostgreSQL Seed Initialization
 
   // Clean existing data in reverse relation order for deterministic idempotent seeding
   console.log('🧹 Cleaning existing records...');
@@ -233,7 +227,7 @@ async function main() {
       experienceMax: 6,
       salaryMin: 160000,
       salaryMax: 210000,
-      description: 'Lead the development of RAG pipelines, LLM fine-tuning, pgvector retrieval, and FastAPI orchestration.',
+      description: 'Lead the development of RAG pipelines, LLM fine-tuning, FAISS vector retrieval, and FastAPI orchestration.',
       skills: ['Python', 'FastAPI', 'RAG', 'LangChain', 'PostgreSQL', 'Docker'],
     },
     {
@@ -640,25 +634,6 @@ async function main() {
       recommendation: RecommendationType.STRONGLY_APPLY,
       confidence: 0.96,
       explanation: 'Outstanding fit for GenAI and RAG orchestration role with deep Python and vector retrieval background.',
-    },
-  });
-
-  // Seed Job Recommendations
-  await prisma.jobRecommendation.create({
-    data: {
-      candidateId: candidateProfileList[0]!.id,
-      jobId: createdJobs[1]!.id,
-      score: 88.5,
-      reason: 'Your TypeScript and Node.js expertise aligns strongly with this backend role.',
-    },
-  });
-
-  await prisma.jobRecommendation.create({
-    data: {
-      candidateId: candidateProfileList[2]!.id,
-      jobId: createdJobs[4]!.id,
-      score: 93.0,
-      reason: 'Perfect match for your Next.js and Tailwind CSS frontend focus.',
     },
   });
 

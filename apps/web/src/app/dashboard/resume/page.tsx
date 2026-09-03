@@ -253,7 +253,8 @@ export default function ResumeManagementPage() {
   const handleDownload = async () => {
     try {
       const token = api.getAccessToken();
-      const res = await fetch('http://localhost:4000/api/v1/candidates/me/resume/download', {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+      const res = await fetch(`${apiBase}/candidates/me/resume/download`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: 'include',
       });

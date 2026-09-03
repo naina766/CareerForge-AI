@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Activity,
@@ -13,14 +13,19 @@ import {
   ShieldAlert,
   Code,
   X,
+  Loader2,
+  Lock,
 } from 'lucide-react';
 import {
   EventStatsResponse,
   OutboxEventItem,
   DeadLetterEventItem,
 } from '@careerforge/types';
+import { useAuth } from '@/context/AuthContext';
+import { api } from '@/lib/api';
 
 export default function AdminEventsDashboardPage() {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [stats, setStats] = useState<EventStatsResponse | null>(null);
   const [events, setEvents] = useState<OutboxEventItem[]>([]);
   const [dlqItems, setDlqItems] = useState<DeadLetterEventItem[]>([]);
@@ -31,81 +36,66 @@ export default function AdminEventsDashboardPage() {
   const [selectedTopic, setSelectedTopic] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const [isRetrying, setIsRetrying] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-  useEffect(() => {
-    fetchStats();
-    fetchEvents();
-    fetchDLQ();
-  }, [selectedStatus, selectedTopic]);
-
-  async function fetchStats() {
+  const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch('/api/v1/admin/events/stats', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setStats(data.data);
-      }
-    } catch (err) {
+      const res = await api.get<EventStatsResponse>('/admin/events/stats');
+      setStats(res.data);
+    } catch (err: any) {
       console.error('Failed to load event stats:', err);
     }
-  }
+  }, []);
 
-  async function fetchEvents() {
+  const fetchEvents = useCallback(async () => {
     try {
       setIsLoading(true);
+      setErrorMessage(null);
       const params = new URLSearchParams();
       if (selectedStatus !== 'ALL') params.append('status', selectedStatus);
       if (selectedTopic !== 'ALL') params.append('topic', selectedTopic);
       if (searchQuery) params.append('eventType', searchQuery);
 
-      const res = await fetch(`/api/v1/admin/events?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data.data.items || []);
-      }
-    } catch (err) {
+      const res = await api.get<{ items: OutboxEventItem[]; total: number }>(
+        `/admin/events?${params.toString()}`
+      );
+      setEvents(res.data?.items || []);
+    } catch (err: any) {
       console.error('Failed to load events:', err);
+      setErrorMessage(err.message || 'Failed to fetch outbox events');
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [selectedStatus, selectedTopic, searchQuery]);
 
-  async function fetchDLQ() {
+  const fetchDLQ = useCallback(async () => {
     try {
-      const res = await fetch('/api/v1/admin/events/dlq', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setDlqItems(data.data || []);
-      }
-    } catch (err) {
+      const res = await api.get<DeadLetterEventItem[]>('/admin/events/dlq');
+      setDlqItems(res.data || []);
+    } catch (err: any) {
       console.error('Failed to load DLQ items:', err);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'ADMIN') {
+      fetchStats();
+      fetchEvents();
+      fetchDLQ();
+    }
+  }, [isAuthenticated, user?.role, fetchStats, fetchEvents, fetchDLQ]);
 
   async function handleRetryDLQ(eventId: string) {
     try {
       setIsRetrying(eventId);
-      const res = await fetch(`/api/v1/admin/events/dlq/${eventId}/retry`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        await fetchStats();
-        await fetchDLQ();
-        if (selectedEvent?.eventId === eventId) {
-          setSelectedEvent(null);
-        }
+      await api.post(`/admin/events/dlq/${eventId}/retry`);
+      await Promise.all([fetchStats(), fetchDLQ()]);
+      if (selectedEvent?.eventId === eventId) {
+        setSelectedEvent(null);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to retry DLQ event:', err);
+      alert(`Retry failed: ${err.message}`);
     } finally {
       setIsRetrying(null);
     }
@@ -138,6 +128,38 @@ export default function AdminEventsDashboardPage() {
           </span>
         );
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== 'ADMIN') {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+        <div className="glass-panel rounded-3xl p-10 max-w-lg mx-auto text-center space-y-4 border border-rose-500/30">
+          <div className="h-14 w-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20">
+            <Lock className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl font-bold text-white">Administrator Access Required</h2>
+          <p className="text-sm text-slate-400">
+            You need administrator privileges to view event backbone telemetry and dead-letter queues.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors"
+            >
+              Sign In as Admin
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -178,6 +200,13 @@ export default function AdminEventsDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {errorMessage && (
+        <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-900 text-rose-300 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       {/* KPI Cards Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">

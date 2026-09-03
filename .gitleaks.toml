@@ -1,0 +1,27 @@
+# Gitleaks Configuration for CareerForge-AI
+
+title = "CareerForge-AI Gitleaks Security Policy"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for example environment templates, test fixtures, and mock secrets"
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.prod\.example$''',
+  '''tests/.*''',
+  '''dist/.*''',
+  '''\.next/.*''',
+  '''pnpm-lock\.yaml''',
+]
+commits = [
+  "0c7d48b3de7167a2622f68961ef228dfebad4820",
+]
+regexes = [
+  '''default-insecure-jwt-access-secret-32-chars-min''',
+  '''default-insecure-jwt-refresh-secret-32-chars-min''',
+  '''test_jwt_secret_ci_env_12345''',
+  '''test_jwt_refresh_secret_ci_env_67890''',
+  '''Password123!''',
+]

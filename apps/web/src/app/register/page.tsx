@@ -53,7 +53,11 @@ export default function RegisterPage() {
 
     try {
       await register(email, password, role, name);
-      router.push('/dashboard');
+      if (role === 'CANDIDATE') {
+        router.push('/onboarding');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: unknown) {
       const errorObj = err as Error;
       setError(errorObj.message || 'Registration failed. Please try again.');

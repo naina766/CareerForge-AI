@@ -39,3 +39,22 @@ body {
 .glow-teal {
   box-shadow: 0 0 40px -10px rgba(20, 184, 166, 0.3);
 }
+
+/* Accessibility & Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High-contrast focus outlines for keyboard navigation */
+:focus-visible {
+  outline: 2px solid rgba(45, 212, 191, 0.8) !important;
+  outline-offset: 2px !important;
+}
+

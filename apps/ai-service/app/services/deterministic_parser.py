@@ -72,13 +72,13 @@ class DeterministicParser:
                 if lines:
                     title_line = lines[0]
                     company = title_line.split(" - ")[0] if " - " in title_line else title_line
-                    role = title_line.split(" - ")[1] if " - " in title_line else "Software Engineer"
+                    role = title_line.split(" - ")[1] if " - " in title_line else None
                     desc = "\n".join(lines[1:]) if len(lines) > 1 else None
 
                     experience_items.append(
                         ExperienceItem(
                             company=company[:60],
-                            title=role[:60],
+                            title=role[:60] if role else company[:60],
                             description=desc,
                             technologies=[s for s in found_skills if s.lower() in block.lower()]
                         )
@@ -93,8 +93,8 @@ class DeterministicParser:
                 education_items.append(
                     EducationItem(
                         institution=edu_lines[0][:80],
-                        degree=edu_lines[1] if len(edu_lines) > 1 else "Bachelor of Science",
-                        field_of_study="Computer Science" if "computer" in edu_text.lower() else None
+                        degree=edu_lines[1][:80] if len(edu_lines) > 1 else None,
+                        field_of_study=None
                     )
                 )
 

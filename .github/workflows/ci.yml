@@ -7,13 +7,13 @@ on:
     branches: [main, master]
 
 jobs:
-  build-and-test:
+  build-lint-test:
     name: Build, Lint & Test Pipeline
     runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -40,6 +40,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies & Run Pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r apps/ai-service/requirements.txt pytest httpx
+          pytest apps/ai-service/tests
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -54,6 +66,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate TypeScript Types
+        run: pnpm typecheck
+
+      - name: Lint Workspace
+        run: pnpm lint
+
       - name: Validate Prisma Schema
         run: pnpm exec prisma validate
 
@@ -62,26 +80,18 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
 
-      - name: Build Types Package
-        run: pnpm --filter "@careerforge/types" build
-
-      - name: Build Database Package
-        run: pnpm --filter "@careerforge/database" build
-
-      - name: Build API Application
-        run: pnpm --filter "@careerforge/api" build
-
-      - name: Build Next.js Web App
-        run: pnpm --filter "@careerforge/web" build
+      - name: Build All Packages & Applications
+        run: pnpm build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
 
       - name: Run Integration Tests
         run: |
+          pnpm tsx tests/integration/security-resilience.test.ts
           pnpm tsx tests/integration/observability.test.ts
           pnpm tsx tests/integration/production-readiness.test.ts
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
           REDIS_URL: redis://localhost:6379
-          JWT_SECRET: test_jwt_secret_ci_env_12345
-          JWT_REFRESH_SECRET: test_jwt_refresh_secret_ci_env_67890
+          JWT_ACCESS_SECRET: test_jwt_access_secret_ci_env_32_chars_min
+          JWT_REFRESH_SECRET: test_jwt_refresh_secret_ci_env_32_chars_min

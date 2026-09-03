@@ -18,8 +18,11 @@ import {
   X,
 } from 'lucide-react';
 import { NotificationItem, NotificationPreference } from '@careerforge/types';
+import { useAuth } from '@/context/AuthContext';
+import { api } from '@/lib/api';
 
 export default function NotificationCenterPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [preferences, setPreferences] = useState<NotificationPreference | null>(null);
   const [activeTab, setActiveTab] = useState<'ALL' | 'UNREAD' | 'APPLICATIONS' | 'JOBS' | 'LEARNING'>('ALL');
@@ -30,11 +33,8 @@ export default function NotificationCenterPage() {
   const fetchNotifications = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/v1/notifications');
-      if (res.ok) {
-        const json = await res.json();
-        setNotifications(json.data || []);
-      }
+      const res = await api.get<NotificationItem[]>('/notifications');
+      setNotifications(res.data || []);
     } catch {
       // Fallback
     } finally {
@@ -44,24 +44,23 @@ export default function NotificationCenterPage() {
 
   const fetchPreferences = async () => {
     try {
-      const res = await fetch('/api/v1/notifications/preferences');
-      if (res.ok) {
-        const json = await res.json();
-        setPreferences(json.data);
-      }
+      const res = await api.get<NotificationPreference>('/notifications/preferences');
+      setPreferences(res.data);
     } catch {
       // Fallback
     }
   };
 
   useEffect(() => {
-    fetchNotifications();
-    fetchPreferences();
-  }, []);
+    if (isAuthenticated) {
+      fetchNotifications();
+      fetchPreferences();
+    }
+  }, [isAuthenticated]);
 
   const markAsRead = async (id: string) => {
     try {
-      await fetch(`/api/v1/notifications/${id}/read`, { method: 'PATCH' });
+      await api.patch(`/notifications/${id}/read`);
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, status: 'READ' as const } : n))
       );
@@ -72,7 +71,7 @@ export default function NotificationCenterPage() {
 
   const markAllAsRead = async () => {
     try {
-      await fetch('/api/v1/notifications/read-all', { method: 'PATCH' });
+      await api.patch('/notifications/read-all');
       setNotifications((prev) => prev.map((n) => ({ ...n, status: 'READ' as const })));
     } catch {
       // Non-blocking
@@ -81,7 +80,7 @@ export default function NotificationCenterPage() {
 
   const deleteNotification = async (id: string) => {
     try {
-      await fetch(`/api/v1/notifications/${id}`, { method: 'DELETE' });
+      await api.delete(`/notifications/${id}`);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch {
       // Non-blocking
@@ -93,22 +92,16 @@ export default function NotificationCenterPage() {
     if (!preferences) return;
     setIsSavingPrefs(true);
     try {
-      const res = await fetch('/api/v1/notifications/preferences', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          matchNotifications: preferences.matchNotifications,
-          skillGapNotifications: preferences.skillGapNotifications,
-          learningNotifications: preferences.learningNotifications,
-          applicationNotifications: preferences.applicationNotifications,
-          recommendationNotifications: preferences.recommendationNotifications,
-          inAppNotifications: preferences.inAppNotifications,
-          emailNotifications: preferences.emailNotifications,
-        }),
+      await api.patch('/notifications/preferences', {
+        matchNotifications: preferences.matchNotifications,
+        skillGapNotifications: preferences.skillGapNotifications,
+        learningNotifications: preferences.learningNotifications,
+        applicationNotifications: preferences.applicationNotifications,
+        recommendationNotifications: preferences.recommendationNotifications,
+        inAppNotifications: preferences.inAppNotifications,
+        emailNotifications: preferences.emailNotifications,
       });
-      if (res.ok) {
-        setIsPrefModalOpen(false);
-      }
+      setIsPrefModalOpen(false);
     } catch {
       // Non-blocking
     } finally {
@@ -186,6 +179,14 @@ export default function NotificationCenterPage() {
         return <Bell className="w-5 h-5 text-slate-400" />;
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">

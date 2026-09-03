@@ -2,6 +2,7 @@ import { prisma } from '@careerforge/database';
 import { env } from '@careerforge/config';
 import { ServiceHealthItem, SystemHealthResponse, ServiceHealthStatus } from '@careerforge/types';
 import { getKafkaClient } from '../kafka/kafka.client.js';
+import { getRedisClient } from '../redis/redis.client.js';
 
 export class HealthCheckService {
   private static startTime = Date.now();
@@ -95,11 +96,33 @@ export class HealthCheckService {
   private static async checkRedis(): Promise<ServiceHealthItem> {
     const start = Date.now();
     try {
+      const redis = getRedisClient();
+      if (!redis) {
+        return {
+          service: 'redis',
+          status: 'DEGRADED',
+          latencyMs: Date.now() - start,
+          message: 'Redis client unavailable (in-memory fallback active)',
+          lastChecked: new Date().toISOString(),
+        };
+      }
+
+      const pong = await Promise.race([
+        redis.ping(),
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error('Redis ping timed out after 2000ms')), 2000)
+        ),
+      ]);
+
+      if (pong !== 'PONG') {
+        throw new Error(`Unexpected ping response: ${pong}`);
+      }
+
       return {
         service: 'redis',
         status: 'HEALTHY',
         latencyMs: Date.now() - start,
-        message: 'Redis cache connected',
+        message: 'Redis cache connected and responsive',
         lastChecked: new Date().toISOString(),
       };
     } catch (err: any) {
@@ -107,7 +130,7 @@ export class HealthCheckService {
         service: 'redis',
         status: 'DEGRADED',
         latencyMs: Date.now() - start,
-        message: `Redis connection warning: ${err.message}`,
+        message: `Redis connection warning: ${err.message} (in-memory fallback active)`,
         lastChecked: new Date().toISOString(),
       };
     }

@@ -22,7 +22,7 @@ export async function handleResumeUploaded(event: DomainEvent<ResumeUploadedPayl
     include: { skills: { include: { skill: true } } },
   });
 
-  const skillsExtracted = candidate?.skills.map((s) => s.skill.name) || ['JavaScript', 'Node.js', 'React'];
+  const skillsExtracted = candidate?.skills?.map((s) => s.skill.name) || [];
 
   // Update resume processing status
   await prisma.resume.update({
@@ -48,7 +48,7 @@ export async function handleResumeUploaded(event: DomainEvent<ResumeUploadedPayl
       resumeId,
       candidateId,
       skillsExtracted,
-      experienceYears: candidate?.experienceYears ?? 2,
+      experienceYears: candidate?.experienceYears ?? 0,
       parsingEngine: 'DeterministicPdfExtractor',
     },
   };

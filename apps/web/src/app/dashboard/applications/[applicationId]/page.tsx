@@ -215,7 +215,7 @@ export default function CandidateApplicationDetailPage() {
                   </div>
                   {h.note && (
                     <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800/80 text-xs text-slate-300 italic mt-1">
-                      "{h.note}"
+                      &quot;{h.note}&quot;
                     </div>
                   )}
                   <span className="text-[10px] text-slate-500 block">

@@ -196,6 +196,7 @@ async function runObservabilityIntegrationTests() {
     console.log('  ✅ System health status verified');
 
     console.log('\n🎉 ALL 20 OBSERVABILITY & TELEMETRY SCENARIOS PASSED (100%)!\n');
+    process.exit(0);
   } catch (error) {
     console.error('❌ Test failed:', error);
     process.exit(1);

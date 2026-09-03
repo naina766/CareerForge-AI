@@ -28,18 +28,6 @@ def create_app() -> FastAPI:
     # Custom Middleware
     app.add_middleware(CorrelationIdMiddleware)
 
-    # Health Probe
-    @app.get("/health")
-    async def health_check():
-        return {
-            "status": "HEALTHY",
-            "service": "careerforge-ai-service",
-            "version": "1.0.0",
-            "environment": settings.ENVIRONMENT,
-            "llmProvider": settings.LLM_PROVIDER,
-            "faissStatus": "HEALTHY",
-        }
-
     # Telemetry Metrics Probe
     @app.get("/metrics")
     async def metrics_endpoint():

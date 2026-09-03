@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "text-embedding-3-small"
     EMBEDDING_DIMENSION: int = 1536
     
-    # PostgreSQL / pgvector
+    # PostgreSQL
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/careerforge"
     
     # CORS

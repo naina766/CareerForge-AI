@@ -19,8 +19,11 @@ import { SystemHealthResponse, ObservabilitySummary, SystemAlert } from '@career
 import { ServiceHealthCard } from '@/components/observability/ServiceHealthCard';
 import { MetricsChart } from '@/components/observability/MetricsChart';
 import { AlertPanel } from '@/components/observability/AlertPanel';
+import { useAuth } from '@/context/AuthContext';
+import { api } from '@/lib/api';
 
 export default function AdminObservabilityDashboard() {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [summary, setSummary] = useState<ObservabilitySummary | null>(null);
   const [health, setHealth] = useState<SystemHealthResponse | null>(null);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
@@ -34,28 +37,16 @@ export default function AdminObservabilityDashboard() {
     setIsRefreshing(true);
     try {
       const [summaryRes, healthRes, alertsRes, errorsRes] = await Promise.all([
-        fetch('/api/v1/admin/system-status'),
-        fetch('/api/v1/admin/health'),
-        fetch('/api/v1/admin/observability/alerts'),
-        fetch('/api/v1/admin/errors'),
+        api.get<ObservabilitySummary>('/admin/system-status').catch(() => null),
+        api.get<SystemHealthResponse>('/admin/health').catch(() => null),
+        api.get<SystemAlert[]>('/admin/observability/alerts').catch(() => null),
+        api.get<any[]>('/admin/errors').catch(() => null),
       ]);
 
-      if (summaryRes.ok) {
-        const json = await summaryRes.json();
-        setSummary(json.data);
-      }
-      if (healthRes.ok) {
-        const json = await healthRes.json();
-        setHealth(json.data);
-      }
-      if (alertsRes.ok) {
-        const json = await alertsRes.json();
-        setAlerts(json.data || []);
-      }
-      if (errorsRes.ok) {
-        const json = await errorsRes.json();
-        setErrors(json.data || []);
-      }
+      if (summaryRes?.data) setSummary(summaryRes.data);
+      if (healthRes?.data) setHealth(healthRes.data);
+      if (alertsRes?.data) setAlerts(alertsRes.data || []);
+      if (errorsRes?.data) setErrors(errorsRes.data || []);
     } catch {
       // Non-blocking fallback
     } finally {
@@ -72,7 +63,7 @@ export default function AdminObservabilityDashboard() {
 
   const handleAcknowledgeAlert = async (id: string) => {
     try {
-      await fetch(`/api/v1/admin/observability/alerts/${id}/acknowledge`, { method: 'PATCH' });
+      await api.patch(`/admin/observability/alerts/${id}/acknowledge`);
       setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'ACKNOWLEDGED' } : a)));
     } catch {
       // Non-blocking
@@ -81,7 +72,7 @@ export default function AdminObservabilityDashboard() {
 
   const handleResolveAlert = async (id: string) => {
     try {
-      await fetch(`/api/v1/admin/observability/alerts/${id}/resolve`, { method: 'PATCH' });
+      await api.patch(`/admin/observability/alerts/${id}/resolve`);
       setAlerts((prev) => prev.filter((a) => a.id !== id));
     } catch {
       // Non-blocking
@@ -94,6 +85,35 @@ export default function AdminObservabilityDashboard() {
       e.code?.toLowerCase().includes(errorSearch.toLowerCase()) ||
       e.service?.toLowerCase().includes(errorSearch.toLowerCase())
   );
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== 'ADMIN') {
+    return (
+      <div className="glass-panel rounded-3xl p-10 max-w-lg mx-auto text-center space-y-4 my-16 border border-rose-500/30">
+        <div className="h-14 w-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20">
+          <AlertTriangle className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-white">Admin Telemetry Restricted</h2>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          System telemetry and observability dashboards are restricted to authenticated system administrators.
+        </p>
+        <div className="pt-2">
+          <Link href="/dashboard">
+            <button type="button" className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition-colors">
+              Return to Workspace
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-16">
@@ -251,13 +271,22 @@ export default function AdminObservabilityDashboard() {
 
       {/* Error Details Modal */}
       {selectedError && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Exception Stack Trace"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedError(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+        >
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="text-sm font-semibold text-white">Exception Stack Trace</h3>
               <button
                 onClick={() => setSelectedError(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                aria-label="Close error details"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
               >
                 <X className="w-4 h-4" />
               </button>

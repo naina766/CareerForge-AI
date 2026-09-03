@@ -13,7 +13,10 @@ out/
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.prod.*
 !.env.example
+!.env.prod.example
 
 # Python / AI Service
 __pycache__/
@@ -35,6 +38,8 @@ yarn-debug.log*
 .turbo/
 storage/uploads/*
 !storage/uploads/.gitkeep
+storage/faiss/*
+!storage/faiss/.gitkeep
 
 
 # OS / IDE

@@ -11,6 +11,7 @@ import {
 import { RegisterDto, LoginDto, AuthTokensResult, AuthenticatedUser } from './auth.types.js';
 import { logger } from '../../utils/logger.js';
 import { env } from '@careerforge/config';
+import { BruteForceProtection } from '../../infrastructure/security/brute-force-protection.js';
 
 export class AuthService {
   /**
@@ -107,16 +108,22 @@ export class AuthService {
    */
   static async login(dto: LoginDto, context?: { ip?: string; userAgent?: string }): Promise<AuthTokensResult> {
     const email = dto.email.trim().toLowerCase();
+
+    // Verify brute force lockout before attempting authentication
+    await BruteForceProtection.verifyLockout(email);
+
     const user = await UserRepository.findByEmail(email);
 
     // Constant-time generic error to prevent account enumeration
     if (!user) {
       await hashPassword('dummy-timing-defense');
+      await BruteForceProtection.recordFailure(email);
       throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
     }
 
     const isValidPassword = await verifyPassword(dto.password, user.passwordHash);
     if (!isValidPassword) {
+      await BruteForceProtection.recordFailure(email);
       await prisma.auditLog.create({
         data: {
           userId: user.id,
@@ -128,6 +135,9 @@ export class AuthService {
       });
       throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
     }
+
+    // Reset failed brute force attempts upon successful login
+    await BruteForceProtection.recordSuccess(email);
 
     // Generate tokens
     const accessToken = signAccessToken({

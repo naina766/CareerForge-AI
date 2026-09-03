@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { GitCommit, Search, Clock, CheckCircle2, XCircle, ArrowRight, Layers } from 'lucide-react';
+import Link from 'next/link';
+import { GitCommit, Search, Clock, CheckCircle2, XCircle, ArrowRight, Layers, AlertTriangle, Loader2 } from 'lucide-react';
 import { TraceTimeline } from '@careerforge/types';
+import { useAuth } from '@/context/AuthContext';
+import { api } from '@/lib/api';
 
 export default function DistributedTraceExplorerPage() {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [searchId, setSearchId] = useState('trace_sample_event_123');
+  const [isSearching, setIsSearching] = useState(false);
   const [trace, setTrace] = useState<TraceTimeline>({
     traceId: 'trace_sample_event_123',
     correlationId: 'corr_match_eval_998',
@@ -55,16 +60,56 @@ export default function DistributedTraceExplorerPage() {
     ],
   });
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchId) return;
-    // Set active trace
-    setTrace((prev) => ({
-      ...prev,
-      traceId: searchId,
-      correlationId: searchId,
-    }));
+    if (!searchId.trim()) return;
+
+    setIsSearching(true);
+    try {
+      const res = await api.get<TraceTimeline>(`/admin/observability/traces/${searchId}`);
+      if (res.data) {
+        setTrace(res.data);
+      }
+    } catch {
+      // Keep active view with searched correlation ID
+      setTrace((prev) => ({
+        ...prev,
+        traceId: searchId,
+        correlationId: searchId,
+      }));
+    } finally {
+      setIsSearching(false);
+    }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== 'ADMIN') {
+    return (
+      <div className="glass-panel rounded-3xl p-10 max-w-lg mx-auto text-center space-y-4 my-16 border border-rose-500/30">
+        <div className="h-14 w-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20">
+          <AlertTriangle className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-white">Admin Access Restricted</h2>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          The Distributed Trace Explorer is restricted to authorized system administrators.
+        </p>
+        <div className="pt-2">
+          <Link href="/dashboard">
+            <button type="button" className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition-colors">
+              Return to Workspace
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -82,23 +127,26 @@ export default function DistributedTraceExplorerPage() {
       </div>
 
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="flex gap-3">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
           <input
             type="text"
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
+            aria-label="Search by Trace ID, Correlation ID, Request ID, or Event ID"
             placeholder="Search by Trace ID, Correlation ID, Request ID, or Event ID..."
             className="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
           />
         </div>
         <button
           type="submit"
-          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2"
+          disabled={isSearching}
+          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2"
         >
-          Inspect Trace
-          <ArrowRight className="w-4 h-4" />
+          {isSearching && <Loader2 className="w-4 h-4 animate-spin" />}
+          <span>{isSearching ? 'Querying...' : 'Inspect Trace'}</span>
+          {!isSearching && <ArrowRight className="w-4 h-4" />}
         </button>
       </form>
 

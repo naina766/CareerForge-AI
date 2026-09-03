@@ -1,9 +1,9 @@
 services:
   # ---------------------------------------------------------------------------
-  # PostgreSQL with pgvector (Unified Relational & Vector Database)
+  # PostgreSQL 16 (Transactional Source of Truth)
   # ---------------------------------------------------------------------------
   postgres:
-    image: pgvector/pgvector:pg16
+    image: postgres:16
     container_name: careerforge-postgres
     restart: unless-stopped
     environment:

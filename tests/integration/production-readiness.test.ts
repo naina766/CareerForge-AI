@@ -208,6 +208,7 @@ async function runProductionReadinessTests() {
     console.log('  ✅ Public health endpoint verified');
 
     console.log('\n🎉 ALL 25 PRODUCTION READINESS & SECURITY SCENARIOS PASSED (100%)!\n');
+    process.exit(0);
   } catch (error) {
     console.error('❌ Test failed:', error);
     process.exit(1);

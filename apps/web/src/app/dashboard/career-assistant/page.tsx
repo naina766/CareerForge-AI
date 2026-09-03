@@ -27,6 +27,8 @@ import {
   CareerConversationItem,
   CareerMessageItem,
 } from '@careerforge/types';
+import { api } from '../../../lib/api';
+import { Button } from '../../../components/ui/Button';
 
 export default function CareerAssistantPage() {
   const [conversations, setConversations] = useState<CareerConversationItem[]>([]);
@@ -38,7 +40,8 @@ export default function CareerAssistantPage() {
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [lastFailedQuery, setLastFailedQuery] = useState<string | null>(null);
 
   // 1. Load Conversations on Mount
   useEffect(() => {
@@ -62,19 +65,15 @@ export default function CareerAssistantPage() {
   async function fetchConversations() {
     try {
       setIsInitializing(true);
-      const res = await fetch('/api/v1/career-assistant/conversations', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const convs = data.data || [];
-        setConversations(convs);
-        if (convs.length > 0 && !activeConversationId) {
-          setActiveConversationId(convs[0].id);
-        }
+      setChatError(null);
+      const res = await api.get<CareerConversationItem[]>('/career-assistant/conversations');
+      const convs = res.data || [];
+      setConversations(convs);
+      if (convs.length > 0 && !activeConversationId) {
+        setActiveConversationId(convs[0].id);
       }
     } catch (err) {
-      console.error('Failed to load conversations:', err);
+      console.warn('Failed to load conversations:', err);
     } finally {
       setIsInitializing(false);
     }
@@ -82,56 +81,38 @@ export default function CareerAssistantPage() {
 
   async function fetchConversationDetails(id: string) {
     try {
-      const res = await fetch(`/api/v1/career-assistant/conversations/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(data.data.messages || []);
-      }
+      const res = await api.get<CareerConversationItem>(`/career-assistant/conversations/${id}`);
+      setMessages(res.data.messages || []);
     } catch (err) {
-      console.error('Failed to load conversation messages:', err);
+      console.warn('Failed to load conversation messages:', err);
     }
   }
 
   async function handleCreateNewChat() {
     try {
-      const res = await fetch('/api/v1/career-assistant/conversations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ title: 'New Career Consultation' }),
+      const res = await api.post<CareerConversationItem>('/career-assistant/conversations', {
+        title: 'New Career Consultation',
       });
-      if (res.ok) {
-        const data = await res.json();
-        const newConv = data.data;
-        setConversations([newConv, ...conversations]);
-        setActiveConversationId(newConv.id);
-        setMessages([]);
-      }
+      const newConv = res.data;
+      setConversations([newConv, ...conversations]);
+      setActiveConversationId(newConv.id);
+      setMessages([]);
     } catch (err) {
-      console.error('Failed to create new chat:', err);
+      console.warn('Failed to create new chat:', err);
     }
   }
 
   async function handleDeleteChat(id: string, e: React.MouseEvent) {
     e.stopPropagation();
     try {
-      const res = await fetch(`/api/v1/career-assistant/conversations/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const updated = conversations.filter((c) => c.id !== id);
-        setConversations(updated);
-        if (activeConversationId === id) {
-          setActiveConversationId(updated.length > 0 ? updated[0].id : null);
-        }
+      await api.request(`/career-assistant/conversations/${id}`, { method: 'DELETE' });
+      const updated = conversations.filter((c) => c.id !== id);
+      setConversations(updated);
+      if (activeConversationId === id) {
+        setActiveConversationId(updated.length > 0 ? updated[0].id : null);
       }
     } catch (err) {
-      console.error('Failed to delete chat:', err);
+      console.warn('Failed to delete chat:', err);
     }
   }
 
@@ -140,26 +121,21 @@ export default function CareerAssistantPage() {
     if (!queryToSend.trim() || isLoading) return;
 
     let targetConvId = activeConversationId;
+    setChatError(null);
+    setLastFailedQuery(null);
 
     // Auto-create chat if none active
     if (!targetConvId) {
       try {
-        const res = await fetch('/api/v1/career-assistant/conversations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ title: queryToSend.slice(0, 30) }),
+        const res = await api.post<CareerConversationItem>('/career-assistant/conversations', {
+          title: queryToSend.slice(0, 30),
         });
-        if (res.ok) {
-          const data = await res.json();
-          targetConvId = data.data.id;
-          setActiveConversationId(targetConvId);
-          setConversations([data.data, ...conversations]);
-        }
+        targetConvId = res.data.id;
+        setActiveConversationId(targetConvId);
+        setConversations([res.data, ...conversations]);
       } catch (err) {
         console.error('Auto-create chat failed:', err);
+        setChatError('Could not initialize conversation session. Please try again.');
         return;
       }
     }
@@ -178,36 +154,31 @@ export default function CareerAssistantPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(
-        `/api/v1/career-assistant/conversations/${targetConvId}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ message: queryToSend }),
-        }
-      );
+      const res = await api.post<{
+        messageId: string;
+        answer: string;
+        status?: any;
+        sources?: any[];
+      }>(`/career-assistant/conversations/${targetConvId}/messages`, {
+        message: queryToSend,
+      });
 
-      if (res.ok) {
-        const data = await res.json();
-        const ragRes = data.data;
+      const ragRes = res.data;
+      const assistantMsg: CareerMessageItem = {
+        id: ragRes.messageId || `msg-${Date.now()}`,
+        conversationId: targetConvId!,
+        role: 'ASSISTANT',
+        content: ragRes.answer,
+        responseStatus: ragRes.status || 'SUCCESS',
+        sources: ragRes.sources || [],
+        createdAt: new Date().toISOString(),
+      };
 
-        const assistantMsg: CareerMessageItem = {
-          id: ragRes.messageId,
-          conversationId: targetConvId!,
-          role: 'ASSISTANT',
-          content: ragRes.answer,
-          responseStatus: ragRes.status,
-          sources: ragRes.sources || [],
-          createdAt: new Date().toISOString(),
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
-      }
-    } catch (err) {
-      console.error('Message failed:', err);
+      setMessages((prev) => [...prev, assistantMsg]);
+    } catch (err: unknown) {
+      const errorMsg = (err as Error).message || 'AI Copilot unavailable. Please try again.';
+      setChatError(errorMsg);
+      setLastFailedQuery(queryToSend);
     } finally {
       setIsLoading(false);
     }
@@ -215,20 +186,12 @@ export default function CareerAssistantPage() {
 
   async function handleFeedback(messageId: string, isHelpful: boolean) {
     try {
-      await fetch(`/api/v1/career-assistant/messages/${messageId}/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ isHelpful }),
-      });
-
+      await api.post(`/career-assistant/messages/${messageId}/feedback`, { isHelpful });
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, isHelpful } : m))
       );
     } catch (err) {
-      console.error('Feedback failed:', err);
+      console.warn('Feedback failed:', err);
     }
   }
 
@@ -543,31 +506,64 @@ export default function CareerAssistantPage() {
                 </div>
               </div>
             )}
+
+            {/* Error Message with Retry */}
+            {chatError && (
+              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>{chatError}</span>
+                </div>
+                {lastFailedQuery && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSendMessage(lastFailedQuery)}
+                    className="border-rose-500/40 text-rose-300 hover:bg-rose-500/20 text-xs py-1 px-3"
+                  >
+                    Retry
+                  </Button>
+                )}
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
           {/* Bottom Chat Input Bar */}
-          <div className="p-4 border-t border-slate-800 bg-slate-900/60 backdrop-blur">
-            <div className="max-w-4xl mx-auto flex gap-2">
-              <input
-                type="text"
+          <div className="p-3 sm:p-4 border-t border-slate-800 bg-slate-900/60 backdrop-blur sticky bottom-0">
+            <div className="max-w-4xl mx-auto flex gap-2 sm:gap-2.5 items-end">
+              <label htmlFor="career-copilot-input" className="sr-only">
+                Ask anything about your career
+              </label>
+              <textarea
+                id="career-copilot-input"
                 value={inputText}
+                rows={1}
                 onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                placeholder="Ask about your skill gaps, job matches, learning roadmap, or resume..."
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                aria-label="Ask anything about your career, skill gaps, roadmap, or resume"
+                placeholder="Ask about skill gaps, roadmap, resume... Press Enter to send"
+                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none max-h-32 min-h-[46px]"
               />
               <button
+                type="button"
                 onClick={() => handleSendMessage()}
                 disabled={isLoading || !inputText.trim()}
-                className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm flex items-center gap-2 transition-all shadow-md shadow-indigo-950"
+                aria-label="Send question to AI Mentor"
+                className="h-[46px] px-4 sm:px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all shadow-md shadow-indigo-950 shrink-0"
               >
-                <span>Send</span>
+                <span className="hidden sm:inline">Send</span>
                 <SendHorizontal className="w-4 h-4" />
               </button>
             </div>
-            <div className="max-w-4xl mx-auto flex items-center justify-between text-[11px] text-slate-500 mt-2 px-1">
-              <span>🔒 Multi-signal RAG with strict prompt-injection and hallucination guardrails.</span>
+            <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10px] sm:text-[11px] text-slate-500 mt-2 px-1 gap-1">
+              <span>🔒 Candidate-scoped grounding with strict guardrails.</span>
               <span>Model: careerforge-grounded-rag-v1</span>
             </div>
           </div>
@@ -581,7 +577,7 @@ export default function CareerAssistantPage() {
               Grounded Data Sources
             </h3>
             <p className="text-[11px] text-slate-500 mt-1">
-              All answers are constrained to these synchronized PostgreSQL & FAISS records.
+              All answers are constrained to verified candidate records.
             </p>
           </div>
 
@@ -594,14 +590,14 @@ export default function CareerAssistantPage() {
                 <span className="text-[10px] text-emerald-400 font-normal">Active</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1.5">
-                Indexed in FAISS with sentence-transformers vectors for semantic discovery.
+                Indexed in vector space for semantic similarity discovery.
               </p>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Skill Gaps (Phase 14)
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Skill Gaps
                 </span>
                 <span className="text-[10px] text-indigo-400 font-normal">Synced</span>
               </div>
@@ -613,24 +609,24 @@ export default function CareerAssistantPage() {
             <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-purple-400" /> Learning Path (Phase 14)
+                  <BookOpen className="w-3.5 h-3.5 text-purple-400" /> Learning Path
                 </span>
-                <span className="text-[10px] text-purple-400 font-normal">Catalog</span>
+                <span className="text-[10px] text-purple-400 font-normal">Active</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1.5">
-                Sequential dependency roadmaps using vetted technical catalogs (MDN, Docker, etc.).
+                Sequential dependency roadmaps using vetted technical resources.
               </p>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-emerald-400" /> Recommendations (Phase 15)
+                  <Briefcase className="w-3.5 h-3.5 text-emerald-400" /> Job Recommendations
                 </span>
-                <span className="text-[10px] text-emerald-400 font-normal">100-Pt Scale</span>
+                <span className="text-[10px] text-emerald-400 font-normal">Targeted</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1.5">
-                5-signal ranking combining skills, vectors, experience, and preferences.
+                Multi-signal ranking combining skills, vectors, experience, and preferences.
               </p>
             </div>
           </div>

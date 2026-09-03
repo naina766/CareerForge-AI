@@ -24,6 +24,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { TargetRoleSkillGap } from '../../components/dashboard/TargetRoleSkillGap';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -134,9 +135,12 @@ function CandidateWorkspace() {
           <p className="text-xs text-slate-400 mt-0.5">Resume analysis, explainable job matches, and career assistance</p>
         </div>
         <span className="text-xs px-3 py-1 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 font-medium">
-          Phase 4 Active
+          Profile Ready
         </span>
       </div>
+
+      {/* Interactive Target Role & Skill Gap Analysis Widget */}
+      <TargetRoleSkillGap />
 
       {/* Candidate Profile Strength Spotlight Card */}
       <div className="glass-panel rounded-3xl p-6 border border-teal-500/30 bg-gradient-to-br from-slate-900/90 via-slate-950/80 to-teal-950/20 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
@@ -175,13 +179,13 @@ function CandidateWorkspace() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-bold text-indigo-300 flex items-center gap-1">
-                Phase 16 <Sparkles className="w-3 h-3" />
+                AI Advisor <Sparkles className="w-3 h-3" />
               </span>
             </div>
             <div>
               <h3 className="font-semibold text-white text-sm">Career Assistant</h3>
               <p className="text-xs text-slate-400 mt-1">
-                Grounded RAG career copilot with FAISS & citation provenance.
+                Grounded career copilot with personalized citations.
               </p>
             </div>
           </div>
@@ -194,13 +198,13 @@ function CandidateWorkspace() {
                 <Zap className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-bold text-teal-300 flex items-center gap-1">
-                Phase 15 <Sparkles className="w-3 h-3" />
+                Top Match <Sparkles className="w-3 h-3" />
               </span>
             </div>
             <div>
               <h3 className="font-semibold text-white text-sm">AI Recommendations</h3>
               <p className="text-xs text-slate-400 mt-1">
-                Deterministic 100-pt scoring & FAISS vector matched vacancies.
+                Explainable scoring & semantic matched vacancies.
               </p>
             </div>
           </div>
@@ -212,7 +216,7 @@ function CandidateWorkspace() {
               <div className="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-semibold text-teal-400">Phase 4 Ready</span>
+              <span className="text-[11px] font-semibold text-teal-400">Profile Active</span>
             </div>
             <div>
               <h3 className="font-semibold text-white text-sm">Career Profile</h3>
@@ -249,7 +253,7 @@ function CandidateWorkspace() {
                 <Briefcase className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
-                Phase 11 Active <ArrowRight className="w-3 h-3" />
+                Live Openings <ArrowRight className="w-3 h-3" />
               </span>
             </div>
             <div>
@@ -268,7 +272,7 @@ function CandidateWorkspace() {
                 <Briefcase className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-semibold text-purple-400 flex items-center gap-1">
-                Phase 12 Active <ArrowRight className="w-3 h-3" />
+                Active Pipeline <ArrowRight className="w-3 h-3" />
               </span>
             </div>
             <div>
@@ -389,7 +393,7 @@ function AdminWorkspace() {
           </div>
           <div>
             <h3 className="font-semibold text-white text-sm">System Health</h3>
-            <p className="text-xs text-slate-400 mt-1">PostgreSQL, pgvector, Redis, and Kafka cluster telemetry.</p>
+            <p className="text-xs text-slate-400 mt-1">PostgreSQL, FAISS, Redis, and Kafka cluster telemetry.</p>
           </div>
         </div>
 

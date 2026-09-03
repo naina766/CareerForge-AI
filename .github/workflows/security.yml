@@ -9,13 +9,21 @@ on:
     - cron: '0 0 * * 1' # Weekly security audit
 
 jobs:
-  audit:
+  security-audit:
     name: Security Scan & Secret Leak Check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Secret Scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,11 +36,4 @@ jobs:
           version: 9.1.0
 
       - name: Run pnpm audit
-        run: pnpm audit --audit-level=high || true
-
-      - name: Verify No Secrets Committed
-        run: |
-          echo "Scanning for accidental secrets or private keys..."
-          ! grep -rn "BEGIN PRIVATE KEY" . --exclude-dir=node_modules --exclude-dir=.git
-          ! grep -rn "AIzaSy" . --exclude-dir=node_modules --exclude-dir=.git
-          echo "✅ Secret leak audit passed cleanly."
+        run: pnpm audit --audit-level=high

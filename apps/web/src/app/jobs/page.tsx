@@ -487,7 +487,7 @@ function JobsDiscoveryContent() {
               <span className="text-[11px] text-slate-500 font-semibold uppercase">Active:</span>
               {debouncedSearch && (
                 <span className="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center gap-1.5">
-                  "{debouncedSearch}"
+                  &quot;{debouncedSearch}&quot;
                   <button type="button" onClick={() => setSearch('')} className="hover:text-rose-400">
                     <X className="w-3 h-3" />
                   </button>

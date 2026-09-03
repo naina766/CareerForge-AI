@@ -48,17 +48,47 @@ const envSchema = z.object({
 
 export type EnvConfig = z.infer<typeof envSchema>;
 
-let parsedEnv: EnvConfig;
+function validateAndParseEnv(): EnvConfig {
+  const isProd = process.env.NODE_ENV === 'production';
 
-try {
-  parsedEnv = envSchema.parse(process.env);
-} catch (error) {
-  if (error instanceof z.ZodError) {
-    const formattedErrors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('\n');
-    console.error(`❌ Invalid environment variables:\n${formattedErrors}`);
+  if (isProd) {
+    const prodErrors: string[] = [];
+    const accessSecret = process.env.JWT_ACCESS_SECRET;
+    const refreshSecret = process.env.JWT_REFRESH_SECRET;
+
+    if (!accessSecret || accessSecret === 'default-insecure-jwt-access-secret-32-chars-min') {
+      prodErrors.push('JWT_ACCESS_SECRET must be explicitly set to a strong secret in production');
+    } else if (accessSecret.length < 32) {
+      prodErrors.push('JWT_ACCESS_SECRET must be at least 32 characters long in production');
+    }
+
+    if (!refreshSecret || refreshSecret === 'default-insecure-jwt-refresh-secret-32-chars-min') {
+      prodErrors.push('JWT_REFRESH_SECRET must be explicitly set to a strong secret in production');
+    } else if (refreshSecret.length < 32) {
+      prodErrors.push('JWT_REFRESH_SECRET must be at least 32 characters long in production');
+    }
+
+    if (prodErrors.length > 0) {
+      const errMessage = `❌ FATAL: Production environment validation failed:\n${prodErrors.join('\n')}`;
+      console.error(errMessage);
+      throw new Error(errMessage);
+    }
   }
-  // Fallback to defaults in development if parsing failed
-  parsedEnv = envSchema.parse({});
+
+  try {
+    return envSchema.parse(process.env);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const formattedErrors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('\n');
+      console.error(`❌ Invalid environment variables:\n${formattedErrors}`);
+      if (isProd) {
+        throw new Error(`Invalid production environment variables:\n${formattedErrors}`);
+      }
+    }
+    // Fallback to defaults in development/test if parsing failed
+    return envSchema.parse({});
+  }
 }
 
-export const env = parsedEnv;
+export const env = validateAndParseEnv();
+

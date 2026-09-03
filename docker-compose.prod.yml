@@ -36,13 +36,13 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/careerforge?schema=public
-      - REDIS_URL=redis://redis:6379
-      - KAFKA_BROKERS=kafka:9092
-      - AI_SERVICE_URL=http://ai-service:8000
-      - JWT_SECRET=prod_secret_do_not_share_in_git_12345
-      - JWT_REFRESH_SECRET=prod_refresh_secret_do_not_share_67890
-      - CORS_ORIGIN=http://localhost
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/careerforge?schema=public}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+      - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai-service:8000}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
     depends_on:
       postgres:
         condition: service_healthy

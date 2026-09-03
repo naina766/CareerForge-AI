@@ -17,7 +17,10 @@
     "prisma:validate": "pnpm --filter @careerforge/database prisma:validate",
     "prisma:migrate": "pnpm --filter @careerforge/database prisma:migrate",
     "prisma:push": "pnpm --filter @careerforge/database prisma:push",
-    "prisma:seed": "pnpm --filter @careerforge/database prisma:seed"
+    "prisma:seed": "pnpm --filter @careerforge/database prisma:seed",
+    "worker:resume": "tsx workers/resume-worker/src/index.ts",
+    "worker:ai": "tsx workers/ai-worker/src/index.ts",
+    "worker:notification": "tsx workers/notification-worker/src/index.ts"
   },
   "devDependencies": {
     "@careerforge/config": "workspace:*",

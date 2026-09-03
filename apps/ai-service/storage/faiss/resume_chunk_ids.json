@@ -34,5 +34,41 @@
     "resume_id": "res-1",
     "section": "experience",
     "content_hash": "hash2"
+  },
+  "6": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "7": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
+  },
+  "8": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "9": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
+  },
+  "10": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "11": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
   }
 }

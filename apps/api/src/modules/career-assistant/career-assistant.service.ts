@@ -14,9 +14,7 @@ import { ResponseValidator } from './response-validator.js';
 import { CitationBuilder } from './citation-builder.js';
 import { ConversationMemory } from './conversation-memory.js';
 import { AIServiceClient } from '../../services/ai-client.js';
-
-// In-Memory Rate Limiting: 15 messages/minute per candidate
-const rateLimitMap = new Map<string, number[]>();
+import { checkRateLimit } from '../../infrastructure/security/rate-limit.js';
 
 export class CareerAssistantService {
   /**
@@ -183,7 +181,7 @@ export class CareerAssistantService {
     const candidate = await this.getCandidateProfile(candidateUserId);
 
     // 1. Rate Limiting Check (15 messages/minute)
-    this.enforceRateLimit(candidate.id);
+    await this.enforceRateLimit(candidate.id);
 
     // 2. Candidate-Isolated Conversation Verification
     const conv = await prisma.careerConversation.findFirst({
@@ -442,26 +440,21 @@ export class CareerAssistantService {
   /**
    * Rate Limiter Helper (15 requests/minute per candidate).
    */
-  private static enforceRateLimit(candidateId: string): void {
-    const now = Date.now();
-    const windowMs = 60 * 1000;
-    const maxRequests = 15;
+  private static async enforceRateLimit(candidateId: string): Promise<void> {
+    const { allowed, resetTime } = await checkRateLimit(candidateId, {
+      prefix: 'assistant_candidate',
+      windowMs: 60 * 1000,
+      maxRequests: 15,
+    });
 
-    const timestamps = rateLimitMap.get(candidateId) || [];
-    const recent = timestamps.filter((t) => now - t < windowMs);
-
-    if (recent.length >= maxRequests) {
-      const oldest = recent[0];
-      const retryAfterSeconds = Math.ceil((windowMs - (now - oldest)) / 1000);
+    if (!allowed) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((resetTime - Date.now()) / 1000));
       throw new AppError(
         `Rate limit exceeded. Please wait ${retryAfterSeconds} seconds before sending another message.`,
         429,
         'RATE_LIMIT_EXCEEDED'
       );
     }
-
-    recent.push(now);
-    rateLimitMap.set(candidateId, recent);
   }
 
   private static async getCandidateProfile(userId: string) {
