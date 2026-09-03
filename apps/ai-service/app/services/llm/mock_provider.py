@@ -18,7 +18,30 @@ class MockLLMProvider(LLMProvider):
         max_tokens: int = 1000
     ) -> LLMGenerationResult:
         start_time = time.perf_counter()
-        content = f"Mock LLM Response for prompt: {prompt[:40]}..."
+        
+        # Extract user query if present
+        user_query = "your query"
+        if "User Query:" in prompt:
+            user_query = prompt.split("User Query:")[-1].split("Please provide")[0].strip()
+            
+        # Parse context documents if present
+        has_docs = "<<<UNTRUSTED_DOCUMENT_CONTEXT>>>" in prompt and "[Doc 1:" in prompt
+        
+        if "INSUFFICIENT_CONTEXT" in prompt:
+            content = "INSUFFICIENT_CONTEXT: The available profile and career data does not contain this information."
+        elif has_docs:
+            content = (
+                f"Based on your verified profile and role evaluations [Doc 1]:\n\n"
+                f"• Your profile demonstrates solid technical experience matching core engineering benchmarks.\n"
+                f"• For target positions like Full Stack and Backend Engineering, your verified skills provide strong alignment with the role requirements.\n"
+                f"• Recommended Next Step: Continue developing priority gap areas (such as advanced distributed messaging and cloud architecture) to maximize interview readiness."
+            )
+        else:
+            content = (
+                f"Based on your career profile, I can help analyze your skill overlaps, "
+                f"evaluate role compatibility, and generate personalized learning roadmaps for '{user_query}'."
+            )
+            
         latency_ms = (time.perf_counter() - start_time) * 1000
         
         return LLMGenerationResult(
@@ -26,7 +49,7 @@ class MockLLMProvider(LLMProvider):
             tokens_used=42,
             prompt_tokens=22,
             completion_tokens=20,
-            model="mock-gpt-4o",
+            model="mock-grounded-career-advisor",
             latency_ms=latency_ms
         )
         
