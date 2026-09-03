@@ -101,8 +101,8 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setEmail('candidate1@careerforge.io');
-                  setPassword('CandidatePassword123!');
+                  setEmail('candidate.alex@careerforge.ai');
+                  setPassword('Password123!');
                   setError(null);
                 }}
                 className="text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-teal-300 border border-slate-700 transition-colors min-h-[38px] flex items-center"
@@ -113,8 +113,8 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setEmail('recruiter1@techcorp.io');
-                  setPassword('RecruiterPassword123!');
+                  setEmail('recruiter.techcorp@careerforge.ai');
+                  setPassword('Password123!');
                   setError(null);
                 }}
                 className="text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition-colors min-h-[38px] flex items-center"
@@ -125,8 +125,8 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setEmail('admin@careerforge.io');
-                  setPassword('AdminPassword123!');
+                  setEmail('admin@careerforge.ai');
+                  setPassword('Password123!');
                   setError(null);
                 }}
                 className="text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-indigo-300 border border-slate-700 transition-colors min-h-[38px] flex items-center"

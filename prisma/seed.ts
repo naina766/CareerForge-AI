@@ -133,6 +133,14 @@ async function main() {
       verified: true,
     },
   });
+  await prisma.user.create({
+    data: {
+      email: 'admin@careerforge.io',
+      passwordHash: DEMO_PASSWORD_HASH,
+      role: UserRole.ADMIN,
+      verified: true,
+    },
+  });
 
   // ==============================================================================
   // 3. SEED RECRUITERS & JOBS
@@ -141,6 +149,13 @@ async function main() {
   const recruitersData = [
     {
       email: 'recruiter.techcorp@careerforge.ai',
+      name: 'Sarah Jenkins',
+      company: 'TechCorp Solutions',
+      website: 'https://techcorp.example.com',
+      jobTitle: 'Principal Technical Recruiter',
+    },
+    {
+      email: 'recruiter1@techcorp.io',
       name: 'Sarah Jenkins',
       company: 'TechCorp Solutions',
       website: 'https://techcorp.example.com',
@@ -348,8 +363,25 @@ async function main() {
   // ==============================================================================
   // 4. SEED 10 CANDIDATES WITH EXPERIENCES, RESUMES & SKILLS
   // ==============================================================================
-  console.log('👨‍💻 Seeding 10 Candidate Profiles, Resumes & Skills...');
   const candidatesData = [
+    {
+      email: 'candidate.alex@careerforge.ai',
+      name: 'Alex Rivera',
+      headline: 'Senior Full Stack & AI Engineer',
+      summary: 'Passionate software architect with 6 years building modern React, Node, and Python RAG applications.',
+      location: 'San Francisco, CA',
+      experienceYears: 6,
+      skills: ['React', 'Next.js', 'TypeScript', 'Node.js', 'Python', 'FastAPI', 'PostgreSQL', 'RAG'],
+    },
+    {
+      email: 'candidate1@careerforge.io',
+      name: 'Alex Rivera',
+      headline: 'Senior Full Stack & AI Engineer',
+      summary: 'Passionate software architect with 6 years building modern React, Node, and Python RAG applications.',
+      location: 'San Francisco, CA',
+      experienceYears: 6,
+      skills: ['React', 'Next.js', 'TypeScript', 'Node.js', 'Python', 'FastAPI', 'PostgreSQL', 'RAG'],
+    },
     {
       email: 'alex.rivera@careerforge.ai',
       name: 'Alex Rivera',
@@ -358,6 +390,15 @@ async function main() {
       location: 'San Francisco, CA',
       experienceYears: 6,
       skills: ['React', 'Next.js', 'TypeScript', 'Node.js', 'Python', 'FastAPI', 'PostgreSQL', 'RAG'],
+    },
+    {
+      email: 'candidate.priya@careerforge.ai',
+      name: 'Priya Sharma',
+      headline: 'Machine Learning & GenAI Engineer',
+      summary: 'Expert in LLM orchestration, LangChain, vector retrieval, and Python microservices.',
+      location: 'Austin, TX',
+      experienceYears: 4.5,
+      skills: ['Python', 'FastAPI', 'LangChain', 'RAG', 'PostgreSQL', 'Docker'],
     },
     {
       email: 'maya.patel@careerforge.ai',
