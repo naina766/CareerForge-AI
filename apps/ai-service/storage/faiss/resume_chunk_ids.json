@@ -88,5 +88,35 @@
     "resume_id": "res-1",
     "section": "experience",
     "content_hash": "hash2"
+  },
+  "15": {
+    "chunk_id": "chunk-kafka-001",
+    "resume_id": "res-eval-001",
+    "section": "experience",
+    "content_hash": "hash_kafka"
+  },
+  "16": {
+    "chunk_id": "chunk-react-002",
+    "resume_id": "res-eval-001",
+    "section": "experience",
+    "content_hash": "hash_react"
+  },
+  "17": {
+    "chunk_id": "chunk-culinary-003",
+    "resume_id": "res-eval-001",
+    "section": "experience",
+    "content_hash": "hash_chef"
+  },
+  "18": {
+    "chunk_id": "chunk-1",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash1"
+  },
+  "19": {
+    "chunk_id": "chunk-2",
+    "resume_id": "res-1",
+    "section": "experience",
+    "content_hash": "hash2"
   }
 }

@@ -4,8 +4,14 @@
 
 @layer base {
   :root {
-    --background: #090d16;
-    --foreground: #f1f5f9;
+    --background: #030712;
+    --foreground: #f8fafc;
+    --card: #111827;
+    --card-foreground: #f8fafc;
+    --primary: #3b82f6;
+    --secondary: #06b6d4;
+    --accent: #8b5cf6;
+    --border: #1f2937;
   }
 }
 
@@ -16,28 +22,43 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism effects */
+/* Custom sleek dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
+/* Glass & Card components */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(17, 24, 39, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(17, 24, 39, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .glass-card:hover {
-  border-color: rgba(94, 234, 212, 0.3);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-}
-
-.glow-teal {
-  box-shadow: 0 0 40px -10px rgba(20, 184, 166, 0.3);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
 /* Accessibility & Reduced Motion */
@@ -54,7 +75,6 @@ body {
 
 /* High-contrast focus outlines for keyboard navigation */
 :focus-visible {
-  outline: 2px solid rgba(45, 212, 191, 0.8) !important;
+  outline: 2px solid rgba(59, 130, 246, 0.8) !important;
   outline-offset: 2px !important;
 }
-

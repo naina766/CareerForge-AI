@@ -28,6 +28,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
+import { DashboardShell } from '../../../components/dashboard/DashboardShell';
 
 export default function RecommendationsPage() {
   const router = useRouter();
@@ -147,37 +148,22 @@ export default function RecommendationsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header Banner */}
-      <div className="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-slate-800 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-        <div className="space-y-2 relative z-10">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 border border-teal-500/30 text-teal-300 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              Phase 15 Recommendation Engine (v{engineVersion})
-            </span>
-          </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            Personalized Job Recommendations
-          </h1>
-          <p className="text-slate-400 text-sm max-w-2xl">
-            Ranked through a deterministic multi-signal formula analyzing your verified skill taxonomy (40%), FAISS semantic resume embeddings (25%), experience seniority (15%), career preferences (15%), and publication freshness (5%).
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 relative z-10">
-          <Button
-            variant="secondary"
-            onClick={() => fetchRecommendations(true)}
-            disabled={refreshing || loading}
-            className="flex items-center gap-2 border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-teal-400' : ''}`} />
-            {refreshing ? 'Recomputing AI Matches...' : 'Refresh Feed'}
-          </Button>
-        </div>
-      </div>
+    <DashboardShell
+      headerTitle="Role Recommendations & AI Matches"
+      headerDescription={`Multi-signal candidate matching (Engine v${engineVersion}) combining skills, FAISS semantic vectors, and preferences.`}
+      actionButton={
+        <Button
+          variant="secondary"
+          onClick={() => fetchRecommendations(true)}
+          disabled={refreshing || loading}
+          className="flex items-center gap-2 border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-xs"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-400' : ''}`} />
+          {refreshing ? 'Recomputing Matches...' : 'Refresh Matches'}
+        </Button>
+      }
+    >
+      <div className="space-y-6 max-w-7xl">
 
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -589,5 +575,6 @@ export default function RecommendationsPage() {
         </div>
       )}
     </div>
+    </DashboardShell>
   );
 }

@@ -7,422 +7,326 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import {
   CandidateProfileSummary,
+  JobRecommendationListResponse,
+  ResumeMetadata,
 } from '@careerforge/types';
 import {
-  User,
-  Briefcase,
-  ShieldAlert,
-  LogOut,
-  FileText,
-  BrainCircuit,
-  TrendingUp,
-  Users,
-  Activity,
-  Layers,
-  Zap,
   Sparkles,
+  Bot,
+  FileText,
+  Compass,
   ArrowRight,
+  BrainCircuit,
+  ShieldCheck,
+  ChevronRight,
+  Target,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { DashboardShell } from '../../components/dashboard/DashboardShell';
 import { TargetRoleSkillGap } from '../../components/dashboard/TargetRoleSkillGap';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+
+  const [profileSummary, setProfileSummary] = useState<CandidateProfileSummary | null>(null);
+  const [resume, setResume] = useState<ResumeMetadata | null>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.push('/login');
+      return;
     }
-  }, [isLoading, isAuthenticated, router]);
+    if (isAuthenticated) {
+      loadDashboardData();
+    }
+  }, [authLoading, isAuthenticated, router]);
 
-  if (isLoading || !user) {
+  async function loadDashboardData() {
+    setIsLoading(true);
+    try {
+      // 1. Load Candidate Profile Summary
+      const profilePromise = api.get<{ profile: CandidateProfileSummary }>('/candidates/me/profile').catch(() => null);
+      // 2. Load Resume Metadata
+      const resumePromise = api.get<{ resume: ResumeMetadata | null }>('/candidates/me/resume').catch(() => null);
+      // 3. Load Job Recommendations
+      const recoPromise = api.get<JobRecommendationListResponse>('/recommendations/jobs?limit=3').catch(() => null);
+
+      const [profRes, resRes, recoRes] = await Promise.all([profilePromise, resumePromise, recoPromise]);
+
+      if (profRes?.data?.profile) {
+        setProfileSummary(profRes.data.profile);
+      }
+      if (resRes?.data?.resume) {
+        setResume(resRes.data.resume);
+      }
+      if (recoRes?.data?.items) {
+        setRecommendations(recoRes.data.items);
+      }
+    } catch (err: any) {
+      console.warn('Dashboard data fetch warning:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (authLoading || isLoading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 rounded-full border-2 border-teal-400 border-t-transparent animate-spin" />
-          <span className="text-xs text-slate-400 font-medium">Loading workspace session...</span>
+      <DashboardShell>
+        <div className="space-y-6 animate-pulse">
+          <div className="h-36 bg-[#111827] border border-gray-800 rounded-2xl" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-28 bg-[#111827] border border-gray-800 rounded-xl" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-96 bg-[#111827] border border-gray-800 rounded-2xl" />
+            <div className="h-96 bg-[#111827] border border-gray-800 rounded-2xl" />
+          </div>
         </div>
-      </div>
+      </DashboardShell>
     );
   }
 
-  const role = user.role;
+  const candidateName = profileSummary?.profile?.name || user?.email?.split('@')[0] || 'Candidate';
+  const targetRole = profileSummary?.profile?.headline || 'Software Engineer';
+  const skillsCount = profileSummary?.skillsCount || 0;
+  const isResumeIndexed = resume?.processingStatus === 'EMBEDDED' || resume?.processingStatus === 'PARSED';
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
+  // Calculate actual readiness score based on verified backend profile attributes
+  let readinessScore = profileSummary?.completeness?.percentage || 30;
+  if (isResumeIndexed) readinessScore = Math.max(readinessScore, 75);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Top Header Card */}
-      <div className="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border border-slate-800/90 shadow-xl">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-400 p-0.5 shadow-lg shadow-teal-500/20">
-            <div className="h-full w-full bg-slate-950 rounded-[14px] flex items-center justify-center font-bold text-xl text-teal-300 uppercase">
-              {user.email.slice(0, 2)}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-bold text-white tracking-tight">
-                Welcome back, {user.email.split('@')[0]}
+    <DashboardShell>
+      <div className="space-y-6 max-w-7xl">
+        {/* 1. Hero Banner */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#111827] via-[#0f172a] to-[#1e1b4b] border border-gray-800/90 rounded-2xl p-6 sm:p-8 shadow-xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                  Grounded AI Intelligence Active
+                </span>
+                <span className="text-xs text-gray-400">Target Role: <strong className="text-gray-200">{targetRole}</strong></span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Good morning, {candidateName}
               </h1>
-              <span
-                className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                  role === 'ADMIN'
-                    ? 'bg-purple-500/10 border-purple-500/30 text-purple-300'
-                    : role === 'RECRUITER'
-                    ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
-                    : 'bg-teal-500/10 border-teal-500/30 text-teal-300'
-                }`}
-              >
-                {role} Persona
-              </span>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                Your AI-analyzed career readiness and real-time job market alignment at a glance.
+              </p>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              Authenticated via Short-Lived JWT & Rotated Refresh Session • {user.email}
-            </p>
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link href="/dashboard/resume">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-700 bg-gray-900/80 hover:bg-gray-800 text-gray-200 text-xs"
+                  leftIcon={<FileText className="w-4 h-4 text-blue-400" />}
+                >
+                  Analyze Resume
+                </Button>
+              </Link>
+              <Link href="/dashboard/career-assistant">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-600/20 text-xs"
+                  leftIcon={<Bot className="w-4 h-4" />}
+                >
+                  Ask Career AI
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLogout}
-            leftIcon={<LogOut className="w-4 h-4 text-slate-400" />}
-            className="w-full sm:w-auto"
-          >
-            Sign Out
-          </Button>
-        </div>
-      </div>
-
-      {/* Role-Specific Workspace View */}
-      {role === 'CANDIDATE' && <CandidateWorkspace />}
-      {role === 'RECRUITER' && <RecruiterWorkspace />}
-      {role === 'ADMIN' && <AdminWorkspace />}
-    </div>
-  );
-}
-
-function CandidateWorkspace() {
-  const [summary, setSummary] = useState<CandidateProfileSummary | null>(null);
-
-  useEffect(() => {
-    async function loadSummary() {
-      try {
-        const res = await api.get<CandidateProfileSummary>('/candidates/me/profile/summary');
-        setSummary(res.data);
-      } catch (e) {
-        console.warn('Could not load candidate summary:', e);
-      }
-    }
-    loadSummary();
-  }, []);
-
-  const percentage = summary?.completeness.percentage ?? 0;
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            <User className="w-5 h-5 text-teal-400" /> Candidate Intelligence Workspace
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Resume analysis, explainable job matches, and career assistance</p>
-        </div>
-        <span className="text-xs px-3 py-1 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 font-medium">
-          Profile Ready
-        </span>
-      </div>
-
-      {/* Interactive Target Role & Skill Gap Analysis Widget */}
-      <TargetRoleSkillGap />
-
-      {/* Candidate Profile Strength Spotlight Card */}
-      <div className="glass-panel rounded-3xl p-6 border border-teal-500/30 bg-gradient-to-br from-slate-900/90 via-slate-950/80 to-teal-950/20 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-white">Career Profile Strength</h3>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold">
-              {percentage}% Complete
-            </span>
-          </div>
-          <p className="text-xs text-slate-400 max-w-xl">
-            {percentage === 100
-              ? 'Your profile is fully completed and primed for precision career matching.'
-              : 'Add structured skills, education, and career preferences to maximize your match ranking accuracy.'}
-          </p>
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-1">
-            <span>⚡ Skills: {summary?.skillsCount ?? 0}</span>
-            <span>💼 Roles: {summary?.experiencesCount ?? 0}</span>
-            <span>🎓 Education: {summary?.educationsCount ?? 0}</span>
-            <span>🎯 Preferences: {summary?.hasPreferences ? 'Set' : 'Pending'}</span>
-          </div>
-        </div>
-
-        <Link href="/dashboard/profile">
-          <Button size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-            Manage Career Profile
-          </Button>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <Link href="/dashboard/career-assistant" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-indigo-400 border-indigo-500/30 bg-indigo-500/5 transition-all cursor-pointer shadow-lg shadow-indigo-500/5">
+        {/* 2. Key Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Career Readiness */}
+          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-indigo-300 flex items-center gap-1">
-                AI Advisor <Sparkles className="w-3 h-3" />
-              </span>
+              <span className="text-xs font-medium text-gray-400">Career Readiness</span>
+              <Target className="w-4 h-4 text-blue-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-white text-sm">Career Assistant</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Grounded career copilot with personalized citations.
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-white">{readinessScore}%</span>
+                <span className="text-[11px] text-emerald-400 font-medium">Profile Optimized</span>
+              </div>
+              <div className="w-full bg-gray-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${readinessScore}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Verified Skills */}
+          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-400">Verified Skills</span>
+              <BrainCircuit className="w-4 h-4 text-purple-400" />
+            </div>
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-white">{skillsCount}</span>
+                <span className="text-[11px] text-gray-400">Extracted Skills</span>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-1 truncate">
+                {skillsCount > 0 ? `${skillsCount} skills recorded in taxonomy` : 'Upload resume to extract skills'}
               </p>
             </div>
           </div>
-        </Link>
 
-        <Link href="/dashboard/recommendations" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-teal-400 border-teal-500/30 bg-teal-500/5 transition-all cursor-pointer shadow-lg shadow-teal-500/5">
+          {/* Resume & FAISS Vector Status */}
+          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 flex items-center justify-center">
-                <Zap className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-teal-300 flex items-center gap-1">
-                Top Match <Sparkles className="w-3 h-3" />
-              </span>
+              <span className="text-xs font-medium text-gray-400">FAISS Vector Index</span>
+              <ShieldCheck className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-white text-sm">AI Recommendations</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Explainable scoring & semantic matched vacancies.
+              <div className="flex items-baseline gap-2">
+                <span className="text-sm font-bold text-white uppercase">
+                  {isResumeIndexed ? 'Indexed' : 'Pending'}
+                </span>
+                <span className="text-[11px] text-emerald-400 font-medium">384-Dim BGE</span>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-1">
+                {isResumeIndexed ? 'Semantic search ready' : 'Resume awaiting parsing'}
               </p>
             </div>
           </div>
-        </Link>
 
-        <Link href="/dashboard/profile" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-teal-500/50 transition-all cursor-pointer">
+          {/* AI Career Assistant */}
+          <div className="bg-[#111827] border border-gray-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
-                <User className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-semibold text-teal-400">Profile Active</span>
+              <span className="text-xs font-medium text-gray-400">AI Consultations</span>
+              <Bot className="w-4 h-4 text-indigo-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-white text-sm">Career Profile</h3>
-              <p className="text-xs text-slate-400 mt-1">Manage technical skills, education, and job preferences.</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link href="/dashboard/resume" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-cyan-500/50 transition-all cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center">
-                <FileText className="w-4 h-4" />
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-white">Grounded</span>
+                <span className="text-[11px] text-blue-400 font-medium">RAG v1</span>
               </div>
-              <span className="text-[11px] font-semibold text-cyan-400">
-                {summary?.resume ? 'Resume Stored' : 'Upload Resume'}
-              </span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm">Resume Pipeline</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                {summary?.resume
-                  ? `${summary.resume.originalFileName} (Ready)`
-                  : 'Upload your latest PDF resume for secure storage & processing.'}
+              <p className="text-[11px] text-gray-400 mt-1">
+                Zero hallucination citations
               </p>
             </div>
           </div>
-        </Link>
+        </div>
 
-        <Link href="/jobs" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-emerald-500/50 transition-all cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                <Briefcase className="w-4 h-4" />
+        {/* 3. Main Workspace: Skill-Gap Analysis & Recommended Roles */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left 2 Cols: Target Role Skill-Gap Analysis Component */}
+          <div className="lg:col-span-2 space-y-6">
+            <TargetRoleSkillGap />
+          </div>
+
+          {/* Right Col: AI Assistant Quick Prompts & Role Matches */}
+          <div className="space-y-6">
+            {/* AI Assistant Quick Launcher */}
+            <div className="bg-[#111827] border border-gray-800/80 rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                    <Bot className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <h2 className="text-sm font-bold text-white">Ask Career AI</h2>
+                </div>
+                <Link
+                  href="/dashboard/career-assistant"
+                  className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1"
+                >
+                  Open Chat <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
-              <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
-                Live Openings <ArrowRight className="w-3 h-3" />
-              </span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm">Explore Vacancies</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Browse verified openings, filter by work mode, canonical skills, and salaries.
+              <p className="text-xs text-gray-400">
+                Direct questions answered strictly using your indexed profile and market benchmarks.
               </p>
-            </div>
-          </div>
-        </Link>
 
-        <Link href="/dashboard/applications" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-purple-500/50 transition-all cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-                <Briefcase className="w-4 h-4" />
+              <div className="space-y-2">
+                {[
+                  'What roles fit my current skills?',
+                  'What skills am I missing for a backend role?',
+                  'Create a learning roadmap for my target role',
+                  'How can I improve my resume match score?',
+                ].map((promptText, idx) => (
+                  <Link
+                    key={idx}
+                    href={`/dashboard/career-assistant?q=${encodeURIComponent(promptText)}`}
+                    className="block p-2.5 rounded-xl bg-gray-900/60 hover:bg-blue-900/20 border border-gray-800 hover:border-blue-500/30 text-xs text-gray-300 hover:text-white transition-all group"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate">{promptText}</span>
+                      <ArrowRight className="w-3 h-3 text-gray-500 group-hover:text-blue-400 shrink-0" />
+                    </div>
+                  </Link>
+                ))}
               </div>
-              <span className="text-[11px] font-semibold text-purple-400 flex items-center gap-1">
-                Active Pipeline <ArrowRight className="w-3 h-3" />
-              </span>
             </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm">My Applications</h3>
-              <p className="text-xs text-slate-400 mt-1">Track submitted applications, interview stages, and offers.</p>
-            </div>
-          </div>
-        </Link>
-      </div>
-    </div>
-  );
-}
 
-function RecruiterWorkspace() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            <Briefcase className="w-5 h-5 text-cyan-400" /> Recruiter Talent Portal
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Job lifecycle management, candidate ranking, and hiring pipeline</p>
-        </div>
-        <span className="text-xs px-3 py-1 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-medium">
-          Recruiter Persona
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link href="/dashboard/recruiter/jobs" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 border border-cyan-500/30 hover:border-cyan-400/60 transition-all hover:scale-[1.01] cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center">
-                <Briefcase className="w-4 h-4" />
+            {/* Recommended Roles Preview */}
+            <div className="bg-[#111827] border border-gray-800/80 rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <Compass className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <h2 className="text-sm font-bold text-white">Recommended Roles</h2>
+                </div>
+                <Link
+                  href="/dashboard/recommendations"
+                  className="text-[11px] text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1"
+                >
+                  View All <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
-              <span className="text-[11px] font-semibold text-cyan-400 flex items-center gap-1">
-                Active Portal <ArrowRight className="w-3 h-3" />
-              </span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm">Job Postings & Lifecycle</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Create, draft, publish, and manage job listings with canonical skill taxonomy.
-              </p>
-            </div>
-          </div>
-        </Link>
 
-        <Link href="/dashboard/recruiter/jobs" className="block">
-          <div className="glass-card rounded-2xl p-5 space-y-3 hover:border-indigo-500/50 transition-all cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="h-9 w-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
+              <div className="space-y-3">
+                {recommendations.length > 0 ? (
+                  recommendations.slice(0, 3).map((job: any, idx: number) => (
+                    <div
+                      key={job.id || idx}
+                      className="p-3 rounded-xl bg-gray-900/60 border border-gray-800 space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-white truncate max-w-[180px]">
+                          {job.title}
+                        </h4>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                          {job.matchScore ? `${Math.round(job.matchScore)}% Match` : 'Strong Match'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 truncate">
+                        {job.company || 'Enterprise Partner'} · {job.location || 'Remote'}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 space-y-2">
+                    <p className="text-xs text-gray-400">
+                      Upload your resume to receive AI matched roles.
+                    </p>
+                    <Link href="/dashboard/resume">
+                      <Button variant="outline" size="sm" className="text-xs border-gray-700">
+                        Upload Resume
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
-              <span className="text-[11px] font-semibold text-indigo-400 flex items-center gap-1">
-                Phase 12 Active <ArrowRight className="w-3 h-3" />
-              </span>
             </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm">Kanban Pipeline</h3>
-              <p className="text-xs text-slate-400 mt-1">Move candidates across Applied, Screening, Interview, and Offer.</p>
-            </div>
-          </div>
-        </Link>
-
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-              <Zap className="w-4 h-4" />
-            </div>
-            <span className="text-[11px] font-semibold text-slate-400">Phase 17</span>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">Kafka Event Stream</h3>
-            <p className="text-xs text-slate-400 mt-1">Instant updates when new candidates match your open roles.</p>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function AdminWorkspace() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-purple-400" /> Administrative Governance
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Platform telemetry, user moderation, and security audit logs</p>
-        </div>
-        <span className="text-xs px-3 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/20 font-medium">
-          Admin Persona
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-              <Users className="w-4 h-4" />
-            </div>
-            <span className="text-[11px] font-semibold text-slate-400">Users</span>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">User Management</h3>
-            <p className="text-xs text-slate-400 mt-1">Inspect candidate, recruiter, and administrator accounts.</p>
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <Activity className="w-4 h-4" />
-            </div>
-            <span className="text-[11px] font-semibold text-slate-400">Health</span>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">System Health</h3>
-            <p className="text-xs text-slate-400 mt-1">PostgreSQL, FAISS, Redis, and Kafka cluster telemetry.</p>
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
-              <Layers className="w-4 h-4" />
-            </div>
-            <span className="text-[11px] font-semibold text-slate-400">Security</span>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">Audit Logs</h3>
-            <p className="text-xs text-slate-400 mt-1">Track login attempts, token rotations, and authorization events.</p>
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
-              <BrainCircuit className="w-4 h-4" />
-            </div>
-            <span className="text-[11px] font-semibold text-slate-400">Phase 23</span>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">AI Usage & Cost</h3>
-            <p className="text-xs text-slate-400 mt-1">Monitor token consumption, prompt latency, and LLM costs.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

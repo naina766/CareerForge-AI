@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import {
-  Sparkles,
   Bot,
   User,
   Plus,
@@ -29,6 +27,7 @@ import {
 } from '@careerforge/types';
 import { api } from '../../../lib/api';
 import { Button } from '../../../components/ui/Button';
+import { DashboardShell } from '../../../components/dashboard/DashboardShell';
 
 export default function CareerAssistantPage() {
   const [conversations, setConversations] = useState<CareerConversationItem[]>([]);
@@ -247,41 +246,11 @@ export default function CareerAssistantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Top Breadcrumb Bar */}
-      <div className="border-b border-slate-800 bg-slate-900/60 px-6 py-3.5 flex items-center justify-between backdrop-blur">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <div>
-            <h1 className="text-base font-semibold text-white flex items-center gap-2">
-              Grounded Career RAG Assistant
-              <span className="text-xs font-normal px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                FAISS + Postgres Grounded
-              </span>
-            </h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/recommendations"
-            className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
-          >
-            ← Recommendations
-          </Link>
-          <span className="text-slate-700">|</span>
-          <Link
-            href="/dashboard"
-            className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
-          >
-            Dashboard
-          </Link>
-        </div>
-      </div>
-
-      {/* Main Workspace Layout */}
-      <div className="flex-1 flex overflow-hidden">
+    <DashboardShell
+      headerTitle="AI Career Mentor"
+      headerDescription="Grounded career intelligence powered by real FastEmbed embeddings and FAISS vector retrieval."
+    >
+      <div className="flex-1 flex overflow-hidden rounded-2xl border border-gray-800 bg-[#0b0f19] h-[calc(100vh-14rem)] min-h-[600px]">
         {/* Left Sidebar: Conversations Drawer */}
         <div className="w-72 border-r border-slate-800 bg-slate-900/40 flex flex-col">
           <div className="p-4 border-b border-slate-800/80">
@@ -647,6 +616,6 @@ export default function CareerAssistantPage() {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardShell>
   );
 }

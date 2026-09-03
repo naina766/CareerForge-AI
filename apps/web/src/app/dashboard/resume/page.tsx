@@ -1,22 +1,18 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 import { api } from '../../../lib/api';
 import { ResumeMetadata, ParsedResume } from '@careerforge/types';
 import {
-  ArrowLeft,
   UploadCloud,
-  FileText,
   Trash2,
   RefreshCw,
   Download,
   AlertCircle,
   CheckCircle2,
   FileCheck2,
-  Lock,
   BrainCircuit,
   Briefcase,
   GraduationCap,
@@ -28,6 +24,7 @@ import {
   Github,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
+import { DashboardShell } from '../../../components/dashboard/DashboardShell';
 
 function formatBytes(bytes: number, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
@@ -290,30 +287,11 @@ export default function ResumeManagementPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Back Navigation & Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors mb-2"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
-          </Link>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <FileText className="w-6 h-6 text-teal-400" /> Resume Storage & Intelligence
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Secure resume ingestion with deterministic section parsing and structured intelligence.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 font-medium flex items-center gap-1.5">
-            <Lock className="w-3 h-3" /> Encrypted & IDOR Protected
-          </span>
-        </div>
-      </div>
+    <DashboardShell
+      headerTitle="Resume & Vector Index"
+      headerDescription="Deterministic section parsing, skill extraction, and FAISS dense vector indexing."
+    >
+      <div className="space-y-8 max-w-5xl">
 
       {/* Alert Banner */}
       {message && (
@@ -899,5 +877,6 @@ export default function ResumeManagementPage() {
         </div>
       )}
     </div>
+    </DashboardShell>
   );
 }
