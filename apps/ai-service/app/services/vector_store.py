@@ -108,8 +108,8 @@ class FAISSVectorStore:
 
         query_vec = self.embedding_provider.embed_text(query).reshape(1, -1)
 
-        # Query more candidates if filtering by resume_id
-        search_k = min(self.index.ntotal, top_k * 5 if resume_id_filter else top_k)
+        # Query sufficient candidate vectors if filtering by resume_id
+        search_k = min(self.index.ntotal, max(top_k * 20, 100) if resume_id_filter else top_k)
         if search_k <= 0:
             return []
 

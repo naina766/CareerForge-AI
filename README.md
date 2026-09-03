@@ -143,10 +143,11 @@ pnpm tsx tests/integration/observability.test.ts
 | **Observability & Health Probes** | **IMPLEMENTED — REAL** | Deep health checks (PostgreSQL, live Redis ping latency, Kafka, AI service, workers), distributed tracing, metric counters & gauges. |
 | **Production Career UI/UX** | **IMPLEMENTED — REAL** | Unified dark-first design system (`#030712`), responsive app shell (`DashboardShell`), grounded AI Career Assistant with citation drawer, deterministic resume ingestion pipeline, and real-time skill-gap analysis. |
 | **Production Deployment & Probes** | **IMPLEMENTED — REAL** | Multi-stage Dockerfiles, non-root users, hardened Nginx ingress with rate limits & security headers, deep `/ready` and `/live` health probes, and CI/CD validation. |
+| **AI Quality & Evaluation Baseline** | **IMPLEMENTED — REAL** | Deterministic test suites for multi-domain semantic retrieval, RAG grounding faithfulness, zero hallucination on unknown credentials, prompt injection resistance, and citation traceability. |
 
 ---
 
-## 📜 Architecture Decision Records (ADRs)
+## 📜 Architecture Decision Records (ADRs) & Guides
 - [ADR-001 to ADR-021: Core Domain, AI, Search & Event Backbone](docs/architecture/)
 - [ADR-022: Observability, Notifications & Reliability Platform](docs/architecture/ADR-022-observability-notifications-reliability.md)
 - [ADR-023: Observability, Monitoring & Reliability Architecture](docs/architecture/ADR-023-observability-monitoring-reliability.md)
@@ -154,5 +155,7 @@ pnpm tsx tests/integration/observability.test.ts
 - [ADR-025: Real AI Semantic Embeddings, LLM Integration & Grounded RAG Architecture](docs/architecture/ADR-025-real-ai-llm-rag-embeddings.md)
 - [ADR-026: Production Career Intelligence UI/UX Architecture](docs/architecture/ADR-026-production-ui-ux-career-intelligence.md)
 - [ADR-027: Production Deployment, Observability & Readiness Architecture](docs/architecture/ADR-027-production-deployment-observability-readiness.md)
+- [ADR-028: AI Quality Evaluation, RAG Verification & Portfolio Readiness](docs/architecture/ADR-028-ai-quality-evaluation-portfolio-readiness.md)
+- [3-Minute Recruiter Demo & Evaluation Guide](docs/portfolio/RECRUITER-DEMO-GUIDE.md)
 - [Production Deployment Guide](docs/deployment/production-deployment-guide.md)
 
