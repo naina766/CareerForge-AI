@@ -141,7 +141,7 @@ pnpm tsx tests/integration/observability.test.ts
 | **API Security & RBAC** | **IMPLEMENTED — REAL** | Role-based access control (`CANDIDATE`, `RECRUITER`, `ADMIN`), IDOR scoping, input sanitization. |
 | **AI Client Resilience** | **IMPLEMENTED — REAL** | 10s request timeout (`AbortController`), bounded retry with exponential backoff on 5xx, stateful Circuit Breaker (`CLOSED`/`OPEN`/`HALF_OPEN`). |
 | **Observability & Health Probes** | **IMPLEMENTED — REAL** | Deep health checks (PostgreSQL, live Redis ping latency, Kafka, AI service, workers), distributed tracing, metric counters & gauges. |
-| **Kafka Event Streaming** | **IMPLEMENTED — REAL** | Producer with timeout racing and in-memory offline fallback buffer for resilient execution. |
+| **Production Career UI/UX** | **IMPLEMENTED — REAL** | Unified dark-first design system (`#030712`), responsive app shell (`DashboardShell`), grounded AI Career Assistant with citation drawer, deterministic resume ingestion pipeline, and real-time skill-gap analysis. |
 
 ---
 
@@ -151,4 +151,5 @@ pnpm tsx tests/integration/observability.test.ts
 - [ADR-023: Observability, Monitoring & Reliability Architecture](docs/architecture/ADR-023-observability-monitoring-reliability.md)
 - [ADR-024: Production Deployment, Security Hardening & CI/CD Platform](docs/architecture/ADR-024-production-deployment-security-cicd.md)
 - [ADR-025: Real AI Semantic Embeddings, LLM Integration & Grounded RAG Architecture](docs/architecture/ADR-025-real-ai-llm-rag-embeddings.md)
+- [ADR-026: Production Career Intelligence UI/UX Architecture](docs/architecture/ADR-026-production-ui-ux-career-intelligence.md)
 

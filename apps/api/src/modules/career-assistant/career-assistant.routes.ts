@@ -47,3 +47,25 @@ careerAssistantRouter.post(
   requireRole('CANDIDATE'),
   CareerAssistantController.submitFeedback
 );
+
+// Real RAG Intelligence Endpoints (Phase 3)
+careerAssistantRouter.post(
+  '/skill-gap',
+  requireAuth,
+  requireRole('CANDIDATE'),
+  CareerAssistantController.analyzeSkillGap
+);
+
+careerAssistantRouter.post(
+  '/recommend-roles',
+  requireAuth,
+  requireRole('CANDIDATE'),
+  CareerAssistantController.recommendRoles
+);
+
+careerAssistantRouter.post(
+  '/learning-roadmap',
+  requireAuth,
+  requireRole('CANDIDATE'),
+  CareerAssistantController.getLearningRoadmap
+);

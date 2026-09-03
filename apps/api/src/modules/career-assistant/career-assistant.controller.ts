@@ -165,4 +165,80 @@ export class CareerAssistantController {
       next(err);
     }
   }
+
+  /**
+   * POST /api/v1/career-assistant/skill-gap
+   */
+  static async analyzeSkillGap(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { targetRole } = req.body || {};
+      const result = await CareerAssistantService.analyzeSkillGap(req.user!.id, targetRole);
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: result,
+        meta: {
+          requestId: req.requestId,
+          correlationId: req.correlationId,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /api/v1/career-assistant/recommend-roles
+   */
+  static async recommendRoles(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { desiredRoles } = req.body || {};
+      const result = await CareerAssistantService.recommendRoles(req.user!.id, desiredRoles);
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: result,
+        meta: {
+          requestId: req.requestId,
+          correlationId: req.correlationId,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /api/v1/career-assistant/learning-roadmap
+   */
+  static async getLearningRoadmap(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { targetRole, skillGaps } = req.body || {};
+      const result = await CareerAssistantService.generateLearningRoadmap(
+        req.user!.id,
+        targetRole,
+        skillGaps
+      );
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: result,
+        meta: {
+          requestId: req.requestId,
+          correlationId: req.correlationId,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

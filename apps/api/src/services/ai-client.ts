@@ -320,6 +320,121 @@ export class AIServiceClient {
   }
 
   /**
+   * Evaluates candidate skills against benchmark target role requirements.
+   */
+  static async analyzeSkillGap(input: {
+    target_role: string;
+    candidate_skills: string[];
+    top_k?: number;
+  }): Promise<any> {
+    const url = `${this.baseUrl}/rag/skill-gap`;
+
+    return await aiCircuitBreaker.execute(
+      async () => {
+        const response = await fetchWithRetryAndTimeout(
+          url,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(input),
+          },
+          { timeoutMs: 8000, maxRetries: 2 }
+        );
+
+        if (!response.ok) {
+          throw new AppError('Skill gap analysis failed', response.status, 'SKILL_GAP_FAILED');
+        }
+
+        return await response.json();
+      },
+      async () => {
+        return {
+          target_role: input.target_role,
+          existing_skills: input.candidate_skills,
+          missing_skills: [],
+          priority_skills: [],
+          grounding_evidence: 'Fallback: Real-time skill analysis temporarily unavailable.',
+          citations: [],
+        };
+      }
+    );
+  }
+
+  /**
+   * Recommends career roles grounded in verified candidate skills and trajectory.
+   */
+  static async recommendCareerRoles(input: {
+    candidate_skills: string[];
+    experience_years?: number;
+    desired_roles?: string[];
+  }): Promise<any> {
+    const url = `${this.baseUrl}/rag/recommend-roles`;
+
+    return await aiCircuitBreaker.execute(
+      async () => {
+        const response = await fetchWithRetryAndTimeout(
+          url,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(input),
+          },
+          { timeoutMs: 10000, maxRetries: 2 }
+        );
+
+        if (!response.ok) {
+          throw new AppError('Role recommendation failed', response.status, 'ROLE_RECOMMENDATION_FAILED');
+        }
+
+        return await response.json();
+      },
+      async () => {
+        return {
+          recommendations: [],
+          citations: [],
+        };
+      }
+    );
+  }
+
+  /**
+   * Generates structured learning roadmap modules.
+   */
+  static async generateLearningRoadmap(input: {
+    target_role: string;
+    skill_gaps: string[];
+  }): Promise<any> {
+    const url = `${this.baseUrl}/rag/learning-roadmap`;
+
+    return await aiCircuitBreaker.execute(
+      async () => {
+        const response = await fetchWithRetryAndTimeout(
+          url,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(input),
+          },
+          { timeoutMs: 10000, maxRetries: 2 }
+        );
+
+        if (!response.ok) {
+          throw new AppError('Learning roadmap generation failed', response.status, 'ROADMAP_GENERATION_FAILED');
+        }
+
+        return await response.json();
+      },
+      async () => {
+        return {
+          target_role: input.target_role,
+          modules: [],
+          citations: [],
+        };
+      }
+    );
+  }
+
+  /**
    * Retrieves FAISS index statistics.
    */
   static async getVectorStats(): Promise<any> {

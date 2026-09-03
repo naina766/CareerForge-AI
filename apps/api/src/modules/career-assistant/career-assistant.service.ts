@@ -457,6 +457,77 @@ export class CareerAssistantService {
     }
   }
 
+  /**
+   * Analyzes candidate skill gaps against a target role using real FastEmbed and FAISS grounding.
+   */
+  static async analyzeSkillGap(
+    candidateUserId: string,
+    targetRole?: string
+  ): Promise<any> {
+    const candidate = await this.getCandidateProfile(candidateUserId);
+
+    // Fetch candidate verified skills from database
+    const candidateSkills = await prisma.candidateSkill.findMany({
+      where: { candidateId: candidate.id },
+      include: { skill: true },
+    });
+
+    const skillNames = candidateSkills.map((cs) => cs.skill.name);
+    const roleToAnalyze = targetRole || candidate.headline || 'Software Engineer';
+
+    return await AIServiceClient.analyzeSkillGap({
+      target_role: roleToAnalyze,
+      candidate_skills: skillNames,
+      top_k: 5,
+    });
+  }
+
+  /**
+   * Generates grounded career role recommendations matching candidate trajectory.
+   */
+  static async recommendRoles(
+    candidateUserId: string,
+    desiredRoles?: string[]
+  ): Promise<any> {
+    const candidate = await this.getCandidateProfile(candidateUserId);
+
+    const candidateSkills = await prisma.candidateSkill.findMany({
+      where: { candidateId: candidate.id },
+      include: { skill: true },
+    });
+
+    const skillNames = candidateSkills.map((cs) => cs.skill.name);
+
+    return await AIServiceClient.recommendCareerRoles({
+      candidate_skills: skillNames,
+      experience_years: candidate.experienceYears || 0,
+      desired_roles: desiredRoles || (candidate.headline ? [candidate.headline] : undefined),
+    });
+  }
+
+  /**
+   * Generates a step-by-step learning roadmap for closing verified skill gaps.
+   */
+  static async generateLearningRoadmap(
+    candidateUserId: string,
+    targetRole?: string,
+    skillGaps?: string[]
+  ): Promise<any> {
+    const candidate = await this.getCandidateProfile(candidateUserId);
+    const role = targetRole || candidate.headline || 'Software Engineer';
+
+    let gaps = skillGaps;
+    if (!gaps || gaps.length === 0) {
+      const gapAnalysis = await this.analyzeSkillGap(candidateUserId, role);
+      gaps = gapAnalysis.missing_skills || [];
+    }
+
+    return await AIServiceClient.generateLearningRoadmap({
+      target_role: role,
+      skill_gaps: gaps || [],
+    });
+  }
+
   private static async getCandidateProfile(userId: string) {
     const candidate = await prisma.candidateProfile.findUnique({
       where: { userId },

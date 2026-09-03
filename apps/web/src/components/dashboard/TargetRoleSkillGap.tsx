@@ -81,58 +81,39 @@ export function TargetRoleSkillGap() {
     setIsAnalyzing(true);
 
     try {
-      // Fetch real skill gap analysis for this job
-      const gapRes = await api.get<{
-        overallMatchScore?: number;
-        readinessScore?: number;
-        missingSkills?: Array<{ name?: string; skillName?: string; priority?: string }>;
-      }>(`/jobs/${job.id}/skill-gaps`);
+      // Fetch real grounded RAG skill gap analysis for this job role
+      const ragRes = await api.post<{
+        target_role: string;
+        existing_skills: string[];
+        missing_skills: string[];
+        priority_skills: string[];
+        grounding_evidence: string;
+        citations: any[];
+      }>('/career-assistant/skill-gap', { targetRole: job.title });
 
-      if (gapRes.data) {
-        const score = gapRes.data.overallMatchScore ?? gapRes.data.readinessScore ?? 78;
-        setReadinessScore(Math.round(score));
+      if (ragRes.data) {
+        const existingCount = ragRes.data.existing_skills?.length || 0;
+        const missingCount = ragRes.data.missing_skills?.length || 0;
+        const total = existingCount + missingCount;
+        const calculatedScore = total > 0 ? Math.round((existingCount / total) * 100) : 75;
+        setReadinessScore(calculatedScore);
 
-        if (gapRes.data.missingSkills && gapRes.data.missingSkills.length > 0) {
-          const mappedGaps: GapItem[] = gapRes.data.missingSkills.slice(0, 4).map((s, idx) => ({
-            skill: s.skillName || s.name || `Skill ${idx + 1}`,
-            priority: (s.priority as 'High' | 'Medium') || (idx < 2 ? 'High' : 'Medium'),
-            category: 'Required Competency',
+        const missing = ragRes.data.missing_skills || [];
+        const priority = new Set(ragRes.data.priority_skills || []);
+
+        if (missing.length > 0) {
+          const mappedGaps: GapItem[] = missing.slice(0, 4).map((skillName) => ({
+            skill: skillName,
+            priority: priority.has(skillName) ? 'High' : 'Medium',
+            category: 'Target Competency',
           }));
           setGaps(mappedGaps);
         }
       }
-    } catch {
-      // Dynamic simulated recalculation based on role
-      const hash = job.title.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-      const calculatedReadiness = 65 + (hash % 28); // Generates 65-93%
-      setReadinessScore(calculatedReadiness);
-
-      if (job.title.toLowerCase().includes('frontend')) {
-        setGaps([
-          { skill: 'Next.js App Router', priority: 'High', category: 'Framework' },
-          { skill: 'Tailwind CSS Animation', priority: 'High', category: 'Styling' },
-          { skill: 'GraphQL Client (Apollo)', priority: 'Medium', category: 'Data Fetching' },
-          { skill: 'Web Vitals & Performance', priority: 'Medium', category: 'Optimization' },
-        ]);
-      } else if (job.title.toLowerCase().includes('ai') || job.title.toLowerCase().includes('ml')) {
-        setGaps([
-          { skill: 'FAISS Vector Indexing', priority: 'High', category: 'Information Retrieval' },
-          { skill: 'PyTorch / Transformers', priority: 'High', category: 'Machine Learning' },
-          { skill: 'RAG Pipeline Optimization', priority: 'Medium', category: 'Generative AI' },
-          { skill: 'Prompt Engineering', priority: 'Medium', category: 'LLM Orchestration' },
-        ]);
-      } else {
-        setGaps([
-          { skill: 'Distributed System Design', priority: 'High', category: 'Architecture' },
-          { skill: 'Kafka Partitioning', priority: 'High', category: 'Event Streaming' },
-          { skill: 'Redis Caching Patterns', priority: 'Medium', category: 'Data Store' },
-          { skill: 'Kubernetes Workloads', priority: 'Medium', category: 'Infrastructure' },
-        ]);
-      }
+    } catch (err) {
+      console.warn('Real-time RAG skill-gap analysis warning:', err);
     } finally {
-      setTimeout(() => {
-        setIsAnalyzing(false);
-      }, 500);
+      setIsAnalyzing(false);
     }
   };
 
