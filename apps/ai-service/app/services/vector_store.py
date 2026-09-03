@@ -6,6 +6,7 @@ import numpy as np
 import faiss
 
 from ..schemas.vector import ChunkInput, VectorSearchMatch
+from ..core.config import settings
 from .embedding_provider import get_embedding_provider, EmbeddingProvider
 
 STORAGE_DIR = os.environ.get("FAISS_INDEX_DIR", os.path.join(os.path.dirname(__file__), "..", "..", "storage", "faiss"))
@@ -25,7 +26,7 @@ class FAISSVectorStore:
         self.embedding_provider = embedding_provider or get_embedding_provider()
         self.dimension = self.embedding_provider.get_dimension()
         self.index_version = 1
-        self.embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
+        self.embedding_model = settings.EMBEDDING_MODEL
 
         os.makedirs(STORAGE_DIR, exist_ok=True)
         self.id_mapping: Dict[str, Dict[str, Any]] = {} # str(idx) -> { chunk_id, resume_id, section, content_hash }

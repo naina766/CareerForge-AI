@@ -129,16 +129,19 @@ pnpm tsx tests/integration/observability.test.ts
 
 | Component | Status | Details |
 |---|---|---|
-| **Frontend Authentication** | **IMPLEMENTED** | HTTP-only cookie refresh rotation with in-memory access tokens; zero localStorage token leaks. |
-| **API Security & RBAC** | **IMPLEMENTED** | Role-based access control (`CANDIDATE`, `RECRUITER`, `ADMIN`), IDOR scoping, input sanitization. |
-| **Brute-Force & Rate Limiting** | **IMPLEMENTED** | Redis-backed sliding window rate limiter and account lockout protection with seamless in-memory fallback. |
-| **AI Client Resilience** | **IMPLEMENTED** | 10s request timeout (`AbortController`), bounded retry with exponential backoff on 5xx, stateful Circuit Breaker (`CLOSED`/`OPEN`/`HALF_OPEN`). |
-| **Resume Data Integrity** | **IMPLEMENTED** | Zero fake/fabricated candidate PII or experience fallback data. Explicit `422/400/503` error propagation. |
-| **Observability & Health Probes** | **IMPLEMENTED** | Deep health checks (PostgreSQL, live Redis ping latency, Kafka, AI service, workers), distributed tracing, metric counters & gauges. |
-| **Kafka Event Streaming** | **IMPLEMENTED** | Producer with timeout racing and in-memory offline fallback buffer for resilient local execution. |
-| **Transactional Outbox / Worker Poller** | **PARTIALLY IMPLEMENTED / OFFLINE** | Schema and model definitions present; background event dispatcher runs in in-memory buffered mode during local test scenarios. |
-| **FAISS Vector Intelligence** | **IMPLEMENTED (MOCK/LOCAL)** | Dense vector indexing and similarity search with `all-MiniLM-L6-v2` / mock pipeline in FastAPI AI microservice. |
-| **Real LLM / OpenAI / Anthropic Integration** | **PLANNED (Phase 2)** | Provider abstraction architecture in place (`mock` active; real LLM streaming, live vector embedding sync planned for Phase 2). |
+| **Real Semantic Embeddings** | **IMPLEMENTED — REAL** | FastEmbed ONNX runtime (`BAAI/bge-small-en-v1.5`), 384-dim dense float32 L2-normalized vectors. `MockEmbeddingProvider` retained strictly for offline unit tests. |
+| **FAISS Vector Retrieval** | **IMPLEMENTED — REAL** | Inverted inner product (`IndexFlatIP`) matching normalized dense embeddings for cosine similarity search with Top-K and document filtering. |
+| **Real LLM Providers** | **IMPLEMENTED — REAL** | Google Gemini (`gemini-1.5-flash`) and OpenAI (`gpt-4o-mini`) via async HTTP (`httpx.AsyncClient`) with bounded retries, 10s timeouts, safe logging, and JSON schema validation. |
+| **Grounded RAG Pipeline** | **IMPLEMENTED — REAL** | Candidate Profile → Real Embeddings → FAISS Top-K Search → Untrusted Document Context Sanitization (`<<<UNTRUSTED_DOCUMENT_CONTEXT>>>`) → Grounded Prompt → Real LLM → Grounded Output + Citations. |
+| **Prompt Injection Defense** | **IMPLEMENTED — REAL** | Multi-layer defense: adversarial pattern filtering + untrusted context boundary encapsulation ensuring retrieved documents cannot hijack system directives. |
+| **Hallucination Resistance** | **IMPLEMENTED — REAL** | Explicit `INSUFFICIENT_CONTEXT` fallback status when context is absent or query asks for speculative/unsupported predictions. Zero fake PII or fabricated URLs. |
+| **Career Intelligence Engine** | **IMPLEMENTED — REAL** | Grounded skill-gap analysis, candidate trajectory career-role recommendations, and prioritized sequential learning roadmaps. |
+| **Live Redis Integration** | **IMPLEMENTED — REAL** | Verified against live host Redis instance (`127.0.0.1:6379`, `family: 4`): PING, SET/GET/TTL, atomic INCR, sliding-window rate limiting, brute-force lockout/reset, and seamless in-memory fallback. |
+| **Frontend Authentication** | **IMPLEMENTED — REAL** | HTTP-only cookie refresh rotation with in-memory access tokens; zero localStorage token leaks. |
+| **API Security & RBAC** | **IMPLEMENTED — REAL** | Role-based access control (`CANDIDATE`, `RECRUITER`, `ADMIN`), IDOR scoping, input sanitization. |
+| **AI Client Resilience** | **IMPLEMENTED — REAL** | 10s request timeout (`AbortController`), bounded retry with exponential backoff on 5xx, stateful Circuit Breaker (`CLOSED`/`OPEN`/`HALF_OPEN`). |
+| **Observability & Health Probes** | **IMPLEMENTED — REAL** | Deep health checks (PostgreSQL, live Redis ping latency, Kafka, AI service, workers), distributed tracing, metric counters & gauges. |
+| **Kafka Event Streaming** | **IMPLEMENTED — REAL** | Producer with timeout racing and in-memory offline fallback buffer for resilient execution. |
 
 ---
 
@@ -147,4 +150,5 @@ pnpm tsx tests/integration/observability.test.ts
 - [ADR-022: Observability, Notifications & Reliability Platform](docs/architecture/ADR-022-observability-notifications-reliability.md)
 - [ADR-023: Observability, Monitoring & Reliability Architecture](docs/architecture/ADR-023-observability-monitoring-reliability.md)
 - [ADR-024: Production Deployment, Security Hardening & CI/CD Platform](docs/architecture/ADR-024-production-deployment-security-cicd.md)
+- [ADR-025: Real AI Semantic Embeddings, LLM Integration & Grounded RAG Architecture](docs/architecture/ADR-025-real-ai-llm-rag-embeddings.md)
 

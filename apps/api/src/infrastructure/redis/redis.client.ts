@@ -13,6 +13,7 @@ export function getRedisClient(): Redis | null {
 
   try {
     redisInstance = new Redis(redisUrl, {
+      family: 4,
       maxRetriesPerRequest: 1,
       connectTimeout: 3000,
       commandTimeout: 3000,
