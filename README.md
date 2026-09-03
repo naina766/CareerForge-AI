@@ -7,50 +7,51 @@
 ## 🏛️ Production Architecture Overview
 
 ```text
-                    ┌─────────────────────────┐
-                    │      Nginx Ingress      │ (Port 80/443, SSL, Rate Limiting)
-                    └────────────┬────────────┘
-                                 │
-             ┌───────────────────┴───────────────────┐
-             │                                       │
-      ┌──────▼──────┐                         ┌──────▼──────┐
-      │ Next.js Web │                         │ Express API │
-      └──────┬──────┘                         └──────┬──────┘
-             │                                       │
-             │           ┌───────────────────────────┼───────────────────────────┐
-             │           │                           │                           │
-             │     ┌─────▼──────┐              ┌─────▼──────┐              ┌─────▼──────┐
-             │     │ PostgreSQL │              │   Redis    │              │   Kafka    │
-             │     │  (Source)  │              │ (Cache/RL) │              │  Backbone  │
-             │     └────────────┘              └────────────┘              └─────┬──────┘
-             │                                                                   │
-             │                     ┌─────────────────────────┬───────────────────┤
-             │                     │                         │                   │
-             │               ┌─────▼──────┐            ┌─────▼──────┐      ┌─────▼──────┐
-             │               │   Resume   │            │     AI     │      │Notification│
-             │               │   Worker   │            │   Worker   │      │   Worker   │
-             │               └─────┬──────┘            └─────┬──────┘      └────────────┘
-             │                     │                         │
-             │                     └────────────┬────────────┘
-             │                                  │
-             │                            ┌─────▼──────┐
-             │                            │ FastAPI AI │
-             │                            │  Service   │
-             │                            └─────┬──────┘
-             │                                  │
-             │                            ┌─────▼──────┐
-             │                            │   FAISS    │
-             │                            │  (Vectors) │
-             │                            └────────────┘
-             └───────────────────────────────────────────────────────────────────
+                               ┌─────────────────────────┐
+                               │      Nginx Ingress      │ (Port 80/443, SSL/TLS, Rate Limiting)
+                               └────────────┬────────────┘
+                                            │
+                        ┌───────────────────┴───────────────────┐
+                        │                                       │
+                 ┌──────▼──────┐                         ┌──────▼──────┐
+                 │ Next.js Web │                         │ Express API │
+                 │ (Port 3000) │                         │ (Port 4000) │
+                 └──────┬──────┘                         └──────┬──────┘
+                        │                                       │
+                        │           ┌───────────────────────────┼───────────────────────────┐
+                        │           │                           │                           │
+                        │     ┌─────▼──────┐              ┌─────▼──────┐              ┌─────▼──────┐
+                        │     │ PostgreSQL │              │   Redis    │              │   Kafka    │
+                        │     │  (Source)  │              │ (Cache/RL) │              │  Backbone  │
+                        │     └────────────┘              └────────────┘              └─────┬──────┘
+                        │                                                                   │
+                        │                     ┌─────────────────────────┬───────────────────┤
+                        │                     │                         │                   │
+                        │               ┌─────▼──────┐            ┌─────▼──────┐      ┌─────▼──────┐
+                        │               │   Resume   │            │     AI     │      │Notification│
+                        │               │   Worker   │            │   Worker   │      │   Worker   │
+                        │               └─────┬──────┘            └─────┬──────┘      └────────────┘
+                        │                     │                         │
+                        │                     └────────────┬────────────┘
+                        │                                  │
+                        │                            ┌─────▼──────┐
+                        │                            │ FastAPI AI │
+                        │                            │  Service   │ (Port 8000)
+                        │                            └─────┬──────┘
+                        │                                  │
+                        │                            ┌─────▼──────┐
+                        │                            │   FAISS    │
+                        │                            │ (384-Dim)  │
+                        │                            └────────────┘
+                        └───────────────────────────────────────────────────────────────────
 ```
 
-### Architectural Invariants
+### Key Architectural Invariants
 - **PostgreSQL**: Transactional ground truth for candidates, jobs, applications, preferences, metrics, and alerts.
-- **FAISS**: High-performance dense vector similarity retrieval engine in FastAPI AI microservice.
+- **FastAPI AI Service**: High-performance Python microservice handling ONNX FastEmbed embeddings (`BAAI/bge-small-en-v1.5`), FAISS `IndexFlatIP` vector search, and Gemini/OpenAI LLMs.
 - **Kafka**: Asynchronous event streaming backbone for non-blocking worker execution.
-- **Redis**: Distributed caching, token blacklists, and multi-tier rate limiting.
-- **Next.js**: Modern, high-performance Dark SaaS interface.
+- **Redis**: Distributed caching, token blacklists, and multi-tier rate limiting with in-memory fallback.
+- **Next.js 14**: Dark-first SaaS App Router interface with in-memory access token security.
 
 ---
 
@@ -59,9 +60,9 @@
 ```text
 careerforge-ai/
 ├── apps/
-│   ├── web/                     # Next.js 14 App Router client (Dark SaaS UI)
-│   ├── api/                     # Node.js / Express TypeScript REST API
-│   └── ai-service/              # Python FastAPI AI & FAISS vector microservice
+│   ├── web/                     # Next.js 14 App Router client (Dark SaaS UI, Port 3000)
+│   ├── api/                     # Node.js / Express TypeScript REST API (Port 4000)
+│   └── ai-service/              # Python FastAPI AI & FAISS vector microservice (Port 8000)
 ├── workers/
 │   ├── resume-worker/           # Resume PDF extraction & taxonomy worker
 │   ├── ai-worker/               # AI matching, skill gaps & recommendations worker
@@ -73,9 +74,10 @@ careerforge-ai/
 ├── infra/
 │   └── nginx/                   # Nginx reverse proxy configuration & security headers
 ├── docs/
-│   ├── architecture/            # Architecture Decision Records (ADR-001 to ADR-024)
+│   ├── architecture/            # Architecture Decision Records (ADR-001 to ADR-028)
 │   ├── deployment/              # Production deployment & incident response guides
-│   └── operations/              # Database backup and recovery SOPs
+│   ├── operations/              # Database backup and recovery SOPs
+│   └── portfolio/               # Recruiter demo guide and evaluation scorecard
 ├── tests/
 │   └── integration/             # Comprehensive multi-phase integration test suites
 ├── docker-compose.prod.yml      # Production multi-container orchestration
@@ -84,44 +86,136 @@ careerforge-ai/
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 How to Run the Project
 
 ### 1. Prerequisites
-- **Node.js**: `v20+`
-- **pnpm**: `v9+`
-- **Docker & Docker Compose**
-- **Python**: `3.11+`
+Ensure you have the following installed:
+- **Node.js**: `v20.x` or higher
+- **pnpm**: `v9.x` (`npm install -g pnpm`)
+- **Python**: `3.11` or higher
+- **Docker & Docker Compose**: (Required for PostgreSQL, Redis, Kafka)
 
-### 2. Environment Setup
+---
+
+### 2. Option A: Run with Docker Compose (Recommended)
+
+This starts all infrastructure services (PostgreSQL, Redis, Kafka, Zookeeper, Nginx, API, AI Service, Web, and Workers) with one command:
+
+```bash
+# 1. Clone repository and copy production environment template
+cp .env.prod.example .env.prod
+
+# 2. Build and launch all containers
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+
+# 3. View status and verify all health checks are passing
+docker compose -f docker-compose.prod.yml ps
+
+# 4. Open in browser:
+# Web Application: http://localhost
+# API Liveness:    http://localhost/live
+# API Readiness:   http://localhost/ready
+# AI Service:      http://localhost:8000/live
+```
+
+---
+
+### 3. Option B: Run in Local Development Mode
+
+#### Step 1: Install Dependencies
+```bash
+# Install Node.js workspace dependencies
+pnpm install
+
+# Setup Python virtual environment for AI Service
+cd apps/ai-service
+python -m venv .venv
+
+# Activate virtual environment (Windows PowerShell: .venv\Scripts\Activate.ps1 | Linux/macOS: source .venv/bin/activate)
+.venv\Scripts\activate
+pip install -r requirements.txt
+cd ../..
+```
+
+#### Step 2: Configure Environment Variables
 ```bash
 cp .env.example .env
-pnpm install
+```
+
+#### Step 3: Start Infrastructure (Postgres & Redis)
+```bash
+# Start Postgres & Redis containers
+docker compose up -d postgres redis
+```
+
+#### Step 4: Setup Database & Seed Synthetic Demo Data
+```bash
+# Push Prisma schema to PostgreSQL
 pnpm exec prisma db push
+
+# Seed taxonomy, jobs, and synthetic demo users
+pnpm --filter "@careerforge/database" seed
 ```
 
-### 3. Start Infrastructure & Development Servers
+#### Step 5: Start Development Servers
+You can run all services concurrently or in separate terminals:
+
 ```bash
-docker compose up -d
+# Concurrently start Web, API, and Workers:
 pnpm dev
+
+# In another terminal (with Python .venv active), start the AI Service:
+cd apps/ai-service
+.venv\Scripts\activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+- **Frontend Web**: [http://localhost:3000](http://localhost:3000)
+- **Backend API**: [http://localhost:4000](http://localhost:4000)
+- **FastAPI AI Service**: [http://localhost:8000](http://localhost:8000)
 
 ---
 
-## 🚢 Production Deployment
+## 🔑 Demo Login Credentials
+
+The database seed provides isolated synthetic accounts for demonstration:
+
+| Role | Email | Password | Access / Capabilities |
+|---|---|---|---|
+| **Candidate** | `candidate.alex@careerforge.ai` | `Password123!` | Dashboard, Grounded AI Career Assistant, Resume Lab, Skill Gap, Learning Roadmap |
+| **Candidate** | `candidate.priya@careerforge.ai` | `Password123!` | Senior AI/ML Systems Engineer Profile |
+| **Recruiter** | `recruiter.techcorp@careerforge.ai` | `Password123!` | Job Posting, Candidate Pipeline, Applicant Review |
+| **Admin** | `admin@careerforge.ai` | `Password123!` | System Telemetry, Health Probes, Metrics, Distributed Traces |
+
+---
+
+## 🧪 Running Automated Test Suites
 
 ```bash
-# Validate production compose config
-docker compose -f docker-compose.prod.yml config
+# 1. TypeScript Static Typecheck
+pnpm typecheck
 
-# Launch production cluster
-docker compose -f docker-compose.prod.yml up -d --build
+# 2. ESLint Static Analysis
+pnpm lint
 
-# Run automated tests
-pnpm tsx tests/integration/production-readiness.test.ts
+# 3. Next.js Production Build Validation
+pnpm build
+
+# 4. Python AI Evaluation & RAG Quality Tests
+apps\ai-service\.venv\Scripts\pytest apps/ai-service/tests
+
+# 5. Security & Circuit Breaker Integration Tests
+pnpm tsx tests/integration/security-resilience.test.ts
+
+# 6. Live Redis Integration & Fallback Tests
+pnpm tsx tests/integration/redis-live-integration.test.ts
+
+# 7. Observability & Telemetry Tests
 pnpm tsx tests/integration/observability.test.ts
-```
 
----
+# 8. Full Production Readiness & Security Tests
+pnpm tsx tests/integration/production-readiness.test.ts
+```
 
 ---
 
@@ -158,4 +252,3 @@ pnpm tsx tests/integration/observability.test.ts
 - [ADR-028: AI Quality Evaluation, RAG Verification & Portfolio Readiness](docs/architecture/ADR-028-ai-quality-evaluation-portfolio-readiness.md)
 - [3-Minute Recruiter Demo & Evaluation Guide](docs/portfolio/RECRUITER-DEMO-GUIDE.md)
 - [Production Deployment Guide](docs/deployment/production-deployment-guide.md)
-
