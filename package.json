@@ -17,6 +17,8 @@
     "prisma:validate": "pnpm --filter @careerforge/database prisma:validate",
     "prisma:migrate": "pnpm --filter @careerforge/database prisma:migrate",
     "prisma:push": "pnpm --filter @careerforge/database prisma:push",
+    "prisma:push:safe": "pnpm --filter @careerforge/database prisma:push:safe",
+    "db:push:safe": "pnpm prisma:push:safe",
     "prisma:seed": "pnpm --filter @careerforge/database prisma:seed",
     "seed": "pnpm prisma:seed",
     "worker:resume": "tsx workers/resume-worker/src/index.ts",
