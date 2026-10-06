@@ -14,6 +14,7 @@ paths = [
   '''dist/.*''',
   '''\.next/.*''',
   '''pnpm-lock\.yaml''',
+  '''apps/ai-service/evaluation/fixtures/.*''',
 ]
 commits = [
   "0c7d48b3de7167a2622f68961ef228dfebad4820",
@@ -23,5 +24,7 @@ regexes = [
   '''default-insecure-jwt-refresh-secret-32-chars-min''',
   '''test_jwt_secret_ci_env_12345''',
   '''test_jwt_refresh_secret_ci_env_67890''',
+  '''test_jwt_access_secret_ci_env_32_chars_min''',
+  '''test_jwt_refresh_secret_ci_env_32_chars_min''',
   '''Password123!''',
 ]

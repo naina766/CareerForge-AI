@@ -37,10 +37,12 @@ const envSchema = z.object({
   MAX_RESUME_SIZE_MB: z.coerce.number().default(5),
   RESUME_STORAGE_DIR: z.string().default('./storage/uploads/resumes'),
   
-  LLM_PROVIDER: z.enum(['mock', 'openai', 'anthropic', 'gemini', 'ollama']).default('mock'),
-  OPENAI_API_KEY: z.string().optional(),
-  ANTHROPIC_API_KEY: z.string().optional(),
+  PRIMARY_LLM_PROVIDER: z.enum(['mock', 'openai', 'gemini', 'openrouter', 'ollama']).default('gemini'),
+  FALLBACK_LLM_PROVIDER: z.enum(['mock', 'openai', 'gemini', 'openrouter', 'ollama']).default('openrouter'),
+  LLM_PROVIDER: z.enum(['mock', 'openai', 'gemini', 'openrouter', 'ollama']).default('gemini'),
   GEMINI_API_KEY: z.string().optional(),
+  OPENROUTER_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
   
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('debug'),
