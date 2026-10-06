@@ -140,13 +140,13 @@ async function runProductionReadinessTests() {
       apiKey: 'sk-secret-key-1234',
       password: 'mypassword',
       parsedText: 'Full unredacted resume content',
-      user: 'test@careerforge.io',
+      user: 'test@careerforge.ai',
     };
     const redacted = StructuredLogger.sanitize(unredacted);
     assert(redacted.apiKey === '[REDACTED]', 'API key not redacted');
     assert(redacted.password === '[REDACTED]', 'Password not redacted');
     assert(redacted.parsedText === '[REDACTED]', 'Parsed text not redacted');
-    assert(redacted.user === 'test@careerforge.io', 'User email altered');
+    assert(redacted.user === 'test@careerforge.ai', 'User email altered');
     console.log('  ✅ Sensitive log redaction verified');
 
     // 17. PostgreSQL readiness

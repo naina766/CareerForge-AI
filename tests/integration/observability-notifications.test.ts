@@ -24,9 +24,9 @@ async function runObservabilityNotificationsIntegrationTests() {
   const baseUrl = `http://localhost:${address.port}/api/v1`;
 
   const timestamp = Date.now();
-  const emailAdmin = `admin.obs.${timestamp}@careerforge.io`;
-  const emailCandA = `cand.a.obs.${timestamp}@careerforge.io`;
-  const emailCandB = `cand.b.obs.${timestamp}@careerforge.io`;
+  const emailAdmin = `admin.obs.${timestamp}@careerforge.ai`;
+  const emailCandA = `cand.a.obs.${timestamp}@careerforge.ai`;
+  const emailCandB = `cand.b.obs.${timestamp}@careerforge.ai`;
 
   try {
     // [1/20] Provision test users and candidate profiles
