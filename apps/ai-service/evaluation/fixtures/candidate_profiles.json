@@ -1,0 +1,54 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "cand-eval-alice-001",
+      "full_name": "Alice Stone (Synthetic)",
+      "target_role": "Senior Backend Engineer",
+      "skills": ["Node.js", "TypeScript", "React", "PostgreSQL", "Docker", "Next.js", "Redis"],
+      "experience_summary": "4 years experience developing REST microservices using Node.js, TypeScript, and Express with PostgreSQL.",
+      "education_summary": "B.S. in Computer Science from Synthetic State University in 2020.",
+      "resume_chunks": [
+        {
+          "id": "chunk-candA-001",
+          "section": "experience",
+          "content": "4 years experience developing REST microservices using Node.js, TypeScript, and Express with PostgreSQL."
+        },
+        {
+          "id": "chunk-candA-002",
+          "section": "projects",
+          "content": "Designed distributed caching systems with Redis and containerized microservices using Docker."
+        },
+        {
+          "id": "chunk-candA-003",
+          "section": "education",
+          "content": "Graduated with B.S. in Computer Science from Synthetic State University in 2020."
+        }
+      ]
+    },
+    {
+      "candidate_id": "cand-eval-bob-002",
+      "full_name": "Bob Miller (Synthetic)",
+      "target_role": "Cloud Backend Engineer",
+      "skills": ["Java", "Spring Boot", "MySQL", "Kubernetes", "Kafka", "AWS"],
+      "experience_summary": "6 years experience architecting high-throughput transaction processing systems with Java and Spring Boot.",
+      "education_summary": "M.S. in Software Engineering at Synthetic Tech Institute in 2018.",
+      "resume_chunks": [
+        {
+          "id": "chunk-candB-001",
+          "section": "experience",
+          "content": "6 years experience architecting high-throughput transaction processing systems with Java and Spring Boot."
+        },
+        {
+          "id": "chunk-candB-002",
+          "section": "projects",
+          "content": "Built event-driven microservices using Apache Kafka event streams and Kubernetes on AWS."
+        },
+        {
+          "id": "chunk-candB-003",
+          "section": "education",
+          "content": "Completed M.S. in Software Engineering at Synthetic Tech Institute in 2018."
+        }
+      ]
+    }
+  ]
+}

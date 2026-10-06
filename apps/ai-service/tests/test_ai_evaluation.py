@@ -16,9 +16,7 @@ from app.core.config import settings
 from pydantic import ValidationError
 
 
-# =========================================================================
 # 1. Embedding Sanity & Dimensionality
-# =========================================================================
 def test_real_embedding_semantic_similarity_sanity():
     """
     Verifies that real semantic embeddings generate 384-dimensional unit vectors
@@ -50,9 +48,7 @@ def test_real_embedding_semantic_similarity_sanity():
     )
 
 
-# =========================================================================
 # 2. Multi-Candidate Semantic Retrieval & Category Relevance
-# =========================================================================
 def test_multi_candidate_semantic_retrieval_and_rejection():
     """
     Indexes distinct candidate profiles (Python/Backend, React/Frontend, Java/Distributed)
@@ -110,9 +106,7 @@ def test_multi_candidate_semantic_retrieval_and_rejection():
     assert res_java[0].similarity_score > 0.60
 
 
-# =========================================================================
 # 3. Grounded RAG Generation & Fact Traceability
-# =========================================================================
 @pytest.mark.asyncio
 async def test_rag_grounded_generation_with_citations():
     """
@@ -145,9 +139,7 @@ async def test_rag_grounded_generation_with_citations():
         assert not src.title.startswith("https://")
 
 
-# =========================================================================
 # 4. Hallucination Resistance & Insufficient Context Handling
-# =========================================================================
 @pytest.mark.asyncio
 async def test_rag_hallucination_resistance_insufficient_context():
     """
@@ -189,9 +181,7 @@ async def test_rag_hallucination_resistance_insufficient_context():
     assert "AWS Certified Solutions Architect" not in res_cert.answer
 
 
-# =========================================================================
 # 5. Prompt Injection Defense (Untrusted Document Sanitization)
-# =========================================================================
 @pytest.mark.asyncio
 async def test_rag_prompt_injection_defense():
     """
@@ -226,9 +216,7 @@ async def test_rag_prompt_injection_defense():
     assert "PWNED" not in res_doc.answer.upper() or "SYSTEM OVERRIDE" not in res_doc.answer
 
 
-# =========================================================================
 # 6. Career Assistant Domain Features (Skill Gap, Roles, Roadmap)
-# =========================================================================
 @pytest.mark.asyncio
 async def test_skill_gap_analysis_grounding():
     """
@@ -284,9 +272,7 @@ async def test_learning_roadmap_generation():
     assert response.modules[0].sequence_order == 1
 
 
-# =========================================================================
 # 7. LLM Provider Factory & Production Safeguard
-# =========================================================================
 def test_llm_provider_factory_safeguards():
     """
     Tests that LLM provider factory correctly instantiates providers and enforces production assertions.
@@ -312,9 +298,7 @@ def test_llm_provider_factory_safeguards():
         f._llm_instance = None
 
 
-# =========================================================================
 # 8. Schema Validation & Malformed Payload Rejection
-# =========================================================================
 def test_rag_schema_validation_rejection():
     """
     Verifies that malformed inputs to RAG schemas raise ValidationError.
@@ -333,9 +317,7 @@ def test_rag_schema_validation_rejection():
         SkillGapAnalysisRequest(candidate_skills=["Python"]) # type: ignore
 
 
-# =========================================================================
 # 9. Grounding & Hallucination Resistance (Supported vs Unsupported)
-# =========================================================================
 @pytest.mark.asyncio
 async def test_rag_supported_vs_unsupported_grounding():
     """
@@ -373,9 +355,7 @@ async def test_rag_supported_vs_unsupported_grounding():
     assert "Kubernetes cluster administration" not in res_unsupported.answer or "INSUFFICIENT_CONTEXT" in res_unsupported.answer or "does not contain" in res_unsupported.answer
 
 
-# =========================================================================
 # 10. Malicious Retrieved Document Injection Resistance
-# =========================================================================
 @pytest.mark.asyncio
 async def test_rag_malicious_resume_prompt_injection():
     """
@@ -426,9 +406,7 @@ async def test_rag_malicious_job_description_prompt_injection():
     assert "CANDIDATE_AUTOMATICALLY_HIRED_SALARY_1M" not in response.answer
 
 
-# =========================================================================
 # 11. Citation Integrity & Strict Traceability
-# =========================================================================
 @pytest.mark.asyncio
 async def test_rag_citation_strict_traceability():
     """
@@ -466,9 +444,7 @@ async def test_rag_citation_strict_traceability():
     assert "University of Technology" in response.sources[0].snippet
 
 
-# =========================================================================
 # 12. Multi-Tenant Candidate Data Isolation
-# =========================================================================
 def test_faiss_multi_tenant_candidate_isolation():
     """
     Indexes distinct candidate chunks into FAISS and asserts that querying with

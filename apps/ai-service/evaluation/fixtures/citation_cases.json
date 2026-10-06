@@ -1,0 +1,56 @@
+{
+  "cases": [
+    {
+      "id": "eval-cite-valid-01",
+      "candidate_id": "cand-eval-alice-001",
+      "claim": "Alice has 4 years experience developing REST microservices using Node.js.",
+      "citation": {
+        "source_type": "RESUME",
+        "source_id": "chunk-candA-001",
+        "snippet": "4 years experience developing REST microservices using Node.js, TypeScript, and Express with PostgreSQL."
+      },
+      "retrieved_chunk_ids": ["chunk-candA-001", "chunk-candA-002"],
+      "allowed_sources": ["chunk-candA-001"],
+      "expected_result": "VALID"
+    },
+    {
+      "id": "eval-cite-nonexistent-02",
+      "candidate_id": "cand-eval-alice-001",
+      "claim": "Alice specializes in quantum computing algorithms.",
+      "citation": {
+        "source_type": "RESUME",
+        "source_id": "chunk-nonexistent-999",
+        "snippet": "Developed quantum computing circuits."
+      },
+      "retrieved_chunk_ids": ["chunk-candA-001", "chunk-candA-002"],
+      "allowed_sources": ["chunk-candA-001", "chunk-candA-002"],
+      "expected_result": "REJECTED_NONEXISTENT"
+    },
+    {
+      "id": "eval-cite-cross-tenant-03",
+      "candidate_id": "cand-eval-alice-001",
+      "claim": "Alice worked on Apache Kafka event streams and Kubernetes.",
+      "citation": {
+        "source_type": "RESUME",
+        "source_id": "chunk-candB-002",
+        "snippet": "Built event-driven microservices using Apache Kafka event streams and Kubernetes on AWS."
+      },
+      "retrieved_chunk_ids": ["chunk-candA-001", "chunk-candA-002"],
+      "allowed_sources": ["chunk-candA-001", "chunk-candA-002"],
+      "expected_result": "REJECTED_FOREIGN_CANDIDATE"
+    },
+    {
+      "id": "eval-cite-unsupported-claim-04",
+      "candidate_id": "cand-eval-alice-001",
+      "claim": "Alice served as Chief Technology Officer and managed 50 engineers.",
+      "citation": {
+        "source_type": "RESUME",
+        "source_id": "chunk-candA-001",
+        "snippet": "4 years experience developing REST microservices using Node.js, TypeScript, and Express with PostgreSQL."
+      },
+      "retrieved_chunk_ids": ["chunk-candA-001"],
+      "allowed_sources": ["chunk-candA-001"],
+      "expected_result": "REJECTED_UNSUPPORTED"
+    }
+  ]
+}

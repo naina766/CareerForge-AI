@@ -1,0 +1,20 @@
+{
+  "questions": [
+    {
+      "id": "eval-mentor-prep-01",
+      "candidate_id": "cand-eval-alice-001",
+      "question": "How should I prepare for a Senior Backend Engineer technical interview?",
+      "expected_topics": ["system design", "APIs", "concurrency", "databases", "microservices"],
+      "grounding_references": ["Senior Backend Engineer", "Node.js", "PostgreSQL"],
+      "category": "career_guidance"
+    },
+    {
+      "id": "eval-mentor-roadmap-02",
+      "candidate_id": "cand-eval-alice-001",
+      "question": "What learning roadmap should I follow to advance from Senior Backend to Staff Engineer?",
+      "expected_topics": ["architecture", "leadership", "distributed systems", "cross-functional impact"],
+      "grounding_references": ["Senior Backend Engineer"],
+      "category": "learning_roadmap"
+    }
+  ]
+}
