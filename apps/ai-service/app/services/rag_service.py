@@ -17,6 +17,8 @@ from ..schemas.rag import (
 from ..services.llm.factory import get_llm_provider
 from ..services.vector_store import FAISSVectorStore
 from ..core.logging import logger
+from .career_assistant import career_assistant_graph, CareerAssistantState
+from ..observability.langsmith import get_tracer
 
 
 class RAGService:
@@ -54,112 +56,87 @@ CRITICAL SECURITY & GROUNDING DIRECTIVES:
 
     @classmethod
     async def generate_response(cls, request: RAGGenerateRequest) -> RAGGenerateResponse:
+        """
+        Executes stateful Career Assistant workflow using LangGraph orchestration,
+        enforcing candidate isolation, FAISS retrieval containment, and strict fact grounding.
+        """
         start_time = time.perf_counter()
-        query_clean = request.query.strip()
-        query_lower = query_clean.lower()
 
-        # 1. Prompt Injection Pre-check
-        if any(pat in query_lower for pat in cls.ADVERSARIAL_PATTERNS):
-            latency = (time.perf_counter() - start_time) * 1000
-            return RAGGenerateResponse(
-                success=True,
-                status="BLOCKED",
-                answer="I can help you with your personalized career data, job matches, skill gaps, and learning roadmaps, but I cannot fulfill requests to bypass security policies or expose internal instructions.",
-                sources=[],
-                confidence=1.0,
-                model="careerforge-security-guard",
-                latency_ms=latency,
-            )
+        initial_docs = [
+            {
+                "source_type": doc.source_type,
+                "source_id": doc.source_id,
+                "title": doc.title,
+                "snippet": doc.snippet,
+                "relevance": doc.relevance,
+            }
+            for doc in request.context_documents
+        ]
 
-        # 2. Vector Retrieval if requested or if context is empty
-        sources: List[RAGSourceSnippet] = list(request.context_documents)
-        if request.use_vector_search or not sources:
-            try:
-                vector_store = FAISSVectorStore.get_instance()
-                matches = vector_store.search(query=query_clean, top_k=request.top_k)
-                for m in matches:
-                    sources.append(
-                        RAGSourceSnippet(
-                            source_type="CAREER_KNOWLEDGE" if not m.section else "RESUME",
-                            source_id=m.chunk_id,
-                            title=f"Section: {m.section}" if m.section else f"Doc {m.chunk_id[:8]}",
-                            snippet=m.content,
-                            relevance=float(m.score),
-                        )
-                    )
-            except Exception as e:
-                logger.warn(f"Vector retrieval fallback in RAGService: {e}")
-
-        # 3. Speculative Query Handling (Hallucination Resistance)
-        speculative_phrases = ["will i get selected", "guarantee an offer", "predict if i get hired", "what is the interviewer thinking", "insider secrets"]
-        if any(sp in query_lower for sp in speculative_phrases):
-            latency = (time.perf_counter() - start_time) * 1000
-            return RAGGenerateResponse(
-                success=True,
-                status="INSUFFICIENT_CONTEXT",
-                answer="I cannot reliably predict hiring outcomes or internal interview decisions. I can, however, evaluate your current profile against the job description to identify skill overlaps, match scores, and learning priorities.",
-                sources=sources[:2],
-                confidence=0.9,
-                model="careerforge-grounded-rag-v1",
-                latency_ms=latency,
-            )
-
-        # 4. Check for Unsupported Domain Questions when context is empty
-        if not sources and not request.candidate_profile:
-            latency = (time.perf_counter() - start_time) * 1000
-            return RAGGenerateResponse(
-                success=True,
-                status="INSUFFICIENT_CONTEXT",
-                answer="INSUFFICIENT_CONTEXT: No relevant resume, profile, or job context is available to answer this inquiry. Please upload a resume or select a target job.",
-                sources=[],
-                confidence=0.85,
-                model="careerforge-grounded-rag-v1",
-                latency_ms=latency,
-            )
-
-        # 5. Build Untrusted Document Context Block
-        doc_context_parts = []
-        for idx, doc in enumerate(sources, 1):
-            doc_context_parts.append(
-                f"[Doc {idx}: {doc.title} (Type: {doc.source_type}, Score: {doc.relevance:.2f})]\n{doc.snippet or 'No text'}"
-            )
-        untrusted_docs_block = "\n\n".join(doc_context_parts) if doc_context_parts else "No documents retrieved."
-
-        profile_context = ""
-        if request.candidate_profile:
-            profile_context = f"\nCandidate Profile: {request.candidate_profile}\n"
-
-        prompt = f"""<<<UNTRUSTED_DOCUMENT_CONTEXT>>>
-{untrusted_docs_block}
-<<<END_UNTRUSTED_DOCUMENT_CONTEXT>>>
-{profile_context}
-User Query: {query_clean}
-
-Please provide a grounded, actionable response with citations:"""
-
-        # 6. Execute LLM Provider
-        llm = get_llm_provider()
-        llm_result = await llm.generate_text(
-            prompt=prompt,
-            system_prompt=cls.SYSTEM_INSTRUCTIONS,
-            temperature=0.2,
-            max_tokens=800,
+        tracer = get_tracer(
+            request_id=request.request_id,
+            correlation_id=request.correlation_id,
+            candidate_id=request.candidate_id,
+            intent=request.intent or "general_career",
         )
 
-        latency = (time.perf_counter() - start_time) * 1000
-        answer_text = llm_result.content
+        initial_state: CareerAssistantState = {
+            "candidate_id": request.candidate_id,
+            "resume_id": request.resume_id,
+            "conversation_id": request.conversation_id,
+            "request_id": request.request_id,
+            "correlation_id": request.correlation_id,
+            "tracer": tracer,
+            "user_message": request.query,
+            "intent": request.intent or "general_career",
+            "candidate_context": request.candidate_profile,
+            "retrieved_context": initial_docs,
+            "recent_history": request.recent_history or [],
+            "use_vector_search": request.use_vector_search,
+            "retry_count": 0,
+            "max_retries": 2,
+        }
 
-        status = "SUCCESS"
-        if "INSUFFICIENT_CONTEXT" in answer_text:
-            status = "INSUFFICIENT_CONTEXT"
+        config = {
+            "metadata": {
+                "request_id": request.request_id,
+                "correlation_id": request.correlation_id,
+                "intent": request.intent or "general_career",
+            }
+        }
+
+        final_state = await career_assistant_graph.ainvoke(initial_state, config=config)
+
+        sources_out: List[RAGSourceSnippet] = []
+        raw_sources = final_state.get("citations") or final_state.get("retrieved_context") or []
+        for s in raw_sources:
+            sources_out.append(
+                RAGSourceSnippet(
+                    source_type=s.get("source_type", "CAREER_KNOWLEDGE"),
+                    source_id=s.get("source_id"),
+                    title=s.get("title", "Document"),
+                    snippet=s.get("snippet"),
+                    relevance=float(s.get("relevance", 1.0)),
+                )
+            )
+
+        latency = (time.perf_counter() - start_time) * 1000
+
+        tracer.end_trace(
+            final_status=final_state.get("status", "SUCCESS"),
+            confidence=float(final_state.get("confidence", 0.95)),
+            citations_count=len(sources_out),
+            retries_used=final_state.get("retry_count", 0),
+            error=final_state.get("error"),
+        )
 
         return RAGGenerateResponse(
             success=True,
-            status=status,
-            answer=answer_text,
-            sources=sources[:5],
-            confidence=0.95,
-            model=llm_result.model,
+            status=final_state.get("status", "SUCCESS"),
+            answer=final_state.get("generated_response") or "Unable to generate response.",
+            sources=sources_out[:5],
+            confidence=float(final_state.get("confidence", 0.95)),
+            model=final_state.get("model_name", "careerforge-grounded-rag-v1"),
             latency_ms=latency,
         )
 

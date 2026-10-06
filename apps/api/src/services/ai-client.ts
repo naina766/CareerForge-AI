@@ -289,6 +289,9 @@ export class AIServiceClient {
   static async generateRAGResponse(input: {
     query: string;
     intent?: string;
+    candidate_id?: string;
+    resume_id?: string;
+    conversation_id?: string;
     candidate_profile?: any;
     context_documents?: any[];
     recent_history?: any[];

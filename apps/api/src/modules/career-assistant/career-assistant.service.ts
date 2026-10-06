@@ -202,6 +202,9 @@ export class CareerAssistantService {
     if (!query) {
       throw new AppError('Message content cannot be empty', 400, 'EMPTY_MESSAGE');
     }
+    if (query.length > 2000) {
+      throw new AppError('Message content exceeds maximum allowed limit of 2000 characters', 400, 'MESSAGE_TOO_LONG');
+    }
 
     const startTime = Date.now();
 
@@ -268,6 +271,8 @@ export class CareerAssistantService {
       const aiResponse = await AIServiceClient.generateRAGResponse({
         query,
         intent,
+        candidate_id: candidate.id,
+        conversation_id: conv.id,
         candidate_profile: retrievedContext.candidateProfile,
         context_documents: promptEnvelope.contextPayload,
         recent_history: conv.messages.map((m) => ({ role: m.role, content: m.content })),

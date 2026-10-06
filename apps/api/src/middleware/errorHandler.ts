@@ -25,6 +25,41 @@ export const errorHandler: ErrorRequestHandler = (
   const correlationId = req.correlationId || (req.headers['x-correlation-id'] as string) || req.requestId;
   const requestId = req.requestId || (req.headers['x-request-id'] as string) || `req_${Date.now()}`;
   const isProduction = process.env.NODE_ENV === 'production';
+  // Handle Malformed JSON (SyntaxError from body-parser)
+  if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400) {
+    const errorResponse: ApiErrorResponse = {
+      success: false,
+      error: {
+        code: 'MALFORMED_JSON',
+        message: 'Malformed JSON payload in request body',
+      },
+      meta: {
+        requestId,
+        correlationId,
+        timestamp: new Date().toISOString(),
+      },
+    };
+    res.status(400).json(errorResponse);
+    return;
+  }
+
+  // Handle Payload Too Large (status 413 from body-parser)
+  if ('status' in err && (err as any).status === 413) {
+    const errorResponse: ApiErrorResponse = {
+      success: false,
+      error: {
+        code: 'PAYLOAD_TOO_LARGE',
+        message: 'Request payload exceeds maximum permitted size',
+      },
+      meta: {
+        requestId,
+        correlationId,
+        timestamp: new Date().toISOString(),
+      },
+    };
+    res.status(413).json(errorResponse);
+    return;
+  }
 
   // Handle Zod Validation Errors
   if (err instanceof ZodError) {
