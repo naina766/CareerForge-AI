@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "@careerforge/config": "workspace:*",
-    "@prisma/client": "^5.19.1"
+    "@prisma/client": "^5.22.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
-    "prisma": "^5.19.1",
+    "prisma": "^5.22.0",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"

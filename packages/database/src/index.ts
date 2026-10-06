@@ -1,10 +1,17 @@
 export * from './client.js';
-export * from './vector.js';
+export { prisma } from './client.js';
 export * from './repositories/user.repository.js';
+export { UserRepository } from './repositories/user.repository.js';
 export * from './repositories/candidate.repository.js';
+export { CandidateRepository } from './repositories/candidate.repository.js';
 export * from './repositories/job.repository.js';
+export { JobRepository } from './repositories/job.repository.js';
 export * from './repositories/skill.repository.js';
+export { SkillRepository } from './repositories/skill.repository.js';
 export * from './repositories/resume.repository.js';
+export { ResumeRepository } from './repositories/resume.repository.js';
 export * from './repositories/application.repository.js';
+export { ApplicationRepository } from './repositories/application.repository.js';
 export * from './repositories/matchReport.repository.js';
+export { MatchReportRepository } from './repositories/matchReport.repository.js';
 export * from '@prisma/client';
