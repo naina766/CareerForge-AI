@@ -44,3 +44,5 @@ class VectorStatsResponse(BaseModel):
     embedding_dimension: int
     embedding_model: str
     index_version: int
+    rebuild_required: Optional[bool] = False
+    storage_path: Optional[str] = None
