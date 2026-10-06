@@ -41,7 +41,7 @@ CareerForge AI uses a polyglot microservice architecture designed for transactio
         v                 |
 [ Redis 7 ]               +--> [ LangGraph Workflow ]
   (Cache & Limits)        |
-        |                 +--> [ LLM Provider (OpenRouter / Fallback) ]
+        |                 +--> [ LLM Provider (Gemini / OpenRouter Fallback) ]
         v
 [ Apache Kafka 3.7 (KRaft) ]
         |
@@ -83,7 +83,7 @@ The AI service (`apps/ai-service`) is built with FastAPI, LangGraph, and FAISS:
 - **FAISS Vector Store**: In-memory cosine similarity search backed by atomic disk persistence, scoped strictly to candidate resume chunks.
 - **Grounding & Citation Enforcement**: Generated answers must cite candidate resume chunks; responses containing unsupported claims trigger fallback paths.
 - **Safety & PromptGuard**: Multi-layer input sanitization rejects adversarial prompt injections, system prompt override attempts, and payload tampering.
-- **Dual Provider Architecture**: Primary OpenRouter integration with automated zero-dependency fallback providers for resilient offline operation.
+- **Dual Provider Architecture**: Primary Google Gemini integration with automated OpenRouter and zero-dependency fallback providers for resilient offline operation.
 
 ---
 
@@ -138,7 +138,7 @@ $$\text{Recommendation Score} = 0.40 \times \text{Skills} + 0.25 \times \text{Se
 - **Parsing Pipeline**: Extracts clean textual content from PDF documents while rejecting malformed or unsupported file structures.
 - **Text Normalization**: Strips control characters, normalizes whitespace, and parses distinct sections (Work History, Education, Skills, Projects).
 - **Chunking & Indexing**: Segments resume text into overlapping token windows and generates 384-dimensional embeddings via FastEmbed.
-- **Scoped Persistence**: Embeddings are stored in candidate-isolated FAISS indices with atomic snapshot persistence to disk.
+- **Scoped Persistence**: Embeddings are stored in a FAISS semantic index with candidate-scoped metadata filtering and atomic snapshot persistence to disk.
 
 ---
 
@@ -176,7 +176,7 @@ CareerForge AI maintains a comprehensive, deterministic test strategy:
 
 - **API Integration Suite**: 13 Supertest suites validating authentication, candidate management, job matching, applications, and security controls against real databases.
 - **AI Service Unit & Integration**: 125 pytest cases testing FAISS indexing, PromptGuard filters, LangGraph graph execution, and schema validation.
-- **AI Quality & Safety Evaluation**: Automated evaluation runner executing 20 synthetic test cases against strict thresholds for grounding, injection defense, and latency.
+- **AI Quality & Safety Evaluation**: Automated evaluation runner executing 24 synthetic test cases against strict thresholds for grounding, injection defense, and latency.
 
 ```bash
 # Run API integration test suites (Supertest)
@@ -289,13 +289,13 @@ Key environment settings:
 - `KAFKA_BROKERS`: Kafka broker list (`localhost:9092`).
 - `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`: Cryptographic secrets for access and refresh tokens.
 - `AI_SERVICE_URL`: Internal endpoint for the AI service (`http://localhost:8000`).
-- `OPENROUTER_API_KEY`: API key for LLM provider (optional in local development when using fallback mock).
+- `GEMINI_API_KEY` / `OPENROUTER_API_KEY`: API credentials for primary and fallback LLM providers (optional in local development when using fallback mock).
 
 ---
 
 ## Production Architecture
 
-- **Multi-Stage Docker Containers**: Minimal Alpine and Slim base images with non-root security contexts (`UID 10001`).
+- **Multi-Stage Docker Containers**: Minimal Alpine and Slim base images with non-root security contexts (`UID 1001`).
 - **Process Isolation**: API gateway, AI service, Next.js frontend, and Kafka workers run in independent container sandboxes.
 - **Health Probes**: Liveness and readiness probes on all HTTP services.
 - **Orchestration**: Production Compose configuration in `docker-compose.prod.yml` with health checks, restart policies, and persistent named volumes.
@@ -331,7 +331,7 @@ CareerForgeAi/
 - **Build & Types**: Passing across all TypeScript packages and Next.js frontend.
 - **Test Coverage**: 13 Supertest API integration suites and 125 Python AI test cases fully operational.
 - **Evaluation Gates**: Automated CI evaluation suite with 100% pass rate on safety, grounding, and deterministic formulas.
-- **Security Compliance**: Zero high/critical vulnerabilities in direct dependencies; candidate data isolation enforced at database and vector tiers.
+- **Security Compliance**: Automated dependency auditing and Gitleaks secret scanning configured; candidate data isolation enforced at database and vector tiers.
 
 ---
 

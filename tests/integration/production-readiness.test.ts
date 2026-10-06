@@ -83,8 +83,8 @@ async function runProductionReadinessTests() {
     console.log('  ✅ Rate limiter recovery verified');
 
     // 11. Oversized request rejection
-    console.log('[11/25] Testing oversized resume rejection (>10MB)...');
-    const oversizedBuffer = Buffer.alloc(11 * 1024 * 1024);
+    console.log('[11/25] Testing oversized resume rejection (>5MB)...');
+    const oversizedBuffer = Buffer.alloc(6 * 1024 * 1024);
     let sizeError = false;
     try {
       FileSecurityValidator.validateMagicBytes(oversizedBuffer, 'application/pdf');

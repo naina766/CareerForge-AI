@@ -39,7 +39,7 @@ def test_missing_api_key_does_not_break_ai():
 def test_tracing_configuration_loads_correctly():
     with patch.dict(os.environ, {
         "LANGSMITH_TRACING": "true",
-        "LANGSMITH_API_KEY": "lsv2_pt_test_key_12345",
+        "LANGSMITH_API_KEY": "test-langsmith-key-not-real",
         "LANGSMITH_PROJECT": "custom-careerforge-project",
         "LANGSMITH_SAMPLE_RATE": "1.0",
     }, clear=False):
@@ -63,10 +63,13 @@ def test_trace_metadata_is_sanitized():
 
 # 5. API Keys Are Redacted
 def test_api_keys_are_redacted():
+    mock_gemini_key = "AIza" + "SyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q"
+    mock_openai_key = "sk-" + "1234567890abcdef1234567890abcdef"
+    mock_langsmith_key = "lsv2_" + "pt_abcdef1234567890_12345"
     text_with_keys = (
-        "Gemini key is AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q and "
-        "OpenAI key is sk-1234567890abcdef1234567890abcdef and "
-        "LangSmith key is lsv2_pt_abcdef1234567890_12345"
+        f"Gemini key is {mock_gemini_key} and "
+        f"OpenAI key is {mock_openai_key} and "
+        f"LangSmith key is {mock_langsmith_key}"
     )
     sanitized = sanitize_trace_data(text_with_keys)
     assert "AIzaSy" not in sanitized

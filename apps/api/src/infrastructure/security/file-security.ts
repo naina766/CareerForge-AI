@@ -8,7 +8,7 @@ const ALLOWED_MIME_TYPES = new Set([
 ]);
 
 const ALLOWED_EXTENSIONS = new Set(['.pdf', '.doc', '.docx']);
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 export class FileSecurityValidator {
   /**
@@ -40,7 +40,7 @@ export class FileSecurityValidator {
     }
 
     if (buffer.length > MAX_FILE_SIZE_BYTES) {
-      throw new AppError('File size exceeds maximum allowed limit of 10MB.', 400, 'FILE_TOO_LARGE');
+      throw new AppError('File size exceeds maximum allowed limit of 5MB.', 400, 'FILE_TOO_LARGE');
     }
 
     // PDF Magic Bytes: %PDF (0x25 0x50 0x44 0x46)

@@ -126,6 +126,31 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      kafka:
+        image: apache/kafka:3.7.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+          KAFKA_NUM_PARTITIONS: 3
+          CLUSTER_ID: "4L622nShTUiBenYhPXlu6Q"
+        options: >-
+          --health-cmd "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -156,10 +181,12 @@ jobs:
           pnpm tsx tests/integration/redis-live-integration.test.ts
           pnpm tsx tests/integration/observability.test.ts
           pnpm tsx tests/integration/production-readiness.test.ts
+          pnpm tsx tests/integration/kafka-events.test.ts
           pnpm test
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
           REDIS_URL: redis://localhost:6379
+          KAFKA_BROKERS: localhost:9092
           JWT_ACCESS_SECRET: test_jwt_access_secret_ci_env_32_chars_min
           JWT_REFRESH_SECRET: test_jwt_refresh_secret_ci_env_32_chars_min
           NODE_ENV: test

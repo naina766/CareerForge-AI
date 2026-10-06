@@ -41,7 +41,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/careerforge?schema=public}
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
       - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai-service:8000/api/v1}
@@ -110,7 +110,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/careerforge?schema=public}
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
       - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
       - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai-service:8000/api/v1}
     depends_on:
@@ -131,7 +131,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/careerforge?schema=public}
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
       - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
       - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai-service:8000/api/v1}
     depends_on:
@@ -152,7 +152,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/careerforge?schema=public}
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
       - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
     depends_on:
       postgres:
@@ -168,7 +168,7 @@ services:
     restart: always
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       - POSTGRES_DB=${POSTGRES_DB:-careerforge}
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
