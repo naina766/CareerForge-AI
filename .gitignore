@@ -38,8 +38,13 @@ yarn-debug.log*
 .turbo/
 storage/uploads/*
 !storage/uploads/.gitkeep
+apps/api/storage/
 storage/faiss/*
 !storage/faiss/.gitkeep
+apps/ai-service/storage/faiss/*
+!apps/ai-service/storage/faiss/.gitkeep
+apps/ai-service/evaluation/reports/*
+!apps/ai-service/evaluation/reports/.gitkeep
 
 
 # OS / IDE
