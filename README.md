@@ -1,254 +1,342 @@
 # CareerForge AI
 
-> Enterprise-grade, AI-powered Career & Job Intelligence Platform with Explainable Matching, ATS Analysis, Grounded RAG Career Assistant, Kafka Event Streaming, FAISS Semantic Retrieval, Production Observability, and Hardened Security.
+CareerForge AI is an AI-powered career intelligence, job matching, and talent analytics platform built as a TypeScript and Python monorepo. It combines deterministic skill-gap analysis, explainable job matching, semantic resume retrieval, and candidate-scoped conversational career mentoring.
 
 ---
 
-## 🏛️ Production Architecture Overview
+## Overview
 
-```text
-                               ┌─────────────────────────┐
-                               │      Nginx Ingress      │ (Port 80/443, SSL/TLS, Rate Limiting)
-                               └────────────┬────────────┘
-                                            │
-                        ┌───────────────────┴───────────────────┐
-                        │                                       │
-                 ┌──────▼──────┐                         ┌──────▼──────┐
-                 │ Next.js Web │                         │ Express API │
-                 │ (Port 3000) │                         │ (Port 4000) │
-                 └──────┬──────┘                         └──────┬──────┘
-                        │                                       │
-                        │           ┌───────────────────────────┼───────────────────────────┐
-                        │           │                           │                           │
-                        │     ┌─────▼──────┐              ┌─────▼──────┐              ┌─────▼──────┐
-                        │     │ PostgreSQL │              │   Redis    │              │   Kafka    │
-                        │     │  (Source)  │              │ (Cache/RL) │              │  Backbone  │
-                        │     └────────────┘              └────────────┘              └─────┬──────┘
-                        │                                                                   │
-                        │                     ┌─────────────────────────┬───────────────────┤
-                        │                     │                         │                   │
-                        │               ┌─────▼──────┐            ┌─────▼──────┐      ┌─────▼──────┐
-                        │               │   Resume   │            │     AI     │      │Notification│
-                        │               │   Worker   │            │   Worker   │      │   Worker   │
-                        │               └─────┬──────┘            └─────┬──────┘      └────────────┘
-                        │                     │                         │
-                        │                     └────────────┬────────────┘
-                        │                                  │
-                        │                            ┌─────▼──────┐
-                        │                            │ FastAPI AI │
-                        │                            │  Service   │ (Port 8000)
-                        │                            └─────┬──────┘
-                        │                                  │
-                        │                            ┌─────▼──────┐
-                        │                            │   FAISS    │
-                        │                            │ (384-Dim)  │
-                        │                            └────────────┘
-                        └───────────────────────────────────────────────────────────────────
+CareerForge AI provides candidates and recruiters with actionable career intelligence. Instead of relying on opaque scoring models or manual resume screening, the platform couples deterministic evaluation algorithms with grounded semantic search. Candidates receive clear breakdowns of skill gaps, personalized learning paths, and an AI mentor capable of answering career questions with direct citations to their resume. Recruiters manage requisitions, review structured match reports, and track candidates across a multi-stage hiring pipeline.
+
+---
+
+## Core Product Capabilities
+
+- **Deterministic Skill-Gap Analysis**: Automated comparison of candidate profiles against job requirements, identifying missing proficiencies and generating sequenced learning recommendations.
+- **Explainable Job Matching**: Weighted, multi-criteria scoring combining deterministic skill overlap, experience calibration, semantic similarity, and candidate preferences.
+- **Resume Intelligence**: Fast multi-format PDF parsing, text sanitization, section extraction, and candidate-scoped dense embedding generation.
+- **Grounded AI Career Mentor**: Interactive conversational guidance powered by LangGraph and FAISS, strictly grounded in candidate resume data with verifiable citations.
+- **Recruiter Requisition & Pipeline Management**: End-to-end job requisition lifecycle, automated candidate evaluation, and application status transitions.
+- **Enterprise Observability**: Distributed tracing via LangSmith, health monitoring across backing services, and domain event streaming via Apache Kafka.
+
+---
+
+## Architecture
+
+CareerForge AI uses a polyglot microservice architecture designed for transactional consistency, event-driven decoupling, and isolated vector retrieval.
+
+### System Diagram
+
+```
+[ Browser / Next.js Client ]
+             |
+             v (HTTP / REST)
+     [ Express API Gateway ]
+        |                 |
+        | (Prisma)        | (Internal REST)
+        v                 v
+[ PostgreSQL 16 ]   [ FastAPI AI Service ]
+  (Source of Truth)       |
+        |                 +--> [ FAISS Vector Store ] (FastEmbed 384-dim)
+        v                 |
+[ Redis 7 ]               +--> [ LangGraph Workflow ]
+  (Cache & Limits)        |
+        |                 +--> [ LLM Provider (OpenRouter / Fallback) ]
+        v
+[ Apache Kafka 3.7 (KRaft) ]
+        |
+        +---> [ Resume Worker ]
+        +---> [ AI Worker ]
+        +---> [ Notification Worker ]
 ```
 
-### Key Architectural Invariants
-- **PostgreSQL**: Transactional ground truth for candidates, jobs, applications, preferences, metrics, and alerts.
-- **FastAPI AI Service**: High-performance Python microservice handling ONNX FastEmbed embeddings (`BAAI/bge-small-en-v1.5`), FAISS `IndexFlatIP` vector search, and Gemini/OpenAI LLMs.
-- **Kafka**: Asynchronous event streaming backbone for non-blocking worker execution.
-- **Redis**: Distributed caching, token blacklists, and multi-tier rate limiting with in-memory fallback.
-- **Next.js 14**: Dark-first SaaS App Router interface with in-memory access token security.
+### Architectural Decisions & Invariants
+- **PostgreSQL 16**: Primary transactional source of truth for users, profiles, jobs, applications, and domain events.
+- **FAISS Vector Store**: In-memory cosine similarity search (`IndexFlatIP`) with disk persistence, isolated within the Python AI microservice.
+- **pgvector is not used**: Vector operations are completely decoupled from relational transactions.
+- **Apache Kafka 3.7 (KRaft Mode)**: Distributed event bus operating without ZooKeeper for background worker orchestration.
+- **Redis 7**: High-performance key-value caching, rate limiting, and distributed state management.
+- **Multi-Tenant Isolation**: Candidate data is strictly isolated across relational tables (foreign key constraints) and FAISS vector indices (candidate-scoped metadata filtering).
 
 ---
 
-## 📁 Monorepo Layout
+## Technology Stack
 
-```text
-careerforge-ai/
-├── apps/
-│   ├── web/                     # Next.js 14 App Router client (Dark SaaS UI, Port 3000)
-│   ├── api/                     # Node.js / Express TypeScript REST API (Port 4000)
-│   └── ai-service/              # Python FastAPI AI & FAISS vector microservice (Port 8000)
-├── workers/
-│   ├── resume-worker/           # Resume PDF extraction & taxonomy worker
-│   ├── ai-worker/               # AI matching, skill gaps & recommendations worker
-│   └── notification-worker/     # Real-time event notifications & alerts worker
-├── packages/
-│   ├── types/                   # Shared TypeScript models, envelopes, event schemas
-│   ├── database/                # Prisma client & database repositories
-│   └── config/                  # Centralized Zod-validated environment config
-├── infra/
-│   └── nginx/                   # Nginx reverse proxy configuration & security headers
-├── docs/
-│   ├── architecture/            # Architecture Decision Records (ADR-001 to ADR-028)
-│   ├── deployment/              # Production deployment & incident response guides
-│   ├── operations/              # Database backup and recovery SOPs
-│   └── portfolio/               # Recruiter demo guide and evaluation scorecard
-├── tests/
-│   └── integration/             # Comprehensive multi-phase integration test suites
-├── docker-compose.prod.yml      # Production multi-container orchestration
-└── .github/workflows/           # CI/CD, security audit, and dependabot automation
-```
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Lucide Icons |
+| **Backend API** | Node.js 22 LTS, Express 4, TypeScript, Prisma ORM, Winston, Zod |
+| **AI Microservice** | Python 3.11, FastAPI, LangGraph, LangChain, FAISS (CPU), FastEmbed, Pydantic v2 |
+| **Databases & Cache** | PostgreSQL 16 Alpine, Redis 7 Alpine |
+| **Event Streaming** | Apache Kafka 3.7 (KRaft Mode) |
+| **Testing** | Supertest (API integration), pytest & pytest-asyncio (Python), synthetic evaluation gates |
+| **Infrastructure** | Docker, Docker Compose, GitHub Actions, pnpm Workspaces |
 
 ---
 
-## 🚀 How to Run the Project
+## AI Architecture
 
-### 1. Prerequisites
-Ensure you have the following installed:
-- **Node.js**: `v20.x` or higher
-- **pnpm**: `v9.x` (`npm install -g pnpm`)
-- **Python**: `3.11` or higher
-- **Docker & Docker Compose**: (Required for PostgreSQL, Redis, Kafka)
+The AI service (`apps/ai-service`) is built with FastAPI, LangGraph, and FAISS:
+
+- **LangGraph StateGraph**: Orchestrates the Career Mentor workflow through discrete nodes: intent classification, candidate-scoped context retrieval, LLM response generation, and output grounding validation.
+- **FastEmbed (`BAAI/bge-small-en-v1.5`)**: Generates 384-dimensional dense embeddings with L2 normalization.
+- **FAISS Vector Store**: In-memory cosine similarity search backed by atomic disk persistence, scoped strictly to candidate resume chunks.
+- **Grounding & Citation Enforcement**: Generated answers must cite candidate resume chunks; responses containing unsupported claims trigger fallback paths.
+- **Safety & PromptGuard**: Multi-layer input sanitization rejects adversarial prompt injections, system prompt override attempts, and payload tampering.
+- **Dual Provider Architecture**: Primary OpenRouter integration with automated zero-dependency fallback providers for resilient offline operation.
 
 ---
 
-### 2. Option A: Run with Docker Compose (Recommended)
+## Candidate Workflow
 
-This starts all infrastructure services (PostgreSQL, Redis, Kafka, Zookeeper, Nginx, API, AI Service, Web, and Workers) with one command:
+1. **Registration & Profile Setup**: Candidate signs up, configures career preferences, target roles, and self-reported proficiencies.
+2. **Resume Upload**: Candidate uploads a PDF resume, processed asynchronously through Kafka to extract structured text and generate vector embeddings.
+3. **Job Discovery**: Candidate browses active listings filtered by location, work mode, and role category.
+4. **Match Analysis**: Candidate views detailed match reports showing exact skill alignment, missing skills, and estimated readiness.
+5. **Application Lifecycle**: Candidate applies to requisitions and tracks submission status across pipeline stages.
+6. **Career Mentoring**: Candidate engages with the AI mentor to ask tailored questions regarding resume strengths, career trajectory, and interview preparation.
+
+---
+
+## Recruiter Workflow
+
+1. **Company & Role Setup**: Recruiter registers an organization profile and defines team member permissions.
+2. **Requisition Authoring**: Recruiter publishes job listings specifying required skills, preferred competencies, experience ranges, and employment terms.
+3. **Candidate Review**: Recruiter evaluates applicant match scores, inspects verified skills, and reviews deterministic match breakdowns.
+4. **Pipeline Progression**: Recruiter moves applicants through workflow stages: Applied, Screening, Interview, Offer, or Rejected.
+
+---
+
+## Matching and Recommendation
+
+The platform calculates match and recommendation quality using deterministic, reproducible scoring formulas:
+
+### 1. Hybrid Job Match Score (0–100)
+Calculated across five weighted dimensions:
+- **Skill Overlap (40%)**: Ratio of required and preferred skills matched against candidate skills.
+- **Semantic Vector Similarity (25%)**: Cosine similarity between candidate resume chunks and job requirements via FAISS.
+- **Experience Match (20%)**: Alignment between candidate years of experience and target job range.
+- **Education Alignment (10%)**: Verification of degree level against position requirements.
+- **Location Alignment (5%)**: Match between candidate location preferences and job location.
+
+$$\text{Final Score} = 0.40 \times \text{Skills} + 0.25 \times \text{Semantic} + 0.20 \times \text{Experience} + 0.10 \times \text{Education} + 0.05 \times \text{Location}$$
+
+### 2. Job Recommendation Score (0–100)
+Prioritizes discoverability for active positions:
+- **Base Match (40%)**: Core skill compatibility.
+- **Semantic Fit (25%)**: Vector alignment with job requisition.
+- **Experience Level (15%)**: Seniority fit.
+- **Candidate Preferences (15%)**: Work mode and compensation expectations.
+- **Posting Freshness (5%)**: Recency weighting for newly published openings.
+
+$$\text{Recommendation Score} = 0.40 \times \text{Skills} + 0.25 \times \text{Semantic} + 0.15 \times \text{Experience} + 0.15 \times \text{Preferences} + 0.05 \times \text{Freshness}$$
+
+---
+
+## Resume Intelligence
+
+- **Parsing Pipeline**: Extracts clean textual content from PDF documents while rejecting malformed or unsupported file structures.
+- **Text Normalization**: Strips control characters, normalizes whitespace, and parses distinct sections (Work History, Education, Skills, Projects).
+- **Chunking & Indexing**: Segments resume text into overlapping token windows and generates 384-dimensional embeddings via FastEmbed.
+- **Scoped Persistence**: Embeddings are stored in candidate-isolated FAISS indices with atomic snapshot persistence to disk.
+
+---
+
+## AI Career Mentor
+
+- **Conversational Guidance**: Provides structured career advice tailored to candidate experience and market demand.
+- **Resume Grounding**: Every factual claim about candidate qualifications is linked to specific resume segments.
+- **Safety & Prompt Defense**: Input filters intercept prompt injection payloads before graph execution.
+- **Offline Fallback**: Operates seamlessly in local evaluation environments without external API keys.
+
+---
+
+## Security
+
+- **Authentication**: Bcrypt password hashing (work factor 12), short-lived access JWTs, secure HTTP-only refresh cookies, and token replay prevention with SHA-256 token hashing.
+- **Authorization & IDOR Protection**: Server-side ownership verification on all resource routes (`/candidates/:id`, `/resumes/:id`, `/applications/:id`, `/recruiter/jobs/:id`).
+- **File Upload Security**: Magic-byte signature verification, strict MIME type validation (PDF only), 5 MB payload limit, path traversal defense, and isolated storage.
+- **Vector Isolation**: All FAISS queries enforce candidate-specific scoping; cross-candidate retrieval is strictly prohibited.
+- **PII Protection**: Personal identifiable information is masked before telemetry or logging exports.
+
+---
+
+## Observability
+
+- **LangSmith Tracing**: Non-intrusive distributed tracing of LangGraph workflows with candidate PII pseudonymization and a dead-man kill switch.
+- **Health Checks**: Standardized `/health` and readiness endpoints across API gateway, AI service, and background workers.
+- **Audit Logging**: Asynchronous domain event logging and transactional outbox monitoring via Apache Kafka.
+- **System Metrics**: Latency distribution, error rate tracking, and backing store connectivity statuses displayed in administrative dashboards.
+
+---
+
+## Testing
+
+CareerForge AI maintains a comprehensive, deterministic test strategy:
+
+- **API Integration Suite**: 13 Supertest suites validating authentication, candidate management, job matching, applications, and security controls against real databases.
+- **AI Service Unit & Integration**: 125 pytest cases testing FAISS indexing, PromptGuard filters, LangGraph graph execution, and schema validation.
+- **AI Quality & Safety Evaluation**: Automated evaluation runner executing 20 synthetic test cases against strict thresholds for grounding, injection defense, and latency.
 
 ```bash
-# 1. Clone repository and copy production environment template
-cp .env.prod.example .env.prod
+# Run API integration test suites (Supertest)
+pnpm test
 
-# 2. Build and launch all containers
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+# Run Python AI service test suites (pytest)
+pnpm ai:test
 
-# 3. View status and verify all health checks are passing
-docker compose -f docker-compose.prod.yml ps
+# Run AI quality, safety, and evaluation gates
+pnpm ai:evaluate
 
-# 4. Open in browser:
-# Web Application: http://localhost
-# API Liveness:    http://localhost/live
-# API Readiness:   http://localhost/ready
-# AI Service:      http://localhost:8000/live
+# Run monorepo typechecking
+pnpm typecheck
+
+# Run monorepo linting
+pnpm lint
+
+# Validate Prisma schema
+pnpm prisma:validate
 ```
 
 ---
 
-### 3. Option B: Run in Local Development Mode
+## Local Development
 
-#### Step 1: Install Dependencies
+### Prerequisites
+- **Node.js**: 22.x LTS
+- **pnpm**: 11.25.0 (`corepack enable && corepack prepare pnpm@11.25.0 --activate`)
+- **Python**: 3.11+
+- **Docker & Docker Compose**: For local infrastructure services
+
+### 1. Clone and Install Dependencies
+
 ```bash
-# Install Node.js workspace dependencies
-pnpm install
+git clone https://github.com/naina766/CareerForge-AI.git
+cd CareerForge-AI
 
-# Setup Python virtual environment for AI Service
+# Install monorepo dependencies
+pnpm install --frozen-lockfile
+```
+
+### 2. Python AI Service Setup
+
+```bash
 cd apps/ai-service
 python -m venv .venv
 
-# Activate virtual environment (Windows PowerShell: .venv\Scripts\Activate.ps1 | Linux/macOS: source .venv/bin/activate)
-.venv\Scripts\activate
+# On Linux/macOS:
+source .venv/bin/activate
+
+# On Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
 cd ../..
 ```
 
-#### Step 2: Configure Environment Variables
+### 3. Start Infrastructure Services
+
+```bash
+docker compose up -d postgres redis kafka
+```
+
+### 4. Initialize the Database
+
+```bash
+# Generate Prisma Client
+pnpm prisma:generate
+
+# Run schema migrations
+pnpm prisma:migrate
+
+# Seed canonical demo data
+pnpm prisma:seed
+
+# Validate seeded data consistency
+pnpm demo:validate
+```
+
+### 5. Start Development Servers
+
+```bash
+# Run web and API concurrently
+pnpm dev
+
+# In a separate terminal, start the AI service:
+cd apps/ai-service
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Service URLs:
+- Web Application: `http://localhost:3000`
+- Express API Gateway: `http://localhost:4000`
+- FastAPI AI Microservice: `http://localhost:8000`
+- API Documentation (Swagger): `http://localhost:8000/docs`
+
+---
+
+## Environment Configuration
+
+Copy the example environment template and configure local settings:
+
 ```bash
 cp .env.example .env
 ```
 
-#### Step 3: Start Infrastructure (Postgres & Redis)
-```bash
-# Start Postgres & Redis containers
-docker compose up -d postgres redis
-```
-
-#### Step 4: Setup Database & Seed Synthetic Demo Data
-```bash
-# Push Prisma schema to PostgreSQL
-pnpm exec prisma db push
-
-# Seed taxonomy, jobs, and synthetic demo users
-pnpm --filter "@careerforge/database" seed
-```
-
-#### Step 5: Start Development Servers
-You can run all services concurrently or in separate terminals:
-
-```bash
-# Concurrently start Web, API, and Workers:
-pnpm dev
-
-# In another terminal (with Python .venv active), start the AI Service:
-cd apps/ai-service
-.venv\Scripts\activate
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-- **Frontend Web**: [http://localhost:3000](http://localhost:3000)
-- **Backend API**: [http://localhost:4000](http://localhost:4000)
-- **FastAPI AI Service**: [http://localhost:8000](http://localhost:8000)
+Key environment settings:
+- `DATABASE_URL`: PostgreSQL connection string (`postgresql://postgres:postgres@localhost:5432/careerforge_dev`).
+- `REDIS_URL`: Redis connection string (`redis://localhost:6379`).
+- `KAFKA_BROKERS`: Kafka broker list (`localhost:9092`).
+- `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`: Cryptographic secrets for access and refresh tokens.
+- `AI_SERVICE_URL`: Internal endpoint for the AI service (`http://localhost:8000`).
+- `OPENROUTER_API_KEY`: API key for LLM provider (optional in local development when using fallback mock).
 
 ---
 
-## 🔑 Demo Login Credentials
+## Production Architecture
 
-The database seed provides isolated synthetic accounts for demonstration:
-
-| Role | Email | Password | Access / Capabilities |
-|---|---|---|---|
-| **Candidate** | `candidate.alex@careerforge.ai` | `Password123!` | Dashboard, Grounded AI Career Assistant, Resume Lab, Skill Gap, Learning Roadmap |
-| **Candidate** | `candidate.priya@careerforge.ai` | `Password123!` | Senior AI/ML Systems Engineer Profile |
-| **Recruiter** | `recruiter.techcorp@careerforge.ai` | `Password123!` | Job Posting, Candidate Pipeline, Applicant Review |
-| **Admin** | `admin@careerforge.ai` | `Password123!` | System Telemetry, Health Probes, Metrics, Distributed Traces |
+- **Multi-Stage Docker Containers**: Minimal Alpine and Slim base images with non-root security contexts (`UID 10001`).
+- **Process Isolation**: API gateway, AI service, Next.js frontend, and Kafka workers run in independent container sandboxes.
+- **Health Probes**: Liveness and readiness probes on all HTTP services.
+- **Orchestration**: Production Compose configuration in `docker-compose.prod.yml` with health checks, restart policies, and persistent named volumes.
 
 ---
 
-## 🧪 Running Automated Test Suites
+## Repository Structure
 
-```bash
-# 1. TypeScript Static Typecheck
-pnpm typecheck
-
-# 2. ESLint Static Analysis
-pnpm lint
-
-# 3. Next.js Production Build Validation
-pnpm build
-
-# 4. Python AI Evaluation & RAG Quality Tests
-apps\ai-service\.venv\Scripts\pytest apps/ai-service/tests
-
-# 5. Security & Circuit Breaker Integration Tests
-pnpm tsx tests/integration/security-resilience.test.ts
-
-# 6. Live Redis Integration & Fallback Tests
-pnpm tsx tests/integration/redis-live-integration.test.ts
-
-# 7. Observability & Telemetry Tests
-pnpm tsx tests/integration/observability.test.ts
-
-# 8. Full Production Readiness & Security Tests
-pnpm tsx tests/integration/production-readiness.test.ts
+```
+CareerForgeAi/
+├── apps/
+│   ├── web/                    # Next.js 14 frontend application
+│   ├── api/                    # Express REST API gateway and business logic
+│   └── ai-service/             # FastAPI AI microservice, LangGraph, FAISS store
+├── packages/
+│   ├── config/                 # Shared environment and configuration validation
+│   ├── database/               # Prisma schema, migrations, seed scripts, client
+│   └── types/                  # Shared TypeScript interfaces and domain schemas
+├── workers/
+│   ├── resume-worker/          # Kafka consumer: background resume processing
+│   ├── ai-worker/              # Kafka consumer: asynchronous embeddings & indexing
+│   └── notification-worker/    # Kafka consumer: email and in-app notifications
+├── scripts/                    # Validation, audit, and helper scripts
+├── docker-compose.yml          # Local development infrastructure
+├── docker-compose.prod.yml     # Production container orchestration
+└── package.json                # Monorepo root package manifest
 ```
 
 ---
 
-## 📊 Implementation & Readiness Status Matrix
+## Project Status
 
-| Component | Status | Details |
-|---|---|---|
-| **Real Semantic Embeddings** | **IMPLEMENTED — REAL** | FastEmbed ONNX runtime (`BAAI/bge-small-en-v1.5`), 384-dim dense float32 L2-normalized vectors. `MockEmbeddingProvider` retained strictly for offline unit tests. |
-| **FAISS Vector Retrieval** | **IMPLEMENTED — REAL** | Inverted inner product (`IndexFlatIP`) matching normalized dense embeddings for cosine similarity search with Top-K and document filtering. |
-| **Real LLM Providers** | **IMPLEMENTED — REAL** | Google Gemini (`gemini-1.5-flash`) and OpenAI (`gpt-4o-mini`) via async HTTP (`httpx.AsyncClient`) with bounded retries, 10s timeouts, safe logging, and JSON schema validation. |
-| **Grounded RAG Pipeline** | **IMPLEMENTED — REAL** | Candidate Profile → Real Embeddings → FAISS Top-K Search → Untrusted Document Context Sanitization (`<<<UNTRUSTED_DOCUMENT_CONTEXT>>>`) → Grounded Prompt → Real LLM → Grounded Output + Citations. |
-| **Prompt Injection Defense** | **IMPLEMENTED — REAL** | Multi-layer defense: adversarial pattern filtering + untrusted context boundary encapsulation ensuring retrieved documents cannot hijack system directives. |
-| **Hallucination Resistance** | **IMPLEMENTED — REAL** | Explicit `INSUFFICIENT_CONTEXT` fallback status when context is absent or query asks for speculative/unsupported predictions. Zero fake PII or fabricated URLs. |
-| **Career Intelligence Engine** | **IMPLEMENTED — REAL** | Grounded skill-gap analysis, candidate trajectory career-role recommendations, and prioritized sequential learning roadmaps. |
-| **Live Redis Integration** | **IMPLEMENTED — REAL** | Verified against live host Redis instance (`127.0.0.1:6379`, `family: 4`): PING, SET/GET/TTL, atomic INCR, sliding-window rate limiting, brute-force lockout/reset, and seamless in-memory fallback. |
-| **Frontend Authentication** | **IMPLEMENTED — REAL** | HTTP-only cookie refresh rotation with in-memory access tokens; zero localStorage token leaks. |
-| **API Security & RBAC** | **IMPLEMENTED — REAL** | Role-based access control (`CANDIDATE`, `RECRUITER`, `ADMIN`), IDOR scoping, input sanitization. |
-| **AI Client Resilience** | **IMPLEMENTED — REAL** | 10s request timeout (`AbortController`), bounded retry with exponential backoff on 5xx, stateful Circuit Breaker (`CLOSED`/`OPEN`/`HALF_OPEN`). |
-| **Observability & Health Probes** | **IMPLEMENTED — REAL** | Deep health checks (PostgreSQL, live Redis ping latency, Kafka, AI service, workers), distributed tracing, metric counters & gauges. |
-| **Production Career UI/UX** | **IMPLEMENTED — REAL** | Unified dark-first design system (`#030712`), responsive app shell (`DashboardShell`), grounded AI Career Assistant with citation drawer, deterministic resume ingestion pipeline, and real-time skill-gap analysis. |
-| **Production Deployment & Probes** | **IMPLEMENTED — REAL** | Multi-stage Dockerfiles, non-root users, hardened Nginx ingress with rate limits & security headers, deep `/ready` and `/live` health probes, and CI/CD validation. |
-| **AI Quality & Evaluation Baseline** | **IMPLEMENTED — REAL** | Deterministic test suites for multi-domain semantic retrieval, RAG grounding faithfulness, zero hallucination on unknown credentials, prompt injection resistance, and citation traceability. |
+- **Build & Types**: Passing across all TypeScript packages and Next.js frontend.
+- **Test Coverage**: 13 Supertest API integration suites and 125 Python AI test cases fully operational.
+- **Evaluation Gates**: Automated CI evaluation suite with 100% pass rate on safety, grounding, and deterministic formulas.
+- **Security Compliance**: Zero high/critical vulnerabilities in direct dependencies; candidate data isolation enforced at database and vector tiers.
 
 ---
 
-## 📜 Architecture Decision Records (ADRs) & Guides
-- [ADR-001 to ADR-021: Core Domain, AI, Search & Event Backbone](docs/architecture/)
-- [ADR-022: Observability, Notifications & Reliability Platform](docs/architecture/ADR-022-observability-notifications-reliability.md)
-- [ADR-023: Observability, Monitoring & Reliability Architecture](docs/architecture/ADR-023-observability-monitoring-reliability.md)
-- [ADR-024: Production Deployment, Security Hardening & CI/CD Platform](docs/architecture/ADR-024-production-deployment-security-cicd.md)
-- [ADR-025: Real AI Semantic Embeddings, LLM Integration & Grounded RAG Architecture](docs/architecture/ADR-025-real-ai-llm-rag-embeddings.md)
-- [ADR-026: Production Career Intelligence UI/UX Architecture](docs/architecture/ADR-026-production-ui-ux-career-intelligence.md)
-- [ADR-027: Production Deployment, Observability & Readiness Architecture](docs/architecture/ADR-027-production-deployment-observability-readiness.md)
-- [ADR-028: AI Quality Evaluation, RAG Verification & Portfolio Readiness](docs/architecture/ADR-028-ai-quality-evaluation-portfolio-readiness.md)
-- [3-Minute Recruiter Demo & Evaluation Guide](docs/portfolio/RECRUITER-DEMO-GUIDE.md)
-- [Production Deployment Guide](docs/deployment/production-deployment-guide.md)
+## Project Links
+
+- **Repository**: [CareerForge-AI on GitHub](https://github.com/naina766/CareerForge-AI)
+
+
