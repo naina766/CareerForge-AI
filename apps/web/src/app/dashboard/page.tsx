@@ -201,9 +201,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-6 w-6 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                    <Bot className="w-3.5 h-3.5 text-purple-400" />
+                    <Bot className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
                   </div>
-                  <span className="text-xs font-bold text-white">AI Career Mentor</span>
+                  <h2 className="text-xs font-bold text-white">AI Career Mentor</h2>
                 </div>
                 <span className="text-[10px] font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded">
                   Grounded
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                     href={`/dashboard/career-assistant?q=${encodeURIComponent(prompt)}`}
                     className="block p-2 rounded-lg bg-[#0b0f19] border border-[#1a2233] hover:border-purple-500/40 text-xs text-gray-300 hover:text-white transition-colors truncate"
                   >
-                    "{prompt}"
+                    &quot;{prompt}&quot;
                   </Link>
                 ))}
               </div>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
                   variant="outline"
                   size="sm"
                   className="w-full text-xs border-[#1f2937] hover:bg-gray-800 text-purple-300 hover:text-white"
-                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />}
                 >
                   Open Full AI Workspace
                 </Button>
@@ -245,9 +245,9 @@ export default function DashboardPage() {
             {/* Quick Recommended Roles */}
             <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Compass className="w-3.5 h-3.5 text-blue-400" /> Top Role Matches
-                </span>
+                <h2 className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-blue-400" aria-hidden="true" /> Top Role Matches
+                </h2>
                 <Link
                   href="/dashboard/recommendations"
                   className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"

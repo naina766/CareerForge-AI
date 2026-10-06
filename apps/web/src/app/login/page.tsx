@@ -49,13 +49,13 @@ export default function LoginPage() {
 
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <main id="main-content" className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl border border-slate-800/90 glass-panel overflow-hidden shadow-2xl">
         {/* Left / Hero Side */}
         <div className="lg:col-span-6 bg-gradient-to-br from-slate-900 via-slate-950 to-[#070b12] p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800/80">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
               Career Intelligence Platform
             </div>
 
@@ -72,19 +72,19 @@ export default function LoginPage() {
 
             <div className="space-y-3.5 pt-2">
               <div className="flex items-center gap-3 text-xs text-slate-300">
-                <div className="h-6 w-6 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20">
+                <div className="h-6 w-6 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20" aria-hidden="true">
                   <BrainCircuit className="w-3.5 h-3.5" />
                 </div>
                 <span>Explainable matching across skills, experience, and semantics</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-300">
-                <div className="h-6 w-6 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+                <div className="h-6 w-6 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20" aria-hidden="true">
                   <Bot className="w-3.5 h-3.5" />
                 </div>
                 <span>Grounded AI Career Mentor tailored to your verified trajectory</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-300">
-                <div className="h-6 w-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                <div className="h-6 w-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20" aria-hidden="true">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <span>Skill gap discovery & actionable learning path roadmaps</span>
@@ -152,24 +152,28 @@ export default function LoginPage() {
                 aria-live="assertive"
                 className="flex items-center gap-2.5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs animate-shake"
               >
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" aria-hidden="true" />
                 <span>{error}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
+                id="login-email"
+                name="email"
                 label="Email address"
                 type="email"
                 placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                icon={<Mail className="w-4 h-4" />}
+                icon={<Mail className="w-4 h-4" aria-hidden="true" />}
                 required
                 autoComplete="email"
               />
 
               <PasswordInput
+                id="login-password"
+                name="password"
                 label="Password"
                 placeholder="••••••••"
                 value={password}
@@ -190,7 +194,7 @@ export default function LoginPage() {
                 <span className="text-slate-500 cursor-not-allowed">Forgot password?</span>
               </div>
 
-              <Button type="submit" className="w-full" size="md" isLoading={isLoading} rightIcon={<ArrowRight className="w-4 h-4" />}>
+              <Button type="submit" className="w-full" size="md" isLoading={isLoading} rightIcon={<ArrowRight className="w-4 h-4" aria-hidden="true" />}>
                 Sign In
               </Button>
             </form>
@@ -206,6 +210,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useId } from 'react';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,7 +10,9 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, icon, className = '', id, ...props }, ref) => {
-    const inputId = id || props.name;
+    const generatedId = useId();
+    const inputId = id || props.name || generatedId;
+    const errorId = error ? `${inputId}-error` : undefined;
 
     return (
       <div className="w-full space-y-1.5">
@@ -21,13 +23,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {icon && (
-            <div className="absolute left-3.5 text-slate-400 pointer-events-none flex items-center">
+            <div className="absolute left-3.5 text-slate-400 pointer-events-none flex items-center" aria-hidden="true">
               {icon}
             </div>
           )}
           <input
             id={inputId}
             ref={ref}
+            aria-invalid={Boolean(error)}
+            aria-describedby={errorId}
             className={`w-full rounded-xl bg-slate-900/80 border ${
               error ? 'border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-800 focus:border-teal-500 focus:ring-teal-500/20'
             } ${
@@ -36,7 +40,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
         </div>
-        {error && <p className="text-xs font-medium text-rose-400 mt-1">{error}</p>}
+        {error && (
+          <p id={errorId} role="alert" className="text-xs font-medium text-rose-400 mt-1">
+            {error}
+          </p>
+        )}
       </div>
     );
   }

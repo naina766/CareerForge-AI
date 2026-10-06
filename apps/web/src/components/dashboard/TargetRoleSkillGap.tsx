@@ -174,7 +174,14 @@ export function TargetRoleSkillGap() {
               <ScoreBadge score={readinessScore} size="md" />
             </div>
 
-            <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+            <div
+              role="progressbar"
+              aria-valuenow={readinessScore}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Target role fit score"
+              className="w-full bg-gray-800 rounded-full h-2 overflow-hidden"
+            >
               <div
                 className="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded-full transition-all duration-700"
                 style={{ width: `${readinessScore}%` }}

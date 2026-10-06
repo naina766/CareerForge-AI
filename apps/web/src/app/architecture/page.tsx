@@ -61,18 +61,18 @@ export default function ArchitecturePage() {
   ];
 
   return (
-    <main className="min-h-screen py-10 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <main id="main-content" className="min-h-screen py-10 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
       {/* Top Breadcrumb */}
       <div>
         <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-teal-300 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to Home
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to Home
         </Link>
       </div>
 
       {/* Header Banner */}
       <section className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-800/80 bg-gradient-to-b from-slate-900/90 via-slate-950 to-[#090d16] shadow-2xl space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/25 text-teal-300 text-xs font-semibold">
-          <Layers className="w-3.5 h-3.5 text-teal-400" />
+          <Layers className="w-3.5 h-3.5 text-teal-400" aria-hidden="true" />
           <span>System Design & Architectural Topology</span>
         </div>
 

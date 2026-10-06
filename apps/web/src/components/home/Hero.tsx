@@ -112,7 +112,14 @@ export function Hero() {
 
               {/* Match Progress Bar */}
               <div className="space-y-1.5">
-                <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div
+                  role="progressbar"
+                  aria-valuenow={87}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label="Sample role match score 87 percent"
+                  className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden"
+                >
                   <div className="bg-gradient-to-r from-teal-400 via-cyan-400 to-indigo-500 h-2.5 rounded-full w-[87%]" />
                 </div>
               </div>

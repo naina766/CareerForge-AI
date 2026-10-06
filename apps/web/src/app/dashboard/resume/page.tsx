@@ -64,6 +64,18 @@ export default function ResumeManagementPage() {
   const [isReplaceModalOpen, setIsReplaceModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isReplaceModalOpen) setIsReplaceModalOpen(false);
+        if (isDeleteModalOpen) setIsDeleteModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isReplaceModalOpen, isDeleteModalOpen]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -298,6 +310,8 @@ export default function ResumeManagementPage() {
         {/* Alert Banner */}
         {message && (
           <div
+            role="alert"
+            aria-live="polite"
             className={`p-3 rounded-lg border text-xs flex items-center justify-between transition-colors ${
               message.type === 'success'
                 ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-300'
@@ -306,14 +320,15 @@ export default function ResumeManagementPage() {
           >
             <div className="flex items-center gap-2">
               {message.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" aria-hidden="true" />
               )}
               <span>{message.text}</span>
             </div>
             <button
               onClick={() => setMessage(null)}
+              aria-label="Dismiss notification"
               className="text-gray-400 hover:text-white text-xs px-1"
             >
               ✕
@@ -471,6 +486,7 @@ export default function ResumeManagementPage() {
               type="file"
               ref={fileInputRef}
               accept="application/pdf"
+              aria-label="Upload PDF resume file"
               className="hidden"
               onChange={(e) => {
                 if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
@@ -478,7 +494,7 @@ export default function ResumeManagementPage() {
             />
 
             <div className="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-blue-400 mx-auto mb-3">
-              <UploadCloud className="w-6 h-6" />
+              <UploadCloud className="w-6 h-6" aria-hidden="true" />
             </div>
 
             <h3 className="text-base font-semibold text-white">Upload your resume</h3>
@@ -604,6 +620,7 @@ export default function ResumeManagementPage() {
             >
               <input
                 type="text"
+                aria-label="Search your indexed resume sections using natural language"
                 placeholder='e.g. "What backend technologies have I used?"'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -637,7 +654,7 @@ export default function ResumeManagementPage() {
                       <ScoreBadge score={res.similarityScore * (res.similarityScore <= 1 ? 100 : 1)} size="sm" />
                     </div>
                     <p className="text-gray-300 font-mono text-[11px] leading-relaxed bg-gray-900/60 p-2 rounded border border-gray-800">
-                      "{res.content}"
+                      &quot;{res.content}&quot;
                     </p>
                   </div>
                 ))}
@@ -650,8 +667,13 @@ export default function ResumeManagementPage() {
       {/* Replace Modal */}
       {isReplaceModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-5 max-w-sm w-full space-y-4">
-            <h4 className="text-sm font-bold text-white">Replace Resume</h4>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="replace-modal-title"
+            className="bg-[#111827] border border-[#1f2937] rounded-xl p-5 max-w-sm w-full space-y-4"
+          >
+            <h4 id="replace-modal-title" className="text-sm font-bold text-white">Replace Resume</h4>
             <p className="text-xs text-gray-400">
               Uploading a new resume will replace your current file and refresh your extracted skills.
             </p>
@@ -659,6 +681,7 @@ export default function ResumeManagementPage() {
               type="file"
               ref={replaceFileInputRef}
               accept="application/pdf"
+              aria-label="Select replacement PDF resume file"
               className="hidden"
               onChange={(e) => {
                 if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
@@ -683,8 +706,13 @@ export default function ResumeManagementPage() {
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#111827] border border-rose-900/40 rounded-xl p-5 max-w-sm w-full space-y-4">
-            <h4 className="text-sm font-bold text-white">Delete Resume</h4>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+            className="bg-[#111827] border border-rose-900/40 rounded-xl p-5 max-w-sm w-full space-y-4"
+          >
+            <h4 id="delete-modal-title" className="text-sm font-bold text-white">Delete Resume</h4>
             <p className="text-xs text-gray-400">
               Are you sure you want to delete your resume? This will clear your indexed sections.
             </p>

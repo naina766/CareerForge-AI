@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 import { Button } from './Button';
 
@@ -25,7 +26,7 @@ export function EmptyState({
     <div
       className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 border border-dashed border-gray-800 rounded-xl bg-[#0b0f19] ${className}`}
     >
-      <div className="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-400 mb-4">
+      <div className="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-400 mb-4" aria-hidden="true">
         <Icon className="w-6 h-6" />
       </div>
       <h3 className="text-base font-semibold text-white tracking-tight">{title}</h3>
@@ -33,9 +34,9 @@ export function EmptyState({
       {(actionLabel && (onAction || actionHref)) && (
         <div className="mt-5">
           {actionHref ? (
-            <a href={actionHref}>
+            <Link href={actionHref}>
               <Button size="sm">{actionLabel}</Button>
-            </a>
+            </Link>
           ) : (
             <Button size="sm" onClick={onAction}>
               {actionLabel}

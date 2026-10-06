@@ -67,13 +67,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <main id="main-content" className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl border border-slate-800/90 glass-panel overflow-hidden shadow-2xl">
         {/* Left Hero / Persona Pitch */}
         <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-950 to-[#070b12] p-8 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800/80">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
               Get Started with CareerForge
             </div>
 
@@ -90,15 +90,15 @@ export default function RegisterPage() {
 
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <span>Deterministic ATS score & skill gap priorities</span>
               </div>
               <div className="flex items-start gap-3 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <span>Grounded AI Career Assistant scoped to your resume</span>
               </div>
               <div className="flex items-start gap-3 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <span>Transparent matching with zero arbitrary score drift</span>
               </div>
             </div>
@@ -120,28 +120,30 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <div role="alert" aria-live="assertive" className="flex items-center gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" aria-hidden="true" />
                 <span>{error}</span>
               </div>
             )}
 
             {/* Persona / Role Selection Cards */}
-            <div className="space-y-2">
-              <span className="block text-xs font-semibold text-slate-300">Account Type</span>
+            <div className="space-y-2" role="radiogroup" aria-labelledby="role-selection-label">
+              <span id="role-selection-label" className="block text-xs font-semibold text-slate-300">Account Type</span>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={role === 'CANDIDATE'}
                   onClick={() => setRole('CANDIDATE')}
                   className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between ${
                     role === 'CANDIDATE'
-                      ? 'border-teal-500/80 bg-teal-500/10 shadow-lg shadow-teal-500/10'
+                      ? 'border-teal-500/80 bg-teal-500/10 shadow-lg shadow-teal-500/10 ring-1 ring-teal-500/40'
                       : 'border-slate-800 bg-slate-900/50 hover:bg-slate-900 text-slate-400'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <User className={`w-4 h-4 ${role === 'CANDIDATE' ? 'text-teal-400' : 'text-slate-500'}`} />
-                    {role === 'CANDIDATE' && <div className="h-2 w-2 rounded-full bg-teal-400" />}
+                    <User className={`w-4 h-4 ${role === 'CANDIDATE' ? 'text-teal-400' : 'text-slate-500'}`} aria-hidden="true" />
+                    {role === 'CANDIDATE' && <div className="h-2 w-2 rounded-full bg-teal-400" aria-hidden="true" />}
                   </div>
                   <div className="mt-2">
                     <span className={`text-sm font-semibold block ${role === 'CANDIDATE' ? 'text-white' : 'text-slate-300'}`}>
@@ -153,16 +155,18 @@ export default function RegisterPage() {
 
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={role === 'RECRUITER'}
                   onClick={() => setRole('RECRUITER')}
                   className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between ${
                     role === 'RECRUITER'
-                      ? 'border-cyan-500/80 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
+                      ? 'border-cyan-500/80 bg-cyan-500/10 shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/40'
                       : 'border-slate-800 bg-slate-900/50 hover:bg-slate-900 text-slate-400'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <Briefcase className={`w-4 h-4 ${role === 'RECRUITER' ? 'text-cyan-400' : 'text-slate-500'}`} />
-                    {role === 'RECRUITER' && <div className="h-2 w-2 rounded-full bg-cyan-400" />}
+                    <Briefcase className={`w-4 h-4 ${role === 'RECRUITER' ? 'text-cyan-400' : 'text-slate-500'}`} aria-hidden="true" />
+                    {role === 'RECRUITER' && <div className="h-2 w-2 rounded-full bg-cyan-400" aria-hidden="true" />}
                   </div>
                   <div className="mt-2">
                     <span className={`text-sm font-semibold block ${role === 'RECRUITER' ? 'text-white' : 'text-slate-300'}`}>
@@ -176,26 +180,32 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <Input
+                id="register-name"
+                name="name"
                 label="Full Name (Optional)"
                 placeholder="e.g. Alex Rivera"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                icon={<UserCheck className="w-4 h-4" />}
+                icon={<UserCheck className="w-4 h-4" aria-hidden="true" />}
                 autoComplete="name"
               />
 
               <Input
+                id="register-email"
+                name="email"
                 label="Email address"
                 type="email"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                icon={<Mail className="w-4 h-4" />}
+                icon={<Mail className="w-4 h-4" aria-hidden="true" />}
                 required
                 autoComplete="email"
               />
 
               <PasswordInput
+                id="register-password"
+                name="password"
                 label="Password (min 8 characters)"
                 placeholder="Create a strong password"
                 value={password}
@@ -206,6 +216,8 @@ export default function RegisterPage() {
               />
 
               <PasswordInput
+                id="register-confirm-password"
+                name="confirmPassword"
                 label="Confirm Password"
                 placeholder="Repeat your password"
                 value={confirmPassword}
@@ -214,7 +226,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
               />
 
-              <Button type="submit" className="w-full mt-2" size="md" isLoading={isLoading} rightIcon={<ArrowRight className="w-4 h-4" />}>
+              <Button type="submit" className="w-full mt-2" size="md" isLoading={isLoading} rightIcon={<ArrowRight className="w-4 h-4" aria-hidden="true" />}>
                 Create {role === 'CANDIDATE' ? 'Candidate' : 'Recruiter'} Account
               </Button>
             </form>
@@ -230,6 +242,6 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

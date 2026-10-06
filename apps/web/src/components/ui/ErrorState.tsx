@@ -17,9 +17,11 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div
+      role="alert"
+      aria-live="assertive"
       className={`flex flex-col items-center justify-center text-center p-6 sm:p-8 border border-rose-900/30 rounded-xl bg-rose-950/10 ${className}`}
     >
-      <div className="h-10 w-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-3">
+      <div className="h-10 w-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-3" aria-hidden="true">
         <AlertCircle className="w-5 h-5" />
       </div>
       <h3 className="text-sm font-semibold text-white tracking-tight">{title}</h3>

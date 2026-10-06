@@ -148,9 +148,12 @@ export default function CandidateApplicationsPage() {
         {/* Filters & Search Toolbar */}
         <div className="bg-[#111827] rounded-xl p-3.5 border border-[#1f2937] flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-1 min-w-[200px] max-w-md items-center relative">
-            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 pointer-events-none" aria-hidden="true" />
             <input
+              id="applications-search"
+              name="search"
               type="text"
+              aria-label="Search applications by job title or company"
               placeholder="Search by job title or company..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -159,13 +162,15 @@ export default function CandidateApplicationsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-gray-400 flex items-center gap-1">
-              <SlidersHorizontal className="w-3.5 h-3.5" /> Filter:
-            </span>
+            <label htmlFor="applications-status-filter" className="text-xs text-gray-400 flex items-center gap-1 cursor-pointer">
+              <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden="true" /> Filter:
+            </label>
             <select
+              id="applications-status-filter"
+              aria-label="Filter applications by status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#0b0f19] border border-[#1f2937] rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500"
+              className="bg-[#0b0f19] border border-[#1f2937] rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="ALL">All Statuses</option>
               <option value="APPLIED">Applied</option>
@@ -181,7 +186,7 @@ export default function CandidateApplicationsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/30 text-xs text-rose-300 flex items-center justify-between">
+          <div role="alert" aria-live="assertive" className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/30 text-xs text-rose-300 flex items-center justify-between">
             <span>{error}</span>
             <Button size="sm" variant="ghost" onClick={fetchApplications}>
               Retry

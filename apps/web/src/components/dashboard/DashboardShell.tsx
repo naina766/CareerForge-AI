@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
@@ -37,6 +37,17 @@ export function DashboardShell({
   const router = useRouter();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close mobile drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileOpen) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen]);
 
   const navItems = [
     {
@@ -149,6 +160,7 @@ export function DashboardShell({
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? 'page' : undefined}
                   className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     active
                       ? 'bg-blue-600/10 text-blue-400 font-semibold border-l-2 border-blue-500 rounded-l-none'
@@ -156,7 +168,7 @@ export function DashboardShell({
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-blue-400' : 'text-gray-500'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-blue-400' : 'text-gray-500'}`} aria-hidden="true" />
                     <span className="truncate">{item.label}</span>
                   </div>
                   {item.badge && (
@@ -195,7 +207,7 @@ export function DashboardShell({
               size="sm"
               onClick={handleLogout}
               className="w-full text-xs justify-start border-[#1f2937] text-gray-400 hover:text-white hover:bg-gray-850 hover:bg-gray-800/60"
-              leftIcon={<LogOut className="w-3.5 h-3.5" />}
+              leftIcon={<LogOut className="w-3.5 h-3.5" aria-hidden="true" />}
             >
               Sign Out
             </Button>
@@ -204,7 +216,7 @@ export function DashboardShell({
 
         {/* Mobile Sidebar Overlay Drawer */}
         {mobileOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex" role="dialog" aria-modal="true">
+          <div className="fixed inset-0 z-50 lg:hidden flex" role="dialog" aria-modal="true" aria-label="Mobile Navigation Drawer">
             <div
               className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
               onClick={() => setMobileOpen(false)}
@@ -213,7 +225,7 @@ export function DashboardShell({
               <div className="flex items-center justify-between pb-2 border-b border-[#1f2937]">
                 <div className="flex items-center gap-2">
                   <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <Sparkles className="h-3.5 w-3.5 text-white" />
+                    <Sparkles className="h-3.5 w-3.5 text-white" aria-hidden="true" />
                   </div>
                   <span className="font-bold text-sm text-white">CareerForge</span>
                 </div>
@@ -222,11 +234,11 @@ export function DashboardShell({
                   className="p-2 min-h-[44px] min-w-[44px] rounded-lg text-gray-400 hover:text-white flex items-center justify-center"
                   aria-label="Close menu"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
 
-              <nav className="flex-1 space-y-1 overflow-y-auto">
+              <nav className="flex-1 space-y-1 overflow-y-auto" aria-label="Mobile Drawer Navigation">
                 {navItems.map((item) => {
                   const active = isActive(item.href, item.exact);
                   const Icon = item.icon;
@@ -234,6 +246,7 @@ export function DashboardShell({
                     <Link
                       key={item.href}
                       href={item.href}
+                      aria-current={active ? 'page' : undefined}
                       onClick={() => setMobileOpen(false)}
                       className={`flex items-center justify-between px-3 py-3 min-h-[44px] rounded-lg text-xs font-medium transition-colors ${
                         active
@@ -242,7 +255,7 @@ export function DashboardShell({
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${active ? 'text-blue-400' : 'text-gray-400'}`} />
+                        <Icon className={`w-4 h-4 ${active ? 'text-blue-400' : 'text-gray-400'}`} aria-hidden="true" />
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
@@ -261,7 +274,7 @@ export function DashboardShell({
                   size="sm"
                   onClick={handleLogout}
                   className="w-full text-xs min-h-[44px]"
-                  leftIcon={<LogOut className="w-4 h-4" />}
+                  leftIcon={<LogOut className="w-4 h-4" aria-hidden="true" />}
                 >
                   Sign Out
                 </Button>
@@ -271,7 +284,7 @@ export function DashboardShell({
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[#030712] px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+        <main id="main-content" className="flex-1 flex flex-col min-w-0 bg-[#030712] px-4 sm:px-6 lg:px-8 py-6 space-y-5">
           {/* Header Banner if provided */}
           {(headerTitle || actionButton) && (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1f2937]">

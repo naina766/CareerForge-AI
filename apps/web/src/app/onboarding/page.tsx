@@ -139,22 +139,31 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <main id="main-content" className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-2xl w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl space-y-8">
         {/* Stepper Header */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-widest text-teal-400 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> Candidate Onboarding
-            </span>
-            <span className="text-xs font-mono text-slate-400">Step {step} of 5</span>
+            <h1 className="text-xs font-bold uppercase tracking-widest text-teal-400 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Candidate Onboarding
+            </h1>
+            <span className="text-xs font-mono text-slate-400" aria-current="step">Step {step} of 5</span>
           </div>
 
           {/* Progress Indicator */}
-          <div className="flex items-center gap-2">
+          <div
+            role="progressbar"
+            aria-valuenow={step}
+            aria-valuemin={1}
+            aria-valuemax={5}
+            aria-valuetext={`Step ${step} of 5`}
+            aria-label="Onboarding progress"
+            className="flex items-center gap-2"
+          >
             {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={s}
+                aria-hidden="true"
                 className={`h-2 flex-1 rounded-full transition-all duration-300 ${
                   s <= step
                     ? 'bg-gradient-to-r from-teal-400 to-cyan-400'
@@ -165,260 +174,279 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Step 1: Tell us about yourself */}
-        {step === 1 && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Tell us about yourself</h2>
-              <p className="text-xs text-slate-400">Basic details to personalize your career recommendations</p>
-            </div>
+        {/* Step Container */}
+        <div role="region" aria-live="polite" aria-label={`Onboarding Step ${step}`}>
+          {/* Step 1: Tell us about yourself */}
+          {step === 1 && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-white tracking-tight">Tell us about yourself</h2>
+                <p className="text-xs text-slate-400">Basic details to personalize your career recommendations</p>
+              </div>
 
-            <div className="space-y-4">
-              <Input
-                label="Full Name"
-                placeholder="e.g. Alex Rivera"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                icon={<User className="w-4 h-4" />}
-              />
-
-              <Input
-                label="Professional Headline"
-                placeholder="e.g. Senior Full Stack Engineer"
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                icon={<Briefcase className="w-4 h-4" />}
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <Input
-                  label="Location"
-                  placeholder="e.g. San Francisco, CA or Remote"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  icon={<MapPin className="w-4 h-4" />}
+                  id="onboarding-fullname"
+                  name="fullName"
+                  label="Full Name"
+                  placeholder="e.g. Alex Rivera"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  icon={<User className="w-4 h-4" aria-hidden="true" />}
                 />
 
                 <Input
-                  label="Years of Experience"
+                  id="onboarding-headline"
+                  name="headline"
+                  label="Professional Headline"
+                  placeholder="e.g. Senior Full Stack Engineer"
+                  value={headline}
+                  onChange={(e) => setHeadline(e.target.value)}
+                  icon={<Briefcase className="w-4 h-4" aria-hidden="true" />}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    id="onboarding-location"
+                    name="location"
+                    label="Location"
+                    placeholder="e.g. San Francisco, CA or Remote"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    icon={<MapPin className="w-4 h-4" aria-hidden="true" />}
+                  />
+
+                  <Input
+                    id="onboarding-experience"
+                    name="yearsExperience"
+                    label="Years of Experience"
+                    type="number"
+                    min="0"
+                    max="40"
+                    placeholder="3"
+                    value={yearsExperience}
+                    onChange={(e) => setYearsExperience(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Add your skills */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-white tracking-tight">Add your core skills</h2>
+                <p className="text-xs text-slate-400">Select technologies and languages you work with</p>
+              </div>
+
+              {/* Selected Skills Tags */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-300 block">Your Skills ({selectedSkills.length})</span>
+                <div className="flex flex-wrap gap-2 min-h-[44px] p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+                  {selectedSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/30 text-xs font-medium"
+                    >
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        aria-label={`Remove ${skill} skill`}
+                        className="p-1 hover:text-rose-400 transition-colors focus-visible:ring-1 focus-visible:ring-rose-400 rounded"
+                      >
+                        <X className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Search & Suggestions */}
+              <div className="space-y-2">
+                <Input
+                  id="onboarding-skill-search"
+                  name="skillSearch"
+                  placeholder="Search or type a skill..."
+                  value={skillSearch}
+                  onChange={(e) => setSkillSearch(e.target.value)}
+                  aria-label="Search skills"
+                  icon={<Search className="w-4 h-4" aria-hidden="true" />}
+                />
+
+                <div className="flex flex-wrap gap-2 pt-1" role="group" aria-label="Suggested skills">
+                  {filteredSkills.slice(0, 8).map((skill) => (
+                    <button
+                      key={skill}
+                      type="button"
+                      onClick={() => handleAddSkill(skill)}
+                      aria-label={`Add ${skill}`}
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors min-h-[36px]"
+                    >
+                      <Plus className="w-3 h-3 text-teal-400" aria-hidden="true" /> {skill}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Choose target role */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-white tracking-tight">Choose your target role</h2>
+                <p className="text-xs text-slate-400">CareerForge evaluates missing skills and calculates fit for this position</p>
+              </div>
+
+              <Input
+                id="onboarding-role-search"
+                name="roleSearch"
+                placeholder="Search roles..."
+                value={roleSearch}
+                onChange={(e) => setRoleSearch(e.target.value)}
+                aria-label="Search target roles"
+                icon={<Search className="w-4 h-4" aria-hidden="true" />}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto pr-1" role="radiogroup" aria-label="Target roles">
+                {filteredRoles.map((role) => {
+                  const isSelected = selectedRole === role;
+                  return (
+                    <button
+                      key={role}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      onClick={() => setSelectedRole(role)}
+                      className={`p-3.5 rounded-xl text-left text-xs font-semibold transition-all border flex items-center justify-between min-h-[48px] ${
+                        isSelected
+                          ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
+                          : 'bg-slate-950/50 border-slate-800 text-slate-300 hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <span>{role}</span>
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" aria-hidden="true" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Career Preferences */}
+          {step === 4 && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-white tracking-tight">Set career preferences</h2>
+                <p className="text-xs text-slate-400">Tell us how and where you want to work</p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label id="workplace-model-label" className="text-xs font-semibold text-slate-300 block mb-1.5">
+                    Workplace Model
+                  </label>
+                  <div className="grid grid-cols-3 gap-2.5 sm:gap-3" role="radiogroup" aria-labelledby="workplace-model-label">
+                    {[
+                      { id: 'REMOTE_ONLY', label: 'Remote' },
+                      { id: 'HYBRID', label: 'Hybrid' },
+                      { id: 'ON_SITE', label: 'On-site' },
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={remotePreference === mode.id}
+                        onClick={() => setRemotePreference(mode.id)}
+                        className={`py-3 px-2.5 rounded-xl text-xs font-semibold border text-center transition-all min-h-[44px] ${
+                          remotePreference === mode.id
+                            ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
+                            : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-800/60'
+                        }`}
+                      >
+                        {mode.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label id="employment-type-label" className="text-xs font-semibold text-slate-300 block mb-1.5">
+                    Employment Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3" role="radiogroup" aria-labelledby="employment-type-label">
+                    {[
+                      { id: 'FULL_TIME', label: 'Full Time' },
+                      { id: 'CONTRACT', label: 'Contract / Freelance' },
+                    ].map((type) => (
+                      <button
+                        key={type.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={employmentType === type.id}
+                        onClick={() => setEmploymentType(type.id)}
+                        className={`py-3 px-3 rounded-xl text-xs font-semibold border text-center transition-all min-h-[44px] ${
+                          employmentType === type.id
+                            ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
+                            : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-800/60'
+                        }`}
+                      >
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Input
+                  id="onboarding-minsalary"
+                  name="minSalary"
+                  label="Target Annual Salary (USD)"
                   type="number"
-                  min="0"
-                  max="40"
-                  placeholder="3"
-                  value={yearsExperience}
-                  onChange={(e) => setYearsExperience(e.target.value)}
+                  placeholder="120000"
+                  value={minSalary}
+                  onChange={(e) => setMinSalary(e.target.value)}
+                  icon={<DollarSign className="w-4 h-4" aria-hidden="true" />}
                 />
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Step 2: Add your skills */}
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Add your core skills</h2>
-              <p className="text-xs text-slate-400">Select technologies and languages you work with</p>
-            </div>
+          {/* Step 5: Review & Launch */}
+          {step === 5 && (
+            <div className="space-y-6 text-center">
+              <div className="h-16 w-16 rounded-3xl bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center justify-center mx-auto shadow-xl shadow-teal-500/20">
+                <CheckCircle2 className="w-8 h-8" aria-hidden="true" />
+              </div>
 
-            {/* Selected Skills Tags */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-slate-300 block">Your Skills ({selectedSkills.length})</span>
-              <div className="flex flex-wrap gap-2 min-h-[44px] p-3 rounded-xl bg-slate-950/60 border border-slate-800">
-                {selectedSkills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/30 text-xs font-medium"
-                  >
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(skill)}
-                      aria-label={`Remove ${skill} skill`}
-                      className="p-0.5 hover:text-rose-400 transition-colors focus-visible:ring-1 focus-visible:ring-rose-400"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-white tracking-tight">You&apos;re all set!</h2>
+                <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                  CareerForge AI is ready to match you with top opportunities for{' '}
+                  <strong className="text-white">{selectedRole}</strong> with tailored skill gap intelligence.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-left space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Target Role:</span>
+                  <span className="font-semibold text-white">{selectedRole}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Verified Skills:</span>
+                  <span className="font-semibold text-teal-300">{selectedSkills.length} selected</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Work Preference:</span>
+                  <span className="font-semibold text-slate-200">
+                    {remotePreference === 'REMOTE_ONLY' ? 'Remote' : remotePreference}
                   </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Search & Suggestions */}
-            <div className="space-y-2">
-              <Input
-                placeholder="Search or type a skill..."
-                value={skillSearch}
-                onChange={(e) => setSkillSearch(e.target.value)}
-                aria-label="Search skills"
-                icon={<Search className="w-4 h-4" />}
-              />
-
-              <div className="flex flex-wrap gap-2 pt-1" role="group" aria-label="Suggested skills">
-                {filteredSkills.slice(0, 8).map((skill) => (
-                  <button
-                    key={skill}
-                    type="button"
-                    onClick={() => handleAddSkill(skill)}
-                    aria-label={`Add ${skill}`}
-                    className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors min-h-[36px]"
-                  >
-                    <Plus className="w-3 h-3 text-teal-400" /> {skill}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Choose target role */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Choose your target role</h2>
-              <p className="text-xs text-slate-400">CareerForge evaluates missing skills and calculates fit for this position</p>
-            </div>
-
-            <Input
-              placeholder="Search roles..."
-              value={roleSearch}
-              onChange={(e) => setRoleSearch(e.target.value)}
-              aria-label="Search target roles"
-              icon={<Search className="w-4 h-4" />}
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto pr-1" role="radiogroup" aria-label="Target roles">
-              {filteredRoles.map((role) => {
-                const isSelected = selectedRole === role;
-                return (
-                  <button
-                    key={role}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    onClick={() => setSelectedRole(role)}
-                    className={`p-3.5 rounded-xl text-left text-xs font-semibold transition-all border flex items-center justify-between min-h-[48px] ${
-                      isSelected
-                        ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
-                        : 'bg-slate-950/50 border-slate-800 text-slate-300 hover:bg-slate-800/60'
-                    }`}
-                  >
-                    <span>{role}</span>
-                    {isSelected && <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Career Preferences */}
-        {step === 4 && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Set career preferences</h2>
-              <p className="text-xs text-slate-400">Tell us how and where you want to work</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label id="workplace-model-label" className="text-xs font-semibold text-slate-300 block mb-1.5">
-                  Workplace Model
-                </label>
-                <div className="grid grid-cols-3 gap-2.5 sm:gap-3" role="group" aria-labelledby="workplace-model-label">
-                  {[
-                    { id: 'REMOTE_ONLY', label: 'Remote' },
-                    { id: 'HYBRID', label: 'Hybrid' },
-                    { id: 'ON_SITE', label: 'On-site' },
-                  ].map((mode) => (
-                    <button
-                      key={mode.id}
-                      type="button"
-                      aria-pressed={remotePreference === mode.id}
-                      onClick={() => setRemotePreference(mode.id)}
-                      className={`py-3 px-2.5 rounded-xl text-xs font-semibold border text-center transition-all min-h-[44px] ${
-                        remotePreference === mode.id
-                          ? 'bg-teal-500/15 border-teal-500/40 text-teal-200'
-                          : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-800/60'
-                      }`}
-                    >
-                      {mode.label}
-                    </button>
-                  ))}
                 </div>
               </div>
-
-              <div>
-                <label id="employment-type-label" className="text-xs font-semibold text-slate-300 block mb-1.5">
-                  Employment Type
-                </label>
-                <div className="grid grid-cols-2 gap-2.5 sm:gap-3" role="group" aria-labelledby="employment-type-label">
-                  {[
-                    { id: 'FULL_TIME', label: 'Full Time' },
-                    { id: 'CONTRACT', label: 'Contract / Freelance' },
-                  ].map((type) => (
-                    <button
-                      key={type.id}
-                      type="button"
-                      aria-pressed={employmentType === type.id}
-                      onClick={() => setEmploymentType(type.id)}
-                      className={`py-3 px-3 rounded-xl text-xs font-semibold border text-center transition-all min-h-[44px] ${
-                        employmentType === type.id
-                          ? 'bg-teal-500/15 border-teal-500/40 text-teal-200'
-                          : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-800/60'
-                      }`}
-                    >
-                      {type.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <Input
-                label="Target Annual Salary (USD)"
-                type="number"
-                placeholder="120000"
-                value={minSalary}
-                onChange={(e) => setMinSalary(e.target.value)}
-                icon={<DollarSign className="w-4 h-4" />}
-              />
             </div>
-          </div>
-        )}
-
-        {/* Step 5: Review & Launch */}
-        {step === 5 && (
-          <div className="space-y-6 text-center">
-            <div className="h-16 w-16 rounded-3xl bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center justify-center mx-auto shadow-xl shadow-teal-500/20">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-white tracking-tight">You&apos;re all set!</h2>
-              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                CareerForge AI is ready to match you with top opportunities for{' '}
-                <strong className="text-white">{selectedRole}</strong> with tailored skill gap intelligence.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-left space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-400">Target Role:</span>
-                <span className="font-semibold text-white">{selectedRole}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Verified Skills:</span>
-                <span className="font-semibold text-teal-300">{selectedSkills.length} selected</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Work Preference:</span>
-                <span className="font-semibold text-slate-200">
-                  {remotePreference === 'REMOTE_ONLY' ? 'Remote' : remotePreference}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-800/80">
@@ -428,7 +456,7 @@ export default function OnboardingPage() {
               variant="outline"
               size="sm"
               onClick={() => setStep(step - 1)}
-              leftIcon={<ArrowLeft className="w-4 h-4" />}
+              leftIcon={<ArrowLeft className="w-4 h-4" aria-hidden="true" />}
             >
               Back
             </Button>
@@ -448,7 +476,7 @@ export default function OnboardingPage() {
               variant="primary"
               size="sm"
               onClick={() => setStep(step + 1)}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
+              rightIcon={<ArrowRight className="w-4 h-4" aria-hidden="true" />}
             >
               Continue
             </Button>
@@ -459,13 +487,13 @@ export default function OnboardingPage() {
               size="md"
               isLoading={isSaving}
               onClick={handleComplete}
-              rightIcon={<Sparkles className="w-4 h-4" />}
+              rightIcon={<Sparkles className="w-4 h-4" aria-hidden="true" />}
             >
               Start Career Journey
             </Button>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

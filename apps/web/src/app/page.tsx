@@ -16,7 +16,7 @@ import { Footer } from '../components/Footer';
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#090d16] text-slate-100 selection:bg-teal-500/30 selection:text-teal-200">
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* 1. Value-First Hero with Interactive Match Preview */}
         <Hero />
 

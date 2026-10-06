@@ -71,6 +71,17 @@ export default function PublicJobDetailPage() {
   const [appError, setAppError] = useState<string | null>(null);
   const [appSuccess, setAppSuccess] = useState(false);
 
+  // Close apply modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && applyModalOpen) {
+        setApplyModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [applyModalOpen]);
+
   useEffect(() => {
     async function fetchPublicJob() {
       setIsLoading(true);
@@ -272,7 +283,7 @@ export default function PublicJobDetailPage() {
   ) || [];
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <main id="main-content" className="min-h-[calc(100vh-4rem)] max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Navigation Breadcrumb */}
       <div className="flex items-center justify-between">
         <Link
@@ -486,7 +497,14 @@ export default function PublicJobDetailPage() {
                         <span className="font-semibold text-slate-400">Skills (40%)</span>
                         <span className="font-bold text-teal-400">{matchReport.skillScore}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        role="progressbar"
+                        aria-valuenow={matchReport.skillScore}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="Skills match score (40% weight)"
+                        className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      >
                         <div
                           className="bg-teal-400 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, matchReport.skillScore)}%` }}
@@ -503,7 +521,14 @@ export default function PublicJobDetailPage() {
                         <span className="font-semibold text-slate-400">FAISS (25%)</span>
                         <span className="font-bold text-cyan-400">{matchReport.semanticScore}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        role="progressbar"
+                        aria-valuenow={matchReport.semanticScore}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="FAISS vector similarity score (25% weight)"
+                        className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      >
                         <div
                           className="bg-cyan-400 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, matchReport.semanticScore)}%` }}
@@ -518,7 +543,14 @@ export default function PublicJobDetailPage() {
                         <span className="font-semibold text-slate-400">Experience (20%)</span>
                         <span className="font-bold text-indigo-400">{matchReport.experienceScore}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        role="progressbar"
+                        aria-valuenow={matchReport.experienceScore}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="Experience requirement score (20% weight)"
+                        className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      >
                         <div
                           className="bg-indigo-400 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, matchReport.experienceScore)}%` }}
@@ -535,7 +567,14 @@ export default function PublicJobDetailPage() {
                         <span className="font-semibold text-slate-400">Education (10%)</span>
                         <span className="font-bold text-purple-400">{matchReport.educationScore}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        role="progressbar"
+                        aria-valuenow={matchReport.educationScore}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="Education qualification score (10% weight)"
+                        className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      >
                         <div
                           className="bg-purple-400 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, matchReport.educationScore)}%` }}
@@ -550,7 +589,14 @@ export default function PublicJobDetailPage() {
                         <span className="font-semibold text-slate-400">Location (5%)</span>
                         <span className="font-bold text-pink-400">{matchReport.locationScore}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        role="progressbar"
+                        aria-valuenow={matchReport.locationScore}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="Location alignment score (5% weight)"
+                        className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      >
                         <div
                           className="bg-pink-400 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, matchReport.locationScore)}%` }}
@@ -1024,29 +1070,39 @@ export default function PublicJobDetailPage() {
       {/* Apply Now Modal */}
       {applyModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setApplyModalOpen(false)} />
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl z-10 overflow-hidden">
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setApplyModalOpen(false)} aria-hidden="true" />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="apply-modal-title"
+            className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl z-10 overflow-hidden"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div>
-                <h3 className="text-lg font-bold text-white">Apply for Position</h3>
+                <h3 id="apply-modal-title" className="text-lg font-bold text-white">Apply for Position</h3>
                 <p className="text-xs text-slate-400 mt-0.5">{job.title} • {job.companyName}</p>
               </div>
-              <button type="button" onClick={() => setApplyModalOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+              <button
+                type="button"
+                onClick={() => setApplyModalOpen(false)}
+                aria-label="Close application dialog"
+                className="text-slate-400 hover:text-white p-1 rounded"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             {appSuccess ? (
-              <div className="text-center py-8 space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-teal-400 mx-auto" />
+              <div role="status" aria-live="polite" className="text-center py-8 space-y-3">
+                <CheckCircle2 className="w-12 h-12 text-teal-400 mx-auto" aria-hidden="true" />
                 <h4 className="text-base font-bold text-white">Application Submitted!</h4>
                 <p className="text-xs text-slate-400">Redirecting to your application dashboard...</p>
               </div>
             ) : (
               <form onSubmit={handleApplySubmit} className="space-y-5">
                 {appError && (
-                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <div role="alert" aria-live="assertive" className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
                     <span>{appError}</span>
                   </div>
                 )}
@@ -1064,7 +1120,7 @@ export default function PublicJobDetailPage() {
                     <div className="p-4 rounded-2xl bg-slate-950 border border-teal-500/40 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
-                          <FileText className="w-4 h-4" />
+                          <FileText className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <div>
                           <p className="text-xs font-bold text-white">{candidateResume.originalFileName}</p>
@@ -1090,7 +1146,7 @@ export default function PublicJobDetailPage() {
                 {/* Cover Letter */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-300 block">
+                    <label htmlFor="apply-cover-letter" className="text-xs font-semibold text-slate-300 block">
                       Cover Letter <span className="text-slate-500 text-[10px]">(Optional)</span>
                     </label>
                     <span className="text-[10px] text-slate-500 font-mono">
@@ -1098,6 +1154,9 @@ export default function PublicJobDetailPage() {
                     </span>
                   </div>
                   <textarea
+                    id="apply-cover-letter"
+                    name="coverLetter"
+                    aria-label="Cover Letter"
                     rows={4}
                     maxLength={5000}
                     value={coverLetter}
@@ -1117,7 +1176,7 @@ export default function PublicJobDetailPage() {
                     size="sm"
                     disabled={isSubmittingApp || !candidateResume}
                     className="bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-bold"
-                    leftIcon={<Send className="w-4 h-4" />}
+                    leftIcon={<Send className="w-4 h-4" aria-hidden="true" />}
                   >
                     {isSubmittingApp ? 'Submitting...' : 'Submit Application'}
                   </Button>
@@ -1127,6 +1186,6 @@ export default function PublicJobDetailPage() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

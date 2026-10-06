@@ -18,7 +18,7 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-teal-500 to-cyan-400 p-0.5">
                 <div className="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-teal-400" />
+                  <Sparkles className="h-4 w-4 text-teal-400" aria-hidden="true" />
                 </div>
               </div>
               <span className="font-bold text-base tracking-tight bg-gradient-to-r from-teal-300 via-cyan-200 to-blue-400 bg-clip-text text-transparent">
@@ -115,7 +115,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-teal-300 transition-colors flex items-center gap-1"
                 >
-                  <Github className="w-3.5 h-3.5" /> GitHub Repository
+                  <Github className="w-3.5 h-3.5" aria-hidden="true" /> GitHub Repository
                 </a>
               </li>
               <li>

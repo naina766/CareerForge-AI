@@ -61,6 +61,17 @@ export default function AdminObservabilityDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // Close error modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedError) {
+        setSelectedError(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedError]);
+
   const handleAcknowledgeAlert = async (id: string) => {
     try {
       await api.patch(`/admin/observability/alerts/${id}/acknowledge`);
@@ -233,9 +244,11 @@ export default function AdminObservabilityDashboard() {
                 <h3 className="text-sm font-semibold text-white">System Error & Incident Inspector</h3>
               </div>
               <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                 <input
+                  id="error-filter-search"
                   type="text"
+                  aria-label="Filter recorded system errors"
                   placeholder="Filter errors..."
                   value={errorSearch}
                   onChange={(e) => setErrorSearch(e.target.value)}
@@ -249,19 +262,21 @@ export default function AdminObservabilityDashboard() {
             ) : (
               <div className="space-y-2">
                 {filteredErrors.map((err, idx) => (
-                  <div
+                  <button
                     key={idx}
+                    type="button"
                     onClick={() => setSelectedError(err)}
-                    className="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 hover:border-slate-700 transition-all cursor-pointer flex items-center justify-between text-xs"
+                    aria-label={`View stack trace for error ${err.code || 'ERROR'}: ${err.message}`}
+                    className="w-full text-left p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 hover:border-slate-700 transition-all cursor-pointer flex items-center justify-between text-xs focus-visible:ring-1 focus-visible:ring-indigo-400"
                   >
                     <div className="flex items-center gap-3 truncate">
-                      <span className="font-mono text-rose-400">{err.code || 'ERROR'}</span>
+                      <span className="font-mono text-rose-400 font-semibold">{err.code || 'ERROR'}</span>
                       <span className="text-slate-300 truncate">{err.message}</span>
                     </div>
-                    <span className="text-slate-500 font-mono text-[11px] shrink-0">
+                    <span className="text-slate-500 font-mono text-[11px] shrink-0 ml-2">
                       {new Date(err.timestamp || Date.now()).toLocaleTimeString()}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

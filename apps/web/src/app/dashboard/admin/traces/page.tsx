@@ -195,9 +195,9 @@ export default function DistributedTraceExplorerPage() {
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">
                       {span.status === 'SUCCESS' ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-rose-400" />
+                        <XCircle className="w-4 h-4 text-rose-400" aria-hidden="true" />
                       )}
                     </div>
                     <div>
@@ -216,7 +216,7 @@ export default function DistributedTraceExplorerPage() {
 
                   <div className="flex items-center gap-4 text-xs">
                     <div className="flex items-center gap-1 text-slate-400">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      <Clock className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                       <span className="font-mono font-bold text-slate-200">{span.durationMs} ms</span>
                     </div>
                   </div>

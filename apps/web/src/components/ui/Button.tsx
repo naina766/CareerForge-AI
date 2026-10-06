@@ -48,11 +48,12 @@ export function Button({
     <button
       className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       disabled={disabled || isLoading}
+      aria-busy={isLoading}
       {...props}
     >
       {isLoading ? (
         <>
-          <Loader2 className="w-4 h-4 animate-spin text-current" />
+          <Loader2 className="w-4 h-4 animate-spin text-current" aria-hidden="true" />
           <span>Processing...</span>
         </>
       ) : (

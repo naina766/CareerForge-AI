@@ -57,6 +57,18 @@ function JobsDiscoveryContent() {
   );
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Close mobile filters drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileFiltersOpen) {
+        setMobileFiltersOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileFiltersOpen]);
+
   const [jobs, setJobs] = useState<JobSearchResultItem[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta>({
     page: 1,
@@ -234,12 +246,12 @@ function JobsDiscoveryContent() {
     salaryMin;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <main id="main-content" className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Hero Search Header */}
       <div className="glass-panel rounded-3xl p-8 sm:p-12 border border-slate-800/90 shadow-2xl relative overflow-hidden bg-gradient-to-b from-slate-900/80 via-slate-950/90 to-slate-950/90">
         <div className="max-w-2xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5" /> Verified Candidate Job Marketplace
+            <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Verified Candidate Job Marketplace
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
             Find your next opportunity in tech & AI.
@@ -250,9 +262,10 @@ function JobsDiscoveryContent() {
 
           {/* Search Bar */}
           <div className="relative pt-2">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 mt-1" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 mt-1" aria-hidden="true" />
             <input
               type="text"
+              aria-label="Search by job title, technologies, or keywords"
               value={search}
               onChange={(e) => {
                 setPage(1);
@@ -329,10 +342,12 @@ function JobsDiscoveryContent() {
 
             {/* Experience Filter */}
             <div className="space-y-2.5 pt-3 border-t border-slate-800/60">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+              <label htmlFor="filter-experience" className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
                 Experience Level
               </label>
               <select
+                id="filter-experience"
+                aria-label="Experience Level"
                 value={experienceRange}
                 onChange={(e) => {
                   setPage(1);
@@ -350,13 +365,15 @@ function JobsDiscoveryContent() {
 
             {/* Location Search */}
             <div className="space-y-2.5 pt-3 border-t border-slate-800/60">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+              <label htmlFor="filter-location" className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
                 Location
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                 <input
+                  id="filter-location"
                   type="text"
+                  aria-label="Filter jobs by location"
                   value={locationInput}
                   onChange={(e) => {
                     setPage(1);
@@ -371,7 +388,7 @@ function JobsDiscoveryContent() {
             {/* Skills Filter */}
             <div className="space-y-2.5 pt-3 border-t border-slate-800/60">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                <label htmlFor="filter-skills" className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
                   Required Skills
                 </label>
                 <div className="flex items-center gap-1 text-[10px] text-slate-400">
@@ -395,7 +412,9 @@ function JobsDiscoveryContent() {
 
               <div className="flex gap-1.5">
                 <input
+                  id="filter-skills"
                   type="text"
+                  aria-label="Add a required skill filter"
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
@@ -416,7 +435,12 @@ function JobsDiscoveryContent() {
                       className="px-2 py-0.5 rounded-lg bg-teal-500/10 text-teal-300 border border-teal-500/30 text-[11px] flex items-center gap-1"
                     >
                       {sk}
-                      <button type="button" onClick={() => handleRemoveSkill(sk)} className="hover:text-rose-400">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(sk)}
+                        aria-label={`Remove skill filter: ${sk}`}
+                        className="hover:text-rose-400 p-0.5"
+                      >
                         ×
                       </button>
                     </span>
@@ -427,13 +451,15 @@ function JobsDiscoveryContent() {
 
             {/* Minimum Salary Filter */}
             <div className="space-y-2.5 pt-3 border-t border-slate-800/60">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+              <label htmlFor="filter-salary" className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
                 Minimum Salary ($)
               </label>
               <input
+                id="filter-salary"
                 type="number"
                 min="0"
                 step="10000"
+                aria-label="Minimum annual salary in USD"
                 value={salaryMin}
                 onChange={(e) => {
                   setPage(1);
@@ -454,18 +480,21 @@ function JobsDiscoveryContent() {
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
+                aria-label="Open job search filters"
                 className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
               >
-                <Filter className="w-3.5 h-3.5 text-teal-400" /> Filters
+                <Filter className="w-3.5 h-3.5 text-teal-400" aria-hidden="true" /> Filters
               </button>
-              <span className="text-xs text-slate-400 font-medium">
+              <span className="text-xs text-slate-400 font-medium" role="status" aria-live="polite">
                 {isLoading ? 'Searching vacancies...' : `${pagination.total} active vacancies found`}
               </span>
             </div>
 
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-500">Sort by:</span>
+              <label htmlFor="sort-jobs-select" className="text-slate-500">Sort by:</label>
               <select
+                id="sort-jobs-select"
+                aria-label="Sort job results"
                 value={sort}
                 onChange={(e) => {
                   setPage(1);
@@ -488,40 +517,40 @@ function JobsDiscoveryContent() {
               {debouncedSearch && (
                 <span className="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center gap-1.5">
                   &quot;{debouncedSearch}&quot;
-                  <button type="button" onClick={() => setSearch('')} className="hover:text-rose-400">
-                    <X className="w-3 h-3" />
+                  <button type="button" onClick={() => setSearch('')} aria-label={`Remove search filter: ${debouncedSearch}`} className="hover:text-rose-400">
+                    <X className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </span>
               )}
               {selectedWorkModes.map((m) => (
                 <span key={m} className="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center gap-1.5">
                   {m}
-                  <button type="button" onClick={() => toggleWorkMode(m)} className="hover:text-rose-400">
-                    <X className="w-3 h-3" />
+                  <button type="button" onClick={() => toggleWorkMode(m)} aria-label={`Remove work mode filter: ${m}`} className="hover:text-rose-400">
+                    <X className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </span>
               ))}
               {selectedEmploymentTypes.map((t) => (
                 <span key={t} className="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center gap-1.5">
                   {t.replace('_', ' ')}
-                  <button type="button" onClick={() => toggleEmploymentType(t)} className="hover:text-rose-400">
-                    <X className="w-3 h-3" />
+                  <button type="button" onClick={() => toggleEmploymentType(t)} aria-label={`Remove employment type filter: ${t}`} className="hover:text-rose-400">
+                    <X className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </span>
               ))}
               {selectedSkills.map((sk) => (
                 <span key={sk} className="px-2.5 py-1 rounded-xl bg-teal-500/10 text-teal-300 border border-teal-500/20 text-xs flex items-center gap-1.5">
                   {sk}
-                  <button type="button" onClick={() => handleRemoveSkill(sk)} className="hover:text-rose-400">
-                    <X className="w-3 h-3" />
+                  <button type="button" onClick={() => handleRemoveSkill(sk)} aria-label={`Remove skill filter: ${sk}`} className="hover:text-rose-400">
+                    <X className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </span>
               ))}
               {salaryMin && (
                 <span className="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center gap-1.5">
                   ${parseInt(salaryMin, 10).toLocaleString()}+
-                  <button type="button" onClick={() => setSalaryMin('')} className="hover:text-rose-400">
-                    <X className="w-3 h-3" />
+                  <button type="button" onClick={() => setSalaryMin('')} aria-label="Remove minimum salary filter" className="hover:text-rose-400">
+                    <X className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </span>
               )}
@@ -692,18 +721,25 @@ function JobsDiscoveryContent() {
           <div
             className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
             onClick={() => setMobileFiltersOpen(false)}
+            aria-hidden="true"
           />
-          <div className="relative ml-auto w-full max-w-xs h-full bg-slate-900 border-l border-slate-800 p-6 overflow-y-auto space-y-6 z-10 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-filters-title"
+            className="relative ml-auto w-full max-w-xs h-full bg-slate-900 border-l border-slate-800 p-6 overflow-y-auto space-y-6 z-10 shadow-2xl"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Filter className="w-4 h-4 text-teal-400" /> Filters
+              <h3 id="mobile-filters-title" className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Filter className="w-4 h-4 text-teal-400" aria-hidden="true" /> Filters
               </h3>
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
-                className="text-slate-400 hover:text-white"
+                aria-label="Close filters"
+                className="text-slate-400 hover:text-white p-1 rounded"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -741,8 +777,10 @@ function JobsDiscoveryContent() {
 
             {/* Experience Level */}
             <div className="space-y-2 pt-3 border-t border-slate-800">
-              <span className="text-xs font-semibold text-slate-300 block">Experience Level</span>
+              <label htmlFor="mobile-filter-experience" className="text-xs font-semibold text-slate-300 block">Experience Level</label>
               <select
+                id="mobile-filter-experience"
+                aria-label="Experience Level"
                 value={experienceRange}
                 onChange={(e) => {
                   setPage(1);
@@ -772,7 +810,7 @@ function JobsDiscoveryContent() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }
 

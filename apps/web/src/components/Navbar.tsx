@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import {
   Sparkles,
@@ -23,6 +24,8 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const pathname = usePathname();
+
   // Close mobile menu on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,8 +41,8 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-[#1f2937] bg-[#030712]/90 backdrop-blur-md transition-all">
       <div className="max-w-7xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Brand Logo & AI Badge */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+        <Link href="/" className="flex items-center gap-2.5 group" aria-label="CareerForge AI Home">
+          <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform" aria-hidden="true">
             <Sparkles className="h-3.5 w-3.5 text-white" />
           </div>
           <div className="flex items-center gap-2">
@@ -53,40 +56,48 @@ export function Navbar() {
         </Link>
 
         {/* Center: Main Navigation (Desktop) */}
-        <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-gray-300">
+        <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-gray-300" aria-label="Main Navigation">
           <Link
             href="/jobs"
-            className="hover:text-white transition-colors flex items-center gap-1.5"
+            aria-current={pathname === '/jobs' ? 'page' : undefined}
+            className={`hover:text-white transition-colors flex items-center gap-1.5 ${pathname === '/jobs' ? 'text-white font-semibold' : ''}`}
           >
-            <Briefcase className="w-3.5 h-3.5 text-blue-400" /> Explore Jobs
+            <Briefcase className="w-3.5 h-3.5 text-blue-400" aria-hidden="true" /> Explore Jobs
           </Link>
           <Link
             href={isAuthenticated ? '/dashboard/career-assistant' : '/login'}
-            className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
+            aria-current={pathname.startsWith('/dashboard/career-assistant') ? 'page' : undefined}
+            className={`hover:text-purple-300 transition-colors flex items-center gap-1.5 ${pathname.startsWith('/dashboard/career-assistant') ? 'text-purple-300 font-semibold' : ''}`}
           >
-            <Bot className="w-3.5 h-3.5 text-purple-400" /> AI Mentor
+            <Bot className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" /> AI Mentor
           </Link>
           <Link
             href="/#how-it-works"
             className="hover:text-white transition-colors flex items-center gap-1.5 text-gray-400"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-gray-500" /> How It Works
+            <HelpCircle className="w-3.5 h-3.5 text-gray-500" aria-hidden="true" /> How It Works
           </Link>
           <Link
             href="/architecture"
-            className="hover:text-white transition-colors flex items-center gap-1.5 text-gray-400"
+            aria-current={pathname === '/architecture' ? 'page' : undefined}
+            className={`hover:text-white transition-colors flex items-center gap-1.5 text-gray-400 ${pathname === '/architecture' ? 'text-white font-semibold' : ''}`}
           >
-            <Layers className="w-3.5 h-3.5 text-gray-500" /> Architecture
+            <Layers className="w-3.5 h-3.5 text-gray-500" aria-hidden="true" /> Architecture
           </Link>
 
           {isAuthenticated && (
             <>
-              <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5 text-blue-400 font-semibold">
-                <User className="w-3.5 h-3.5" /> Dashboard
+              <Link
+                href="/dashboard"
+                aria-current={pathname === '/dashboard' ? 'page' : undefined}
+                className="hover:text-white transition-colors flex items-center gap-1.5 text-blue-400 font-semibold"
+              >
+                <User className="w-3.5 h-3.5" aria-hidden="true" /> Dashboard
               </Link>
               {user?.role === 'ADMIN' && (
                 <Link
                   href="/dashboard/admin/observability"
+                  aria-current={pathname.startsWith('/dashboard/admin') ? 'page' : undefined}
                   className="hover:text-purple-300 transition-colors text-[11px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20"
                 >
                   Admin
@@ -164,40 +175,44 @@ export function Navbar() {
           <nav className="flex flex-col space-y-1 text-xs font-medium text-gray-300">
             <Link
               href="/jobs"
+              aria-current={pathname === '/jobs' ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-white"
             >
-              <Briefcase className="w-4 h-4 text-blue-400" /> Explore Jobs
+              <Briefcase className="w-4 h-4 text-blue-400" aria-hidden="true" /> Explore Jobs
             </Link>
             <Link
               href={isAuthenticated ? '/dashboard/career-assistant' : '/login'}
+              aria-current={pathname.startsWith('/dashboard/career-assistant') ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-purple-300"
             >
-              <Bot className="w-4 h-4 text-purple-400" /> AI Mentor
+              <Bot className="w-4 h-4 text-purple-400" aria-hidden="true" /> AI Mentor
             </Link>
             <Link
               href="/#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-gray-400"
             >
-              <HelpCircle className="w-4 h-4 text-gray-500" /> How It Works
+              <HelpCircle className="w-4 h-4 text-gray-500" aria-hidden="true" /> How It Works
             </Link>
             <Link
               href="/architecture"
+              aria-current={pathname === '/architecture' ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-gray-400"
             >
-              <Layers className="w-4 h-4 text-gray-500" /> Architecture
+              <Layers className="w-4 h-4 text-gray-500" aria-hidden="true" /> Architecture
             </Link>
 
             {isAuthenticated && (
               <Link
                 href="/dashboard"
+                aria-current={pathname === '/dashboard' ? 'page' : undefined}
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-850 hover:bg-gray-800/60 flex items-center gap-2.5 text-blue-400 font-semibold"
               >
-                <User className="w-4 h-4" /> Dashboard
+                <User className="w-4 h-4" aria-hidden="true" /> Dashboard
               </Link>
             )}
           </nav>

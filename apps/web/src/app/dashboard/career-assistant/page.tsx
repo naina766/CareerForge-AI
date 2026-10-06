@@ -263,12 +263,12 @@ function CareerAssistantContent() {
     >
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden rounded-xl border border-[#1f2937] bg-[#0b0f19] h-[calc(100vh-13rem)] min-h-[580px]">
         {/* Left Sidebar: Conversations Drawer */}
-        <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#1f2937] bg-[#111827] flex flex-col shrink-0">
+        <nav aria-label="Conversation history" className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#1f2937] bg-[#111827] flex flex-col shrink-0">
           <div className="p-3 border-b border-[#1f2937]">
             <Button
               onClick={handleCreateNewChat}
               className="w-full text-xs justify-center bg-purple-600 hover:bg-purple-500 text-white"
-              leftIcon={<Plus className="w-3.5 h-3.5" />}
+              leftIcon={<Plus className="w-3.5 h-3.5" aria-hidden="true" />}
             >
               New Conversation
             </Button>
@@ -286,6 +286,7 @@ function CareerAssistantContent() {
                   <div
                     key={conv.id}
                     onClick={() => setActiveConversationId(conv.id)}
+                    aria-current={isActive ? 'true' : undefined}
                     className={`group w-full flex items-center justify-between px-2.5 py-2 rounded-lg cursor-pointer text-left transition-colors ${
                       isActive
                         ? 'bg-purple-600/15 text-white border border-purple-500/30'
@@ -295,16 +296,16 @@ function CareerAssistantContent() {
                     <div className="flex-1 truncate pr-2">
                       <div className="text-xs font-medium truncate">{conv.title || 'Career Consultation'}</div>
                       <div className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5">
-                        <Clock className="w-2.5 h-2.5" />
+                        <Clock className="w-2.5 h-2.5" aria-hidden="true" />
                         {new Date(conv.lastMessageAt || conv.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                     <button
                       onClick={(e) => handleDeleteChat(conv.id, e)}
                       className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-rose-400 transition-opacity"
-                      aria-label="Delete chat"
+                      aria-label={`Delete conversation ${conv.title || 'Career Consultation'}`}
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </div>
                 );
@@ -313,15 +314,15 @@ function CareerAssistantContent() {
           </div>
 
           <div className="p-2.5 border-t border-[#1f2937] text-[11px] text-gray-400 flex items-center gap-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
             <span>Profile Data Isolated & Grounded</span>
           </div>
-        </div>
+        </nav>
 
         {/* Center: Interactive Chat Arena */}
         <div className="flex-1 flex flex-col bg-[#030712] overflow-hidden">
           {/* Message Stream */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div role="log" aria-live="polite" aria-label="Career mentor conversation history" className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {messages.length === 0 ? (
               <div className="max-w-2xl mx-auto py-8 text-center space-y-5">
                 <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
@@ -475,9 +476,9 @@ function CareerAssistantContent() {
                             className={`p-1 rounded hover:bg-gray-800 transition-colors ${
                               msg.isHelpful === true ? 'text-emerald-400' : 'text-gray-500'
                             }`}
-                            aria-label="Mark helpful"
+                            aria-label="Mark advice as helpful"
                           >
-                            <ThumbsUp className="w-3 h-3" />
+                            <ThumbsUp className="w-3 h-3" aria-hidden="true" />
                           </button>
                           <button
                             type="button"
@@ -485,9 +486,9 @@ function CareerAssistantContent() {
                             className={`p-1 rounded hover:bg-gray-800 transition-colors ${
                               msg.isHelpful === false ? 'text-rose-400' : 'text-gray-500'
                             }`}
-                            aria-label="Mark unhelpful"
+                            aria-label="Mark advice as unhelpful"
                           >
-                            <ThumbsDown className="w-3 h-3" />
+                            <ThumbsDown className="w-3 h-3" aria-hidden="true" />
                           </button>
                         </div>
                       )}
@@ -498,21 +499,21 @@ function CareerAssistantContent() {
             )}
 
             {isLoading && (
-              <div className="flex items-center gap-3 max-w-3xl mr-auto">
+              <div role="status" aria-live="polite" className="flex items-center gap-3 max-w-3xl mr-auto">
                 <div className="w-7 h-7 rounded-lg bg-[#111827] border border-[#1f2937] text-purple-400 flex items-center justify-center">
-                  <Bot className="w-3.5 h-3.5 animate-pulse" />
+                  <Bot className="w-3.5 h-3.5 animate-pulse" aria-hidden="true" />
                 </div>
                 <div className="rounded-xl p-3 bg-[#111827] border border-[#1f2937] text-xs text-gray-400 flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" aria-hidden="true" />
                   <span>Synthesizing grounded career advice...</span>
                 </div>
               </div>
             )}
 
             {chatError && (
-              <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/30 text-xs text-rose-300 flex items-center justify-between gap-3">
+              <div role="alert" aria-live="assertive" className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/30 text-xs text-rose-300 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" aria-hidden="true" />
                   <span>{chatError}</span>
                 </div>
                 {lastFailedQuery && (
@@ -521,7 +522,7 @@ function CareerAssistantContent() {
                     variant="outline"
                     onClick={() => handleSendMessage(lastFailedQuery)}
                     className="text-xs border-rose-800 text-rose-300 hover:bg-rose-900/30 shrink-0"
-                    leftIcon={<RefreshCw className="w-3 h-3" />}
+                    leftIcon={<RefreshCw className="w-3 h-3" aria-hidden="true" />}
                   >
                     Retry
                   </Button>
@@ -542,7 +543,10 @@ function CareerAssistantContent() {
               className="flex items-center gap-2"
             >
               <input
+                id="career-mentor-input"
+                name="careerQuery"
                 type="text"
+                aria-label="Ask your career mentor a question"
                 placeholder="Ask about skill gaps, learning paths, or career readiness..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -555,7 +559,7 @@ function CareerAssistantContent() {
                 className="bg-purple-600 hover:bg-purple-500 text-white min-h-[38px] px-3.5"
                 aria-label="Send career question"
               >
-                <SendHorizontal className="w-4 h-4" />
+                <SendHorizontal className="w-4 h-4" aria-hidden="true" />
               </Button>
             </form>
           </div>

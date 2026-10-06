@@ -38,6 +38,8 @@ export function ScoreBadge({
   return (
     <span
       className={`inline-flex items-center rounded-lg border ${variantClass} ${sizeClasses[size]} ${className}`}
+      role="status"
+      aria-label={`Match score: ${rounded} percent, ${label}`}
     >
       <span className="font-mono">{rounded}%</span>
       {showLabel && <span className="opacity-90 font-normal">{label}</span>}
