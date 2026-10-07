@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build Workspace Packages
+        run: pnpm --filter @careerforge/config --filter @careerforge/database --filter @careerforge/types build
+
       - name: Validate TypeScript Types
         run: pnpm typecheck
 
@@ -169,6 +172,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build Workspace Packages
+        run: pnpm --filter @careerforge/config --filter @careerforge/database --filter @careerforge/types build
 
       - name: Push Schema to Test Database
         run: pnpm exec prisma db push
