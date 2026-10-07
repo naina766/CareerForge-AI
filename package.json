@@ -29,6 +29,7 @@
     "worker:notification": "tsx workers/notification-worker/src/index.ts",
     "ai:evaluate": "node scripts/run-python.mjs apps/ai-service/evaluation/runners.py",
     "ai:test": "node scripts/run-pytest.mjs apps/ai-service/tests",
+    "benchmark:load": "node scripts/benchmark-load.mjs",
     "audit:check": "node scripts/audit-dependencies.mjs"
   },
   "devDependencies": {
