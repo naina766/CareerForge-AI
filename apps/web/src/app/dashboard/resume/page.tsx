@@ -18,7 +18,6 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { DashboardShell } from '../../../components/dashboard/DashboardShell';
@@ -364,8 +363,8 @@ export default function ResumeManagementPage() {
                   </span>
                 )}
                 {isIndexed && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
-                    <Sparkles className="w-3 h-3 text-purple-400" /> AI Search Ready
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                    <Search className="w-3 h-3 text-blue-400" /> Vector Indexed
                   </span>
                 )}
               </div>
@@ -389,10 +388,10 @@ export default function ResumeManagementPage() {
                     size="sm"
                     onClick={handleIndexResume}
                     disabled={isIndexing}
-                    className="text-xs bg-purple-600 hover:bg-purple-500 text-white"
-                    leftIcon={<Sparkles className="w-3.5 h-3.5" />}
+                    className="text-xs bg-blue-600 hover:bg-blue-500 text-white"
+                    leftIcon={<Search className="w-3.5 h-3.5" />}
                   >
-                    {isIndexing ? 'Indexing...' : 'Enable AI Search'}
+                    {isIndexing ? 'Indexing...' : 'Index In FAISS'}
                   </Button>
                 )}
 

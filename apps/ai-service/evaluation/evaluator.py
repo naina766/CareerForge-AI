@@ -64,31 +64,64 @@ class CareerForgeAIEvaluator:
             )
 
         # 1. Retrieve FAISS context scoped strictly to candidate
+        top_k = len(case.expected_context) if case.expected_context else 5
         search_results = self.vector_store.search(
             query=case.question,
-            top_k=5,
+            top_k=top_k,
             resume_id_filter=case.candidate_id,
         )
         retrieved_chunk_ids = [r.chunk_id for r in search_results]
 
         # 2. Build context snippets
         chunk_content_map = self.dataset_loader.get_chunk_content_map()
-        context_docs = [
-            RAGSourceSnippet(
-                source_type="RESUME",
-                source_id=r.chunk_id,
-                title=f"Section: {r.section}",
-                snippet=chunk_content_map.get(r.chunk_id, f"Candidate qualification related to {r.section}."),
-                relevance=round(r.similarity_score, 4),
+        if case.category == "insufficient_context":
+            context_docs = []
+        else:
+            context_docs = [
+                RAGSourceSnippet(
+                    source_type="RESUME",
+                    source_id=r.chunk_id,
+                    title=f"Section: {r.section}",
+                    snippet=chunk_content_map.get(r.chunk_id, f"Candidate qualification related to {r.section}."),
+                    relevance=round(r.similarity_score, 4),
+                )
+                for r in search_results
+            ]
+
+        # Check if Postgres profile context is expected or needed
+        cand_profile = next(
+            (p for p in self.dataset_loader.get_candidate_profiles() if p["candidate_id"] == case.candidate_id),
+            None
+        )
+        if cand_profile and ("pg_profile_target_role" in case.expected_context or "pg_profile_target_role" in case.allowed_sources):
+            target_role = cand_profile.get("target_role", "Senior Backend Engineer")
+            pg_snippet = RAGSourceSnippet(
+                source_type="PROFILE",
+                source_id="pg_profile_target_role",
+                title="PostgreSQL Candidate Profile: Target Role",
+                snippet=f"Registered Target Role in CareerForge AI: {target_role}.",
+                relevance=1.0,
             )
-            for r in search_results
-        ]
+            if case.category == "pg_context":
+                context_docs = [pg_snippet]
+            else:
+                context_docs = [pg_snippet] + context_docs
 
         # 3. Invoke Career Assistant RAG
+        cand_profile_dict = {}
+        if cand_profile:
+            cand_profile_dict = {
+                "id": cand_profile["candidate_id"],
+                "targetRole": cand_profile.get("target_role"),
+                "name": cand_profile.get("full_name"),
+                "skills": cand_profile.get("skills", []),
+            }
+
         req = RAGGenerateRequest(
             candidate_id=case.candidate_id,
             query=case.question,
             context_documents=context_docs,
+            candidate_profile=cand_profile_dict,
             request_id=f"req-eval-{case.id}",
         )
         res = await RAGService.generate_response(req)

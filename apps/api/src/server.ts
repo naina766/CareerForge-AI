@@ -15,8 +15,8 @@ import { ObservabilityController } from './modules/observability/observability.c
 export function createServer(): Express {
   const app = express();
 
-  // Security headers & helmet
-  app.use(helmet());
+  // Security headers & helmet (HSTS handled conditionally via securityHeadersMiddleware)
+  app.use(helmet({ hsts: false }));
   app.use(securityHeadersMiddleware);
 
   // CORS configuration

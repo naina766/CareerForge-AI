@@ -33,15 +33,15 @@ export function Button({
 
   const variantStyles = {
     primary:
-      'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-semibold shadow-lg shadow-teal-500/20 hover:from-teal-400 hover:to-cyan-400 focus:ring-teal-500/30 border border-teal-400/30',
+      'bg-blue-600 text-white font-medium hover:bg-blue-500 focus:ring-blue-500/30 border border-blue-500/40 shadow-sm',
     secondary:
-      'bg-slate-800 text-slate-100 hover:bg-slate-700 focus:ring-slate-700/30 border border-slate-700',
+      'bg-slate-800 text-slate-100 hover:bg-slate-700/80 focus:ring-slate-700/30 border border-slate-700 font-medium',
     outline:
-      'bg-transparent text-slate-200 hover:bg-slate-800/60 border border-slate-700/80 focus:ring-slate-700/30',
+      'bg-transparent text-slate-200 hover:bg-slate-800/60 border border-slate-700/90 focus:ring-slate-700/30 font-medium',
     ghost:
-      'bg-transparent text-slate-300 hover:bg-slate-800/40 hover:text-white focus:ring-slate-700/20',
+      'bg-transparent text-slate-300 hover:bg-slate-800/40 hover:text-white focus:ring-slate-700/20 font-medium',
     danger:
-      'bg-rose-600 text-white hover:bg-rose-500 focus:ring-rose-500/30 font-semibold',
+      'bg-rose-600 text-white hover:bg-rose-500 focus:ring-rose-500/30 font-medium border border-rose-500/40',
   };
 
   return (

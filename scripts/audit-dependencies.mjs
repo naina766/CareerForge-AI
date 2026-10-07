@@ -2,14 +2,14 @@
  * CareerForge AI - Dependency Security Audit Runner
  *
  * Runs `pnpm audit --json`, inspects all reported vulnerabilities,
- * compares findings against documented accepted residual risks (docs/DEPENDENCY_SECURITY.md),
+ * compares findings against documented accepted residual risks,
  * and fails CI if any NEW or UNACCEPTED high/critical vulnerability is detected.
  */
 
 import { execSync } from 'node:child_process';
 
 const ACCEPTED_RESIDUAL_RISKS = {
-  // Documented in docs/DEPENDENCY_SECURITY.md
+  // Documented accepted residual risk policy (Next.js 14 LTS)
   // Next 14.2.35 LTS (requires Next 15/React 19 for full upstream patch; mitigated via Linux non-root containers & Nginx)
   next: {
     maxSeverity: 'critical',
@@ -46,7 +46,7 @@ try {
 }
 
 if (!auditOutput.trim()) {
-  console.log('✅ No audit output or vulnerabilities reported.');
+  console.log('[OK] No audit output or vulnerabilities reported.');
   process.exit(0);
 }
 
@@ -54,7 +54,7 @@ let auditJson;
 try {
   auditJson = JSON.parse(auditOutput);
 } catch (err) {
-  console.error('❌ Failed to parse `pnpm audit --json` output:', err.message);
+  console.error('[ERROR] Failed to parse `pnpm audit --json` output:', err.message);
   process.exit(1);
 }
 
@@ -113,7 +113,7 @@ for (const [id, adv] of Object.entries(advisories)) {
 }
 
 console.log('------------------------------------------------------------');
-console.log('ACCEPTED RESIDUAL RISKS (Documented in docs/DEPENDENCY_SECURITY.md):');
+console.log('ACCEPTED RESIDUAL RISKS (Documented in security policy):');
 console.log('------------------------------------------------------------');
 const uniqueAccepted = new Map();
 for (const f of acceptedFindings) {
@@ -122,14 +122,14 @@ for (const f of acceptedFindings) {
   }
 }
 for (const [pkg, f] of uniqueAccepted.entries()) {
-  console.log(`  • ${pkg} [${f.scope.toUpperCase()}]`);
+  console.log(`  * ${pkg} [${f.scope.toUpperCase()}]`);
   console.log(`    Rationale: ${f.rationale}`);
 }
 console.log('------------------------------------------------------------\n');
 
 if (unacceptedFindings.length > 0) {
   console.error('============================================================');
-  console.error('      🚨 UNACCEPTED HIGH/CRITICAL VULNERABILITY DETECTED    ');
+  console.error('      UNACCEPTED HIGH/CRITICAL VULNERABILITY DETECTED       ');
   console.error('============================================================');
   for (const uf of unacceptedFindings) {
     console.error(`\nPackage:     ${uf.package}`);
@@ -142,5 +142,5 @@ if (unacceptedFindings.length > 0) {
   process.exit(1);
 }
 
-console.log('✅ Dependency Security Audit: PASS (All findings correspond to documented accepted residual risks).');
+console.log('[PASS] Dependency Security Audit: All findings correspond to documented accepted residual risks.');
 process.exit(0);

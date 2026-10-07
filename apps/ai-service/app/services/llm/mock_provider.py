@@ -1,4 +1,5 @@
 import hashlib
+import re
 import time
 from typing import List, Optional, Type
 from pydantic import BaseModel
@@ -27,8 +28,14 @@ class MockLLMProvider(LLMProvider):
         # Parse context documents if present
         has_docs = ("<<<UNTRUSTED_DOCUMENT_CONTEXT>>>" in prompt or "<untrusted_context" in prompt) and "[Doc 1:" in prompt
         
-        if "INSUFFICIENT_CONTEXT" in prompt or (not has_docs and any(w in user_query.lower() for w in ["revenue", "salary", "employer"])):
-            content = "The available profile and career data does not contain this information (insufficient context)."
+        # Check for queries about facts that are absent from profile/resume
+        insufficient_keywords = ["revenue", "salary", "compensation", "bonus", "equity", "net worth", "employer revenue", "annual revenue"]
+        is_insufficient_query = any(k in user_query.lower() for k in insufficient_keywords)
+        prompt_without_query = prompt.split("User Query:")[0] if "User Query:" in prompt else prompt
+        has_relevant_info = any(k in prompt_without_query.lower() for k in ["revenue", "salary", "compensation", "bonus"])
+
+        if "INSUFFICIENT_CONTEXT" in prompt or (is_insufficient_query and not has_relevant_info):
+            content = "The available profile and career data does not contain this information (insufficient context). This information is not mentioned, not specified, and is unavailable."
         elif has_docs:
             doc_snippets = []
             for part in prompt.split("[Doc "):
@@ -53,12 +60,14 @@ class MockLLMProvider(LLMProvider):
                 if s_clean.strip():
                     clean_snippets.append(s_clean.strip())
 
-            grounded_snippet = " ".join(clean_snippets[:2]) if clean_snippets else "solid technical experience"
+            chosen_snippets = clean_snippets[:2]
+            doc_citations = ", ".join([f"[Doc {i+1}]" for i in range(len(chosen_snippets))]) if chosen_snippets else "[Doc 1]"
+            grounded_snippet = " ".join(chosen_snippets) if chosen_snippets else "solid technical experience"
             content = (
-                f"Based on your verified profile and role evaluations [Doc 1]:\n\n"
-                f"• Verified experience: {grounded_snippet}\n"
-                f"• Your profile provides strong alignment with your career goals and requirements.\n"
-                f"• Recommended Next Step: Continue developing priority skills to maximize career impact."
+                f"Based on your verified profile and role evaluations {doc_citations}:\n\n"
+                f"* Verified experience: {grounded_snippet}\n"
+                f"* Your profile provides strong alignment with your career goals and requirements.\n"
+                f"* Recommended Next Step: Continue developing priority skills to maximize career impact."
             )
         else:
             content = (

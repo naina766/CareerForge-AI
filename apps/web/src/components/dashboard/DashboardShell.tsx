@@ -109,7 +109,7 @@ export function DashboardShell({
       <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 bg-[#111827]/95 backdrop-blur-md border-b border-[#1f2937]">
         <Link href="/" className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-white" />
+            <Compass className="h-3.5 w-3.5 text-white" />
           </div>
           <span className="font-bold text-sm tracking-tight text-white">CareerForge</span>
         </Link>
@@ -131,8 +131,8 @@ export function DashboardShell({
           {/* Brand */}
           <div className="px-2 pt-1.5 pb-0.5">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                <Sparkles className="h-4 w-4 text-white" />
+              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
+                <Compass className="h-4 w-4 text-white" />
               </div>
               <div>
                 <span className="font-bold text-sm tracking-tight text-white block">

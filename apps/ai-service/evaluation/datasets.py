@@ -85,12 +85,18 @@ class EvaluationDatasetLoader:
         profiles = cls.get_candidate_profiles()
         indexed_counts: Dict[str, int] = {}
 
+        existing_chunk_ids = {
+            m.get("chunk_id") for m in store.id_mapping.values() if isinstance(m, dict)
+        }
+
         for profile in profiles:
             cand_id = profile["candidate_id"]
             resume_chunks = profile.get("resume_chunks", [])
             chunks_to_add: List[ChunkInput] = []
 
             for idx, c in enumerate(resume_chunks):
+                if c["id"] in existing_chunk_ids:
+                    continue
                 chunks_to_add.append(
                     ChunkInput(
                         id=c["id"],
@@ -102,7 +108,10 @@ class EvaluationDatasetLoader:
                     )
                 )
 
-            count = store.add_chunks(cand_id, chunks_to_add)
-            indexed_counts[cand_id] = count
+            if chunks_to_add:
+                count = store.add_chunks(cand_id, chunks_to_add)
+                indexed_counts[cand_id] = count
+            else:
+                indexed_counts[cand_id] = len(resume_chunks)
 
         return indexed_counts

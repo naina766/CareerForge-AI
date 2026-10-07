@@ -514,7 +514,7 @@ def validate_answer(state: CareerAssistantState) -> Dict[str, Any]:
     return {
         "is_valid": True,
         "status": status,
-        "citations": validated_citations,
+        "citations": [] if status == "INSUFFICIENT_CONTEXT" else validated_citations,
         "confidence": 0.95 if status == "SUCCESS" else 0.85,
     }
 

@@ -12,7 +12,6 @@ from .nodes import (
     fallback_node,
 )
 
-
 def route_after_understanding(state: CareerAssistantState) -> Literal["continue", "end"]:
     """
     Short-circuits adversarial prompt injection attempts or speculative queries.

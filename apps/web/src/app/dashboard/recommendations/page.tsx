@@ -313,13 +313,13 @@ export default function RecommendationsPage() {
                           rec.matchedSkills.map((s, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px]"
+                              className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-medium"
                             >
-                              ✓ {s}
+                              {s}
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-500 text-[11px]">No direct skills extracted</span>
+                          <span className="text-slate-500 text-[11px]">No direct skills extracted</span>
                         )}
                       </div>
                     </div>
@@ -335,9 +335,9 @@ export default function RecommendationsPage() {
                           rec.missingSkills.map((s, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px]"
+                              className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[11px] font-medium"
                             >
-                              • {s}
+                              {s}
                             </span>
                           ))
                         ) : (

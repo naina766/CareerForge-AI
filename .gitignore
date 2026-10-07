@@ -51,6 +51,7 @@ apps/ai-service/evaluation/reports/*
 .DS_Store
 Thumbs.db
 .idea/
+.agent/
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json

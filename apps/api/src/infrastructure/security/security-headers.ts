@@ -7,8 +7,10 @@ export function securityHeadersMiddleware(_req: Request, res: Response, next: Ne
   // Prevent MIME sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
-  // Strict Transport Security (HSTS)
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  // Strict Transport Security (HSTS) only when connection is verified HTTPS
+  if (_req.secure || _req.headers['x-forwarded-proto'] === 'https') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
 
   // Referrer Policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');

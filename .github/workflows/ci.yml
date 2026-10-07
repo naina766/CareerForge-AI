@@ -291,8 +291,8 @@ jobs:
              [ "${{ needs.integration-and-readiness.result }}" != "success" ] || \
              [ "${{ needs.production-build.result }}" != "success" ] || \
              [ "${{ needs.docker-validation.result }}" != "success" ]; then
-            echo "❌ CI Pipeline Failed. One or more mandatory quality gates regressed."
+            echo "[FAILED] CI Pipeline Failed. One or more mandatory quality gates regressed."
             exit 1
           fi
 
-          echo "✅ All CI Gates Passed Successfully."
+          echo "[SUCCESS] All CI Gates Passed Successfully."
