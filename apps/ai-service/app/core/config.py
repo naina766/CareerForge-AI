@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-1.5-flash"
     
     OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_MODEL: str = "google/gemini-2.0-flash-exp:free"
+    OPENROUTER_MODEL: str = "liquid/lfm-2.5-2.6b:free"
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     
     OPENAI_API_KEY: Optional[str] = None

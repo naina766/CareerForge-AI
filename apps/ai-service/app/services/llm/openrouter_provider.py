@@ -79,6 +79,7 @@ class OpenRouterLLMProvider(LLMProvider):
         system_prompt: Optional[str] = None,
         temperature: float = 0.2,
         max_tokens: int = 1000,
+        response_format: Optional[dict] = None,
     ) -> LLMGenerationResult:
         start_time = time.perf_counter()
 
@@ -87,12 +88,14 @@ class OpenRouterLLMProvider(LLMProvider):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        payload = {
+        payload: dict = {
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        if response_format:
+            payload["response_format"] = response_format
 
         data = await self._post_with_retry(payload)
         latency_ms = (time.perf_counter() - start_time) * 1000
@@ -131,12 +134,22 @@ class OpenRouterLLMProvider(LLMProvider):
             f"Do NOT include markdown formatting like ```json or additional commentary."
         )
 
-        result = await self.generate_text(
-            prompt=structured_prompt,
-            system_prompt=system_prompt,
-            temperature=temperature,
-            max_tokens=1500,
-        )
+        try:
+            result = await self.generate_text(
+                prompt=structured_prompt,
+                system_prompt=system_prompt,
+                temperature=temperature,
+                max_tokens=1500,
+                response_format={"type": "json_object"},
+            )
+        except Exception as e:
+            logger.debug(f"[OpenRouterLLMProvider] Retrying structured generation without response_format flag: {e}")
+            result = await self.generate_text(
+                prompt=structured_prompt,
+                system_prompt=system_prompt,
+                temperature=temperature,
+                max_tokens=1500,
+            )
 
         cleaned_text = result.content.strip()
         if cleaned_text.startswith("```json"):
