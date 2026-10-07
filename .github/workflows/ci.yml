@@ -50,6 +50,8 @@ jobs:
 
       - name: Validate Prisma Schema
         run: pnpm exec prisma validate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
 
   
   # Job 2: AI Regression & Evaluation Gates (Phase 10 Foundation)
