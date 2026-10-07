@@ -178,8 +178,8 @@ jobs:
       - name: Build Workspace Packages
         run: pnpm --filter @careerforge/config --filter @careerforge/database --filter @careerforge/types build
 
-      - name: Push Schema to Test Database
-        run: pnpm exec prisma db push
+      - name: Deploy Migrations to Test Database
+        run: pnpm exec prisma migrate deploy
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/careerforge?schema=public
 

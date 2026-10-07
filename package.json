@@ -16,6 +16,8 @@
     "prisma:generate": "pnpm --filter @careerforge/database prisma:generate",
     "prisma:validate": "pnpm --filter @careerforge/database prisma:validate",
     "prisma:migrate": "pnpm --filter @careerforge/database prisma:migrate",
+    "prisma:deploy": "pnpm --filter @careerforge/database prisma:deploy",
+    "prisma:status": "pnpm --filter @careerforge/database prisma:status",
     "prisma:push": "pnpm --filter @careerforge/database prisma:push",
     "prisma:push:safe": "pnpm --filter @careerforge/database prisma:push:safe",
     "db:push:safe": "pnpm prisma:push:safe",
