@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCheck, Sparkles, SearchCheck, Rocket, ArrowRight } from 'lucide-react';
+import { UserCheck, BrainCircuit, SearchCheck, Rocket, ArrowRight } from 'lucide-react';
 
 export function HowItWorks() {
   const steps = [
@@ -7,17 +7,17 @@ export function HowItWorks() {
       step: '01',
       title: 'Build Your Profile',
       description: 'Add your skills, work experience, education, and specific target career roles.',
-      icon: <UserCheck className="w-5 h-5 text-teal-400" />,
-      accent: 'text-teal-400',
-      badgeBg: 'bg-teal-500/10 border-teal-500/20',
+      icon: <UserCheck className="w-5 h-5 text-blue-400" />,
+      accent: 'text-blue-400',
+      badgeBg: 'bg-blue-500/10 border-blue-500/20',
     },
     {
       step: '02',
-      title: 'AI Understands Your Fit',
-      description: 'CareerForge evaluates your multi-dimensional alignment across skills, experience, and semantics.',
-      icon: <Sparkles className="w-5 h-5 text-cyan-400" />,
-      accent: 'text-cyan-400',
-      badgeBg: 'bg-cyan-500/10 border-cyan-500/20',
+      title: 'Map Skills & Alignment',
+      description: 'CareerForge evaluates your multi-dimensional fit across skills, experience depth, and role requirements.',
+      icon: <BrainCircuit className="w-5 h-5 text-emerald-400" />,
+      accent: 'text-emerald-400',
+      badgeBg: 'bg-emerald-500/10 border-emerald-500/20',
     },
     {
       step: '03',

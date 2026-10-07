@@ -332,7 +332,7 @@ function JobsDiscoveryContent() {
                     type="checkbox"
                     checked={selectedEmploymentTypes.includes(emp.id)}
                     onChange={() => toggleEmploymentType(emp.id)}
-                    className="rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                    className="rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-0 w-4 h-4 cursor-pointer"
                   />
                   <span>{emp.label}</span>
                 </label>
@@ -352,7 +352,7 @@ function JobsDiscoveryContent() {
                   setPage(1);
                   setExperienceRange(e.target.value);
                 }}
-                className="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white focus:outline-none focus:border-teal-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500"
               >
                 <option value="ALL">Any Experience</option>
                 <option value="0-2">Entry Level (0–2 years)</option>
@@ -379,7 +379,7 @@ function JobsDiscoveryContent() {
                     setLocationInput(e.target.value);
                   }}
                   placeholder="e.g. San Francisco, London..."
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
@@ -394,7 +394,7 @@ function JobsDiscoveryContent() {
                   <button
                     type="button"
                     onClick={() => setSkillMatch('any')}
-                    className={`px-1.5 py-0.5 rounded ${skillMatch === 'any' ? 'bg-teal-500/20 text-teal-300 font-bold' : ''}`}
+                    className={`px-1.5 py-0.5 rounded ${skillMatch === 'any' ? 'bg-blue-500/20 text-blue-300 font-bold' : ''}`}
                   >
                     ANY
                   </button>
@@ -402,7 +402,7 @@ function JobsDiscoveryContent() {
                   <button
                     type="button"
                     onClick={() => setSkillMatch('all')}
-                    className={`px-1.5 py-0.5 rounded ${skillMatch === 'all' ? 'bg-teal-500/20 text-teal-300 font-bold' : ''}`}
+                    className={`px-1.5 py-0.5 rounded ${skillMatch === 'all' ? 'bg-blue-500/20 text-blue-300 font-bold' : ''}`}
                   >
                     ALL
                   </button>
@@ -418,7 +418,7 @@ function JobsDiscoveryContent() {
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
                   placeholder="e.g. ReactJS, Python..."
-                  className="flex-1 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+                  className="flex-1 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
                 <Button type="button" size="sm" onClick={handleAddSkill}>
                   Add
@@ -431,7 +431,7 @@ function JobsDiscoveryContent() {
                   {selectedSkills.map((sk) => (
                     <span
                       key={sk}
-                      className="px-2 py-0.5 rounded-lg bg-teal-500/10 text-teal-300 border border-teal-500/30 text-[11px] flex items-center gap-1"
+                      className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/30 text-[11px] flex items-center gap-1"
                     >
                       {sk}
                       <button
@@ -538,7 +538,7 @@ function JobsDiscoveryContent() {
                 </span>
               ))}
               {selectedSkills.map((sk) => (
-                <span key={sk} className="px-2.5 py-1 rounded-xl bg-teal-500/10 text-teal-300 border border-teal-500/20 text-xs flex items-center gap-1.5">
+                <span key={sk} className="px-2.5 py-1 rounded-xl bg-blue-500/10 text-blue-300 border border-blue-500/20 text-xs flex items-center gap-1.5">
                   {sk}
                   <button type="button" onClick={() => handleRemoveSkill(sk)} aria-label={`Remove skill filter: ${sk}`} className="hover:text-rose-400">
                     <X className="w-3 h-3" aria-hidden="true" />
@@ -556,7 +556,7 @@ function JobsDiscoveryContent() {
               <button
                 type="button"
                 onClick={handleClearAllFilters}
-                className="text-xs text-teal-400 hover:text-teal-300 font-semibold underline ml-2"
+                className="text-xs text-blue-400 hover:text-blue-300 font-semibold underline ml-2"
               >
                 Clear all
               </button>
@@ -567,11 +567,11 @@ function JobsDiscoveryContent() {
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="glass-panel rounded-3xl p-6 border border-slate-800/60 animate-pulse h-36" />
+                <div key={i} className="bg-[#0d121f] rounded-2xl p-6 border border-slate-800 animate-pulse h-36" />
               ))}
             </div>
           ) : error ? (
-            <div className="glass-panel rounded-3xl p-10 border border-rose-500/30 text-center space-y-4">
+            <div className="bg-[#0d121f] rounded-2xl p-10 border border-rose-500/30 text-center space-y-4">
               <AlertCircle className="w-10 h-10 text-rose-400 mx-auto" />
               <div>
                 <h3 className="text-base font-bold text-white">Unable to load jobs</h3>
@@ -583,9 +583,9 @@ function JobsDiscoveryContent() {
             </div>
           ) : jobs.length === 0 ? (
             /* Empty State */
-            <div className="glass-panel rounded-3xl p-12 border border-slate-800/90 text-center space-y-4">
-              <div className="h-16 w-16 rounded-3xl bg-slate-900 border border-slate-800 text-slate-400 flex items-center justify-center mx-auto">
-                <Briefcase className="w-8 h-8 text-teal-400" />
+            <div className="bg-[#0d121f] rounded-2xl p-12 border border-slate-800 text-center space-y-4">
+              <div className="h-16 w-16 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+                <Briefcase className="w-8 h-8 text-blue-400" />
               </div>
               <div className="space-y-1 max-w-md mx-auto">
                 <h3 className="text-base font-bold text-white">No matching jobs found</h3>

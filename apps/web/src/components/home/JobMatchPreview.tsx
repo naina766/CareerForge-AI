@@ -49,10 +49,10 @@ export function JobMatchPreview() {
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                  TechNova Systems
+                  Example Role · TechNova Systems
                 </span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Recommended Match
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                  Example Match Calculation
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-white">
@@ -148,6 +148,12 @@ export function JobMatchPreview() {
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
                 Apache Kafka (Identified Gap)
               </span>
+            </div>
+
+            {/* Preview Disclaimer Note */}
+            <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500 border-t border-slate-800/80">
+              <span>Example candidate vs. vacancy match calculation based on FAISS vector distance and skill taxonomy.</span>
+              <span className="font-mono text-[11px] text-slate-500">Interactive Preview Data</span>
             </div>
           </div>
         </div>

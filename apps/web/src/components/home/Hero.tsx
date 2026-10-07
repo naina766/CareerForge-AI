@@ -11,7 +11,7 @@ export function Hero() {
     <section className="relative pt-8 pb-16 md:pt-14 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Top Editorial Headline & Value Narrative */}
-        <div className="max-w-3xl mx-auto text-center space-y-6">
+        <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
           {/* Subtle Platform Status Pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d121f] border border-slate-800 text-xs text-slate-300 font-medium">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -72,7 +72,7 @@ export function Hero() {
         </div>
 
         {/* Centerpiece: Signature Career Map Workspace Visualization */}
-        <div className="pt-2">
+        <div className="pt-2 animate-fade-in">
           <CareerMapVisual />
         </div>
       </div>

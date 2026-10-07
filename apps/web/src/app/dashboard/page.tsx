@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardShell>
-      <div className="space-y-6 max-w-7xl">
+      <div className="space-y-6 max-w-7xl animate-fade-in">
         {/* 1. Header: Greeting & Status Banner */}
         <div className="bg-[#0d121f] border border-slate-800 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-1.5 max-w-2xl">
@@ -308,7 +308,7 @@ export default function DashboardPage() {
                   <span className="text-white font-mono">{skillsCount} items</span>
                 </div>
                 <div className="flex justify-between text-slate-400 text-[11px]">
-                  <span>ATS Structure Score:</span>
+                  <span>Profile Completeness:</span>
                   <span className="text-white font-mono">{readinessScore}%</span>
                 </div>
               </div>

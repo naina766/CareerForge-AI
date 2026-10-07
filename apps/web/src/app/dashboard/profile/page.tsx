@@ -22,7 +22,7 @@ import {
   User,
   Briefcase,
   GraduationCap,
-  Sparkles,
+  FileText,
   Compass,
   Link as LinkIcon,
   Plus,
@@ -441,7 +441,7 @@ export default function CandidateProfilePage() {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
               }`}
             >
-              <Sparkles className="w-4 h-4 text-cyan-400" /> Professional Summary
+              <FileText className="w-4 h-4 text-blue-400" /> Professional Summary
             </button>
             <button
               onClick={() => setActiveTab('skills')}

@@ -36,7 +36,26 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-      }
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInFast: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideInRight: {
+          '0%': { opacity: '0', transform: 'translateX(8px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fadeIn 300ms ease-out forwards',
+        'fade-in-fast': 'fadeInFast 200ms ease-out forwards',
+        'slide-in-right': 'slideInRight 250ms ease-out forwards',
+      },
     },
   },
   plugins: [],

@@ -20,7 +20,6 @@ import {
   Layers,
   Building,
   Calendar,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   FileText,
@@ -1006,7 +1005,7 @@ export default function PublicJobDetailPage() {
           {job.benefits && (
             <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-3">
               <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400" /> Perks & Benefits
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Perks & Benefits
               </h2>
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
                 {job.benefits}

@@ -89,7 +89,7 @@ export function SkillGapSection() {
         {/* Dynamic Display Area */}
         {selectedView === 'dependency' ? (
           /* Dependency Graph View */
-          <div className="bg-[#0d121f] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8">
+          <div className="bg-[#0d121f] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 animate-fade-in">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs">
               <span className="font-semibold text-slate-300">
                 Target Role Benchmark: Senior Backend & Systems Engineer
@@ -201,7 +201,7 @@ export function SkillGapSection() {
           </div>
         ) : (
           /* Sequential Timeline Roadmap View */
-          <div className="bg-[#0d121f] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6">
+          <div className="bg-[#0d121f] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 animate-fade-in">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs">
               <span className="font-semibold text-slate-300">
                 Curated Engineering Roadmap: Senior Backend & Systems Track

@@ -93,7 +93,10 @@ export function CareerMapVisual() {
             <span className="h-2.5 w-2.5 rounded-full bg-slate-700 inline-block" />
           </div>
           <span className="text-xs font-mono text-slate-400 pl-2 border-l border-slate-800">
-            careerforge://intelligence/career-map
+            careerforge://preview/career-map
+          </span>
+          <span className="hidden sm:inline-block text-[10px] font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+            Example Candidate Preview
           </span>
         </div>
 
@@ -185,10 +188,10 @@ export function CareerMapVisual() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-                  Live Career Map
+                  Career Map Preview
                 </span>
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                <span className="text-xs text-emerald-400 font-medium">Deterministic Match</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                <span className="text-xs text-blue-300 font-medium">Example Match Logic</span>
               </div>
               <h4 className="text-base font-bold text-white tracking-tight mt-0.5">
                 {currentScenario.title}
@@ -304,11 +307,11 @@ export function CareerMapVisual() {
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
             <span>
-              Matches are computed across candidate skills, experience depth, and semantic role requirements.
+              Illustrative preview demonstrating candidate skill alignment, taxonomy gap resolution, and roadmap sequencing.
             </span>
           </div>
           <span className="font-mono text-slate-500 text-[11px]">
-            FastEmbed BGE-Small · FAISS IndexFlatIP
+            Interactive Product Preview · Example Candidate Scenario
           </span>
         </div>
       </div>

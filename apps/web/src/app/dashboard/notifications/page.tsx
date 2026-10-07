@@ -6,7 +6,7 @@ import {
   Bell,
   Check,
   Trash2,
-  Sparkles,
+  Target,
   Briefcase,
   Layers,
   BookOpen,
@@ -168,7 +168,7 @@ export default function NotificationCenterPage() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'MATCH_COMPLETED':
-        return <Sparkles className="w-4 h-4 text-blue-400" />;
+        return <Target className="w-4 h-4 text-blue-400" />;
       case 'JOB_RECOMMENDED':
         return <Briefcase className="w-4 h-4 text-cyan-400" />;
       case 'SKILL_GAP_UPDATED':

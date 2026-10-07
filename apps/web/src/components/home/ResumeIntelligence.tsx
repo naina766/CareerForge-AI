@@ -68,8 +68,8 @@ export function ResumeIntelligence() {
                 <FileText className="w-4 h-4 text-blue-400" />
                 <span className="font-semibold text-white">Parsed Document Structure</span>
               </div>
-              <span className="font-mono text-emerald-400 text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                FAISS Indexed (384-dim)
+              <span className="font-mono text-blue-400 text-[11px] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                Example Parsed Resume
               </span>
             </div>
 

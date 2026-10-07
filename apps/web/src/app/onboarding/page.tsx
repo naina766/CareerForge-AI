@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import {
-  Sparkles,
+  Compass,
   User,
   CheckCircle2,
   ArrowRight,
@@ -144,8 +144,8 @@ export default function OnboardingPage() {
         {/* Stepper Header */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xs font-bold uppercase tracking-widest text-teal-400 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Candidate Onboarding
+            <h1 className="text-xs font-bold uppercase tracking-widest text-blue-400 flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5" aria-hidden="true" /> Candidate Onboarding
             </h1>
             <span className="text-xs font-mono text-slate-400" aria-current="step">Step {step} of 5</span>
           </div>
@@ -487,9 +487,9 @@ export default function OnboardingPage() {
               size="md"
               isLoading={isSaving}
               onClick={handleComplete}
-              rightIcon={<Sparkles className="w-4 h-4" aria-hidden="true" />}
+              rightIcon={<ArrowRight className="w-4 h-4" aria-hidden="true" />}
             >
-              Start Career Journey
+              Enter Career Workspace
             </Button>
           )}
         </div>

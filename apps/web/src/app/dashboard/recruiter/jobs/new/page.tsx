@@ -15,7 +15,7 @@ import {
   FileText,
   DollarSign,
   Layers,
-  Sparkles,
+  Gift,
 } from 'lucide-react';
 import { Button } from '../../../../../components/ui/Button';
 
@@ -531,7 +531,7 @@ export default function CreateJobPage() {
         <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/90 shadow-xl space-y-5">
           <div className="flex items-center gap-3 pb-3 border-b border-slate-800/80">
             <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
+              <Gift className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white">5. Perks & Application Deadline</h2>

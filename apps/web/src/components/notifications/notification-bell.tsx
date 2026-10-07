@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   Bell,
   Check,
-  Sparkles,
+  Target,
   Briefcase,
   Layers,
   ChevronRight,
@@ -97,7 +97,7 @@ export function NotificationBell() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'MATCH_COMPLETED':
-        return <Sparkles className="w-4 h-4 text-teal-400" />;
+        return <Target className="w-4 h-4 text-blue-400" />;
       case 'JOB_RECOMMENDED':
         return <Briefcase className="w-4 h-4 text-cyan-400" />;
       case 'SKILL_GAP_UPDATED':

@@ -10,7 +10,6 @@ import {
   JobRecommendationListResponse,
 } from '@careerforge/types';
 import {
-  Sparkles,
   RefreshCw,
   Briefcase,
   MapPin,
@@ -360,7 +359,7 @@ export default function RecommendationsPage() {
                         }
                         className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium transition-colors"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                        <Target className="w-3.5 h-3.5 text-blue-400" />
                         <span>Why this matches your profile</span>
                         {isExplained ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                       </button>

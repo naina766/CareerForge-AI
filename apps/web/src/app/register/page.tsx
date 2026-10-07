@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/Input';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Button } from '../../components/ui/Button';
 import {
-  Sparkles,
+  Compass,
   Mail,
   User,
   Briefcase,
@@ -70,36 +70,36 @@ export default function RegisterPage() {
     <main id="main-content" className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl border border-slate-800/90 glass-panel overflow-hidden shadow-2xl">
         {/* Left Hero / Persona Pitch */}
-        <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-950 to-[#070b12] p-8 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800/80">
+        <div className="lg:col-span-5 bg-[#0d121f] p-8 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold">
+              <Compass className="w-3.5 h-3.5" aria-hidden="true" />
               Get Started with CareerForge
             </div>
 
             <h1 className="text-3xl font-extrabold text-white tracking-tight leading-tight">
               Create your <br />
-              <span className="bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
-                intelligence profile
+              <span className="text-blue-400">
+                career profile
               </span>
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-              Join thousands of engineers and hiring teams accelerating career intelligence with deterministic explainable AI.
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Structure your verified experience, benchmark capability gaps against live engineering roles, and access transparent job matches.
             </p>
 
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
-                <span>Deterministic ATS score & skill gap priorities</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" aria-hidden="true" />
+                <span>Explainable skill alignment and prioritized gap breakdown</span>
               </div>
               <div className="flex items-start gap-3 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
-                <span>Grounded AI Career Assistant scoped to your resume</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" aria-hidden="true" />
+                <span>Structured 4-phase engineering learning roadmaps</span>
               </div>
               <div className="flex items-start gap-3 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
-                <span>Transparent matching with zero arbitrary score drift</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" aria-hidden="true" />
+                <span>Grounded career mentor referencing your actual resume chunks</span>
               </div>
             </div>
           </div>

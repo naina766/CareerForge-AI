@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Sparkles,
   LayoutDashboard,
   Bot,
   FileText,
@@ -225,7 +224,7 @@ export function DashboardShell({
               <div className="flex items-center justify-between pb-2 border-b border-[#1f2937]">
                 <div className="flex items-center gap-2">
                   <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <Sparkles className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+                    <Compass className="h-3.5 w-3.5 text-white" aria-hidden="true" />
                   </div>
                   <span className="font-bold text-sm text-white">CareerForge</span>
                 </div>

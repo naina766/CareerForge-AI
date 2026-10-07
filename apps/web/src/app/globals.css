@@ -66,6 +66,17 @@ body {
   border-radius: 0.75rem;
 }
 
+/* Compatibility Aliases mapped to solid dark surfaces */
+.glass-panel {
+  background-color: #0d121f;
+  border: 1px solid #1e293b;
+}
+
+.glass-card {
+  background-color: #131a2c;
+  border: 1px solid #243049;
+}
+
 /* Document View Layout */
 .document-sheet {
   background-color: #0d121f;

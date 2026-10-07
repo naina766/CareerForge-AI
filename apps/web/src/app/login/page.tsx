@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/Input';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Button } from '../../components/ui/Button';
 import {
-  Sparkles,
+  Compass,
   Mail,
   ShieldCheck,
   BrainCircuit,
@@ -52,39 +52,39 @@ export default function LoginPage() {
     <main id="main-content" className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl border border-slate-800/90 glass-panel overflow-hidden shadow-2xl">
         {/* Left / Hero Side */}
-        <div className="lg:col-span-6 bg-gradient-to-br from-slate-900 via-slate-950 to-[#070b12] p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800/80">
+        <div className="lg:col-span-6 bg-[#0d121f] p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold">
+              <Compass className="w-3.5 h-3.5" aria-hidden="true" />
               Career Intelligence Platform
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              Match smarter. <br />
-              <span className="bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
-                Apply with confidence.
+              Match with intent. <br />
+              <span className="text-blue-400">
+                Advance with clarity.
               </span>
             </h1>
 
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Sign in to access your explainable job match reports, candidate-scoped RAG career assistant, and application pipeline.
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Sign in to access your explainable job match reports, candidate-scoped career mentor, and targeted skill roadmaps.
             </p>
 
             <div className="space-y-3.5 pt-2">
               <div className="flex items-center gap-3 text-xs text-slate-300">
-                <div className="h-6 w-6 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20" aria-hidden="true">
+                <div className="h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20" aria-hidden="true">
                   <BrainCircuit className="w-3.5 h-3.5" />
                 </div>
-                <span>Explainable matching across skills, experience, and semantics</span>
+                <span>Explainable matching across skills, experience, and role semantics</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-300">
-                <div className="h-6 w-6 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20" aria-hidden="true">
+                <div className="h-6 w-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20" aria-hidden="true">
                   <Bot className="w-3.5 h-3.5" />
                 </div>
-                <span>Grounded AI Career Mentor tailored to your verified trajectory</span>
+                <span>Grounded career mentor tailored to your verified trajectory</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-300">
-                <div className="h-6 w-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20" aria-hidden="true">
+                <div className="h-6 w-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center border border-slate-700" aria-hidden="true">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <span>Skill gap discovery & actionable learning path roadmaps</span>
@@ -105,7 +105,7 @@ export default function LoginPage() {
                   setPassword('Password123!');
                   setError(null);
                 }}
-                className="text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-teal-300 border border-slate-700 transition-colors min-h-[38px] flex items-center"
+                className="text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-blue-300 border border-slate-700 transition-colors min-h-[38px] flex items-center"
                 aria-label="Fill demo credentials for Candidate Alex Rivera"
               >
                 Candidate Demo
