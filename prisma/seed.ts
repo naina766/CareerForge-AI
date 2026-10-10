@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import fs from 'fs';
+import path from 'path';
 import {
   PrismaClient,
   UserRole,
@@ -636,10 +638,33 @@ async function main() {
     });
 
     if (user.candidateProfile && user.candidateProfile.resumes[0]) {
+      const rRecord = user.candidateProfile.resumes[0];
+      const filename = `${c.name.replace(/\s+/g, '_')}_Resume.pdf`;
+      const storageKey = `resumes/${user.candidateProfile.id}/${filename}`;
+      const samplePdfBuf = Buffer.from(
+        `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>/Contents 4 0 R>>endobj\n4 0 obj<</Length 120>>stream\nBT /F1 16 Tf 50 720 Td (${c.name} - ${c.headline}) Tj ET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000010 00000 n \n0000000060 00000 n \n0000000117 00000 n \n0000000215 00000 n \ntrailer<</Size 5/Root 1 0 R>>\nstartxref\n310\n%%EOF`
+      );
+
+      const baseDirs = ['./storage/uploads/resumes', './apps/api/storage/uploads/resumes'];
+      for (const base of baseDirs) {
+        const fullPath = path.resolve(process.cwd(), base, storageKey);
+        await fs.promises.mkdir(path.dirname(fullPath), { recursive: true });
+        await fs.promises.writeFile(fullPath, samplePdfBuf);
+      }
+
+      await prisma.resume.update({
+        where: { id: rRecord.id },
+        data: {
+          storageKey,
+          fileSize: samplePdfBuf.length,
+          mimeType: 'application/pdf',
+        },
+      });
+
       candidateMap.set(c.key, {
         id: user.candidateProfile.id,
         userId: user.id,
-        resumeId: user.candidateProfile.resumes[0].id,
+        resumeId: rRecord.id,
         name: user.candidateProfile.name,
       });
     }

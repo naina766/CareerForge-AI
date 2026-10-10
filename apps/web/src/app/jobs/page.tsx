@@ -133,7 +133,7 @@ function JobsDiscoveryContent() {
   }, [updateUrlParams]);
 
   // Fetch jobs from backend API
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -175,10 +175,6 @@ function JobsDiscoveryContent() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchJobs();
   }, [
     debouncedSearch,
     selectedWorkModes,
@@ -191,6 +187,10 @@ function JobsDiscoveryContent() {
     sort,
     page,
   ]);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
 
   const toggleWorkMode = (mode: string) => {
     setPage(1);

@@ -298,17 +298,50 @@ async function runResumeUploadTests() {
     console.log(`  ✅ Path traversal filename sanitized safely: ${bResume.storageKey}`);
 
     // -------------------------------------------------------------------------
-    // [8/11] Authenticated Download
+    // [8/11] Authenticated Download & EISDIR / Traversal Defense
     // -------------------------------------------------------------------------
-    console.log('\n[8/11] Testing authenticated resume download/view stream...');
+    console.log('\n[8/11] Testing authenticated resume download/view stream & EISDIR defense...');
     const downloadRes = await makeRequest('GET', '/api/v1/candidates/me/resume/download', undefined, {
       Authorization: `Bearer ${candidateAToken}`,
     });
 
     assert.strictEqual(downloadRes.status, 200);
     assert.strictEqual(downloadRes.headers['content-type'], 'application/pdf');
+    assert.ok(downloadRes.headers['content-disposition']?.includes('filename='));
     assert.ok(downloadRes.rawBody && downloadRes.rawBody.length > 0);
     console.log(`  ✅ Authenticated download verified (${downloadRes.rawBody?.length} bytes received)`);
+
+    // Storage provider EISDIR and path traversal security verification
+    const { defaultStorageProvider } = await import('../../apps/api/src/storage/index.js');
+
+    // Test 1: Empty storage key rejection
+    await assert.rejects(
+      async () => defaultStorageProvider.getStream(''),
+      (err: any) => err.code === 'INVALID_STORAGE_KEY',
+      'Should reject empty storage key'
+    );
+    console.log('  ✅ Storage provider rejects empty storage key');
+
+    // Test 2: Path traversal rejection
+    await assert.rejects(
+      async () => defaultStorageProvider.getStream('../../../etc/passwd'),
+      (err: any) => err.code === 'INVALID_STORAGE_KEY',
+      'Should reject path traversal storage key'
+    );
+    console.log('  ✅ Storage provider rejects path traversal storage key');
+
+    // Test 3: Directory targeting rejection (EISDIR prevention)
+    await assert.rejects(
+      async () => defaultStorageProvider.getStream('resumes'),
+      (err: any) => err.code === 'INVALID_STORAGE_KEY' || err.code === 'RESUME_NOT_FOUND',
+      'Should reject directory storage key (EISDIR prevention)'
+    );
+    console.log('  ✅ Storage provider rejects directory path (EISDIR prevented)');
+
+    // Test 4: Unauthenticated download rejection
+    const unauthDownloadRes = await makeRequest('GET', '/api/v1/candidates/me/resume/download');
+    assert.strictEqual(unauthDownloadRes.status, 401);
+    console.log('  ✅ Unauthenticated download rejected with 401');
 
     // -------------------------------------------------------------------------
     // [9/11] Strict IDOR Cross-Tenant Isolation

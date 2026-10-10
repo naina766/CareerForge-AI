@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ResumeService } from './resume.service.js';
 import { AppError } from '../../middleware/errorHandler.js';
+import { logger } from '../../utils/logger.js';
 
 export class ResumeController {
   static async getResume(req: Request, res: Response, next: NextFunction) {
@@ -156,11 +157,27 @@ export class ResumeController {
 
       const fileInfo = await ResumeService.downloadResume(req.user.id);
 
+      const filename = (fileInfo.fileName || 'resume.pdf').replace(/["\r\n\\]/g, '_');
+      const dispositionType = req.query.inline === 'true' ? 'inline' : 'attachment';
+
       res.setHeader('Content-Type', fileInfo.mimeType || 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileInfo.fileName)}"`);
+      res.setHeader('Content-Disposition', `${dispositionType}; filename="${encodeURIComponent(filename)}"`);
       if (fileInfo.fileSize) {
         res.setHeader('Content-Length', fileInfo.fileSize);
       }
+
+      fileInfo.stream.on('error', (err) => {
+        logger.error('Error streaming resume download:', err);
+        if (!res.headersSent) {
+          next(err);
+        } else {
+          res.end();
+        }
+      });
+
+      res.on('close', () => {
+        fileInfo.stream.destroy();
+      });
 
       fileInfo.stream.pipe(res);
     } catch (err) {

@@ -9,18 +9,66 @@ import { logger } from '../utils/logger.js';
 
 export class LocalStorageProvider implements IStorageProvider {
   private baseDir: string;
+  private baseDirRelPath: string;
 
   constructor(baseDir: string = './storage/uploads/resumes') {
-    this.baseDir = path.resolve(process.cwd(), baseDir);
+    this.baseDirRelPath = baseDir;
+    this.baseDir = path.isAbsolute(baseDir)
+      ? baseDir
+      : path.resolve(process.cwd(), baseDir);
   }
 
   private resolveSafePath(key: string): string {
-    // Sanitize and prevent path traversal
-    const normalizedKey = path.normalize(key).replace(/^(\.\.(\/|\\|$))+/, '');
+    if (!key || typeof key !== 'string' || !key.trim()) {
+      throw new AppError('Invalid storage key: key cannot be empty', 400, 'INVALID_STORAGE_KEY');
+    }
+
+    if (key.includes('\0')) {
+      throw new AppError('Invalid storage key: null bytes prohibited', 400, 'INVALID_STORAGE_KEY');
+    }
+
+    // Strip leading slashes/backslashes and normalize
+    const cleanKey = key.replace(/^[/\\]+/, '');
+    const normalizedKey = path.normalize(cleanKey);
     const fullPath = path.resolve(this.baseDir, normalizedKey);
 
-    if (!fullPath.startsWith(this.baseDir)) {
+    // Ensure target path is strictly within baseDir and not baseDir itself
+    const relative = path.relative(this.baseDir, fullPath);
+    if (!relative || relative === '.' || relative.startsWith('..') || path.isAbsolute(relative)) {
       throw new AppError('Invalid storage key: directory traversal prohibited', 400, 'INVALID_STORAGE_KEY');
+    }
+
+    // Monorepo cross-directory fallback check for dev/test workspace alignment
+    if (!existsSync(fullPath)) {
+      const workspaceFallback = path.resolve(process.cwd(), '../../', this.baseDirRelPath, normalizedKey);
+      if (existsSync(workspaceFallback)) {
+        return workspaceFallback;
+      }
+      const appFallback = path.resolve(process.cwd(), 'apps/api', this.baseDirRelPath, normalizedKey);
+      if (existsSync(appFallback)) {
+        return appFallback;
+      }
+    }
+
+    return fullPath;
+  }
+
+  private async getVerifiedFilePath(key: string): Promise<string> {
+    const fullPath = this.resolveSafePath(key);
+
+    let stat;
+    try {
+      stat = await fs.stat(fullPath);
+    } catch (err: any) {
+      if (err.code === 'ENOENT') {
+        throw new AppError('File not found in storage', 404, 'RESUME_NOT_FOUND');
+      }
+      throw err;
+    }
+
+    // Critical EISDIR defense: Reject directories attempting to be streamed/read as files
+    if (!stat.isFile()) {
+      throw new AppError('Requested storage path is a directory, not a file', 400, 'INVALID_STORAGE_KEY');
     }
 
     return fullPath;
@@ -43,35 +91,34 @@ export class LocalStorageProvider implements IStorageProvider {
   }
 
   async delete(key: string): Promise<void> {
-    const fullPath = this.resolveSafePath(key);
     try {
-      if (existsSync(fullPath)) {
+      const fullPath = this.resolveSafePath(key);
+      const stat = await fs.stat(fullPath).catch(() => null);
+      if (stat && stat.isFile()) {
         await fs.unlink(fullPath);
         logger.debug(`File deleted locally: ${fullPath}`);
       }
     } catch (err) {
-      logger.warn(`Failed to delete local file ${fullPath}:`, err);
+      logger.warn(`Failed to delete local file for key ${key}:`, err);
     }
   }
 
   async getStream(key: string): Promise<Readable> {
-    const fullPath = this.resolveSafePath(key);
-    if (!existsSync(fullPath)) {
-      throw new AppError('File not found in storage', 404, 'RESUME_NOT_FOUND');
-    }
+    const fullPath = await this.getVerifiedFilePath(key);
     return createReadStream(fullPath);
   }
 
   async getBuffer(key: string): Promise<Buffer> {
-    const fullPath = this.resolveSafePath(key);
-    if (!existsSync(fullPath)) {
-      throw new AppError('File not found in storage', 404, 'RESUME_NOT_FOUND');
-    }
+    const fullPath = await this.getVerifiedFilePath(key);
     return fs.readFile(fullPath);
   }
 
   async exists(key: string): Promise<boolean> {
-    const fullPath = this.resolveSafePath(key);
-    return existsSync(fullPath);
+    try {
+      const fullPath = await this.getVerifiedFilePath(key);
+      return !!fullPath;
+    } catch {
+      return false;
+    }
   }
 }

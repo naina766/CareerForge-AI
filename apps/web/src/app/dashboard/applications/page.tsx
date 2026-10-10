@@ -41,7 +41,7 @@ export default function CandidateApplicationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchApplications = async () => {
+  const fetchApplications = React.useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -62,7 +62,7 @@ export default function CandidateApplicationsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [statusFilter, searchQuery]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -72,7 +72,7 @@ export default function CandidateApplicationsPage() {
     if (isAuthenticated) {
       fetchApplications();
     }
-  }, [authLoading, isAuthenticated, statusFilter, searchQuery]);
+  }, [authLoading, isAuthenticated, router, fetchApplications]);
 
   function getStatusVariant(status: ApplicationStatus): 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'ai' {
     switch (status) {

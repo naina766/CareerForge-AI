@@ -623,8 +623,12 @@ export class ResumeService {
       where: { candidateId: profile.id, isActive: true },
     });
 
-    if (!resume || !resume.storageKey) {
-      throw new AppError('Resume file not found', 404, 'RESUME_NOT_FOUND');
+    if (!resume) {
+      throw new AppError('No active resume found for this profile', 404, 'RESUME_NOT_FOUND');
+    }
+
+    if (!resume.storageKey || !resume.storageKey.trim()) {
+      throw new AppError('Resume file has not been stored or is unavailable. Please re-upload.', 404, 'RESUME_NOT_FOUND');
     }
 
     const stream = await this.storage.getStream(resume.storageKey);
