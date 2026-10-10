@@ -293,15 +293,25 @@ export default function ResumeManagementPage() {
       const a = document.createElement('a');
       a.href = url;
       a.download = downloadFileName;
+      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
 
-      setMessage({ type: 'success', text: 'Resume downloaded successfully.' });
+      // Delay object URL revocation so browser download manager has initiated stream reading
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        if (document.body.contains(a)) {
+          document.body.removeChild(a);
+        }
+      }, 1500);
+
+      setMessage({ type: 'success', text: 'Resume download initiated.' });
     } catch (err: unknown) {
       const e = err as Error;
-      setMessage({ type: 'error', text: e.message || 'Failed to download resume' });
+      setMessage({
+        type: 'error',
+        text: `${e.message || 'Failed to download resume.'} If this file is missing from storage, click "Replace" above to upload an updated version.`,
+      });
     } finally {
       setIsDownloading(false);
     }

@@ -36,7 +36,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 
     const strength = getStrength(currentValue);
     const strengthLabels = ['Too weak', 'Weak', 'Fair', 'Strong', 'Excellent'];
-    const strengthColors = ['bg-rose-500', 'bg-rose-400', 'bg-amber-400', 'bg-teal-400', 'bg-emerald-400'];
+    const strengthColors = ['bg-rose-500', 'bg-rose-400', 'bg-amber-400', 'bg-blue-400', 'bg-emerald-400'];
 
     return (
       <div className="w-full space-y-1.5">
@@ -56,7 +56,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             aria-invalid={Boolean(error)}
             aria-describedby={errorId}
             className={`w-full rounded-xl bg-slate-900/80 border ${
-              error ? 'border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-800 focus:border-teal-500 focus:ring-teal-500/20'
+              error ? 'border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-800 focus:border-blue-500 focus:ring-blue-500/20'
             } pl-10 pr-11 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition-all duration-200 focus:ring-4 ${className}`}
             {...props}
           />

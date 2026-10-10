@@ -133,7 +133,7 @@ export default function OnboardingPage() {
   if (authLoading || !user) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-2 border-teal-400 border-t-transparent animate-spin" />
+        <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
                 aria-hidden="true"
                 className={`h-2 flex-1 rounded-full transition-all duration-300 ${
                   s <= step
-                    ? 'bg-gradient-to-r from-teal-400 to-cyan-400'
+                    ? 'bg-blue-600'
                     : 'bg-slate-800'
                 }`}
               />
@@ -247,7 +247,7 @@ export default function OnboardingPage() {
                   {selectedSkills.map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/30 text-xs font-medium"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30 text-xs font-medium"
                     >
                       {skill}
                       <button
@@ -284,7 +284,7 @@ export default function OnboardingPage() {
                       aria-label={`Add ${skill}`}
                       className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors min-h-[36px]"
                     >
-                      <Plus className="w-3 h-3 text-teal-400" aria-hidden="true" /> {skill}
+                      <Plus className="w-3 h-3 text-blue-400" aria-hidden="true" /> {skill}
                     </button>
                   ))}
                 </div>
@@ -322,12 +322,12 @@ export default function OnboardingPage() {
                       onClick={() => setSelectedRole(role)}
                       className={`p-3.5 rounded-xl text-left text-xs font-semibold transition-all border flex items-center justify-between min-h-[48px] ${
                         isSelected
-                          ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
+                          ? 'bg-blue-600/15 border-blue-500/40 text-blue-200 ring-1 ring-blue-500/30'
                           : 'bg-slate-950/50 border-slate-800 text-slate-300 hover:bg-slate-800/60'
                       }`}
                     >
                       <span>{role}</span>
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" aria-hidden="true" />}
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" aria-hidden="true" />}
                     </button>
                   );
                 })}
@@ -362,7 +362,7 @@ export default function OnboardingPage() {
                         onClick={() => setRemotePreference(mode.id)}
                         className={`py-3 px-2.5 rounded-xl text-xs font-semibold border text-center transition-all min-h-[44px] ${
                           remotePreference === mode.id
-                            ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
+                            ? 'bg-blue-600/15 border-blue-500/40 text-blue-200 ring-1 ring-blue-500/30'
                             : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-800/60'
                         }`}
                       >
@@ -389,7 +389,7 @@ export default function OnboardingPage() {
                         onClick={() => setEmploymentType(type.id)}
                         className={`py-3 px-3 rounded-xl text-xs font-semibold border text-center transition-all min-h-[44px] ${
                           employmentType === type.id
-                            ? 'bg-teal-500/15 border-teal-500/40 text-teal-200 ring-1 ring-teal-500/30'
+                            ? 'bg-blue-600/15 border-blue-500/40 text-blue-200 ring-1 ring-blue-500/30'
                             : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-800/60'
                         }`}
                       >
@@ -416,7 +416,7 @@ export default function OnboardingPage() {
           {/* Step 5: Review & Launch */}
           {step === 5 && (
             <div className="space-y-6 text-center">
-              <div className="h-16 w-16 rounded-3xl bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center justify-center mx-auto shadow-xl shadow-teal-500/20">
+              <div className="h-16 w-16 rounded-3xl bg-blue-600/20 text-blue-300 border border-blue-500/30 flex items-center justify-center mx-auto shadow-lg shadow-blue-500/10">
                 <CheckCircle2 className="w-8 h-8" aria-hidden="true" />
               </div>
 
@@ -435,7 +435,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Verified Skills:</span>
-                  <span className="font-semibold text-teal-300">{selectedSkills.length} selected</span>
+                  <span className="font-semibold text-blue-300">{selectedSkills.length} selected</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Work Preference:</span>

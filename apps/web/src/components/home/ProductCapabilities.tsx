@@ -7,7 +7,7 @@ export function ProductCapabilities() {
       value: '5',
       label: 'Career Intelligence Modules',
       subtext: 'Matching, ATS, Skill Gap, Learning Paths, AI Mentor',
-      icon: <Layers className="w-5 h-5 text-teal-400" />,
+      icon: <Layers className="w-5 h-5 text-blue-400" />,
     },
     {
       value: '4',

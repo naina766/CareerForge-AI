@@ -373,43 +373,45 @@ export default function CandidateProfilePage() {
 
       {/* Profile Strength Hero Banner */}
       {completeness && (
-        <div className="glass-panel rounded-3xl p-6 border border-slate-800/90 shadow-xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <div className="bg-[#0d121f] rounded-2xl p-5 sm:p-6 border border-slate-800 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
           <div className="md:col-span-4 flex items-center gap-4">
-            <div className="relative h-16 w-16 shrink-0 flex items-center justify-center rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-400 p-0.5 glow-teal">
-              <div className="h-full w-full bg-slate-950 rounded-[14px] flex flex-col items-center justify-center text-teal-300 font-extrabold">
-                <span className="text-lg leading-none">{completeness.percentage}%</span>
-              </div>
+            <div className="h-14 w-14 shrink-0 flex items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-extrabold">
+              <span className="text-lg leading-none font-mono">{completeness.percentage}%</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold text-white">Profile Completeness</h2>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 font-semibold border border-teal-500/30">
-                  {completeness.percentage >= 80 ? 'Strong' : 'In Progress'}
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                  completeness.percentage >= 80
+                    ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                    : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                }`}>
+                  {completeness.percentage >= 80 ? 'Verified' : 'In Progress'}
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
                 {completeness.missingSections.length === 0
-                  ? 'All profile sections completed!'
-                  : `${completeness.missingSections.length} sections need attention`}
+                  ? 'All profile sections completed'
+                  : `${completeness.missingSections.length} sections pending completion`}
               </p>
             </div>
           </div>
 
-          <div className="md:col-span-8 space-y-2">
-            <div className="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+          <div className="md:col-span-8 space-y-2.5">
+            <div className="h-2 w-full bg-[#090d16] rounded-full overflow-hidden border border-slate-800">
               <div
-                className="h-full bg-gradient-to-r from-teal-500 via-cyan-400 to-blue-500 transition-all duration-500"
+                className="h-full bg-blue-500 transition-all duration-500"
                 style={{ width: `${completeness.percentage}%` }}
               />
             </div>
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
               {completeness.completedSections.map((sec) => (
-                <span key={sec} className="text-[10px] px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-300 border border-teal-500/20 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-teal-400" /> {sec}
+                <span key={sec} className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 flex items-center gap-1 font-mono">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> {sec}
                 </span>
               ))}
               {completeness.missingSections.map((sec) => (
-                <span key={sec} className="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 text-slate-400 border border-slate-800 flex items-center gap-1">
+                <span key={sec} className="text-[10px] px-2 py-0.5 rounded-md bg-[#090d16] text-slate-400 border border-slate-800 flex items-center gap-1 font-mono">
                   <Clock className="w-3 h-3 text-slate-500" /> {sec}
                 </span>
               ))}
@@ -422,83 +424,83 @@ export default function CandidateProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Navigation Sidebar */}
         <div className="lg:col-span-3 space-y-1.5">
-          <nav className="glass-panel p-2 rounded-2xl border border-slate-800 space-y-1">
+          <nav className="bg-[#0d121f] p-2 rounded-2xl border border-slate-800 space-y-1">
             <button
               onClick={() => setActiveTab('basic')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'basic'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
-              <User className="w-4 h-4 text-teal-400" /> Basic Information
+              <User className="w-4 h-4 text-blue-400" /> Basic Information
             </button>
             <button
               onClick={() => setActiveTab('summary')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'summary'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
               <FileText className="w-4 h-4 text-blue-400" /> Professional Summary
             </button>
             <button
               onClick={() => setActiveTab('skills')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'skills'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
               <Building className="w-4 h-4 text-blue-400" /> Technical Skills ({skills.length})
             </button>
             <button
               onClick={() => setActiveTab('experience')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'experience'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
-              <Briefcase className="w-4 h-4 text-indigo-400" /> Work Experience ({experiences.length})
+              <Briefcase className="w-4 h-4 text-blue-400" /> Work Experience ({experiences.length})
             </button>
             <button
               onClick={() => setActiveTab('education')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'education'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
-              <GraduationCap className="w-4 h-4 text-purple-400" /> Education ({educations.length})
+              <GraduationCap className="w-4 h-4 text-blue-400" /> Education ({educations.length})
             </button>
             <button
               onClick={() => setActiveTab('preferences')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'preferences'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
-              <Compass className="w-4 h-4 text-emerald-400" /> Career Preferences
+              <Compass className="w-4 h-4 text-blue-400" /> Career Preferences
             </button>
             <button
               onClick={() => setActiveTab('links')}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                 activeTab === 'links'
-                  ? 'bg-teal-500/10 text-teal-300 border border-teal-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                  ? 'bg-blue-600/10 text-blue-300 border border-blue-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
               }`}
             >
-              <LinkIcon className="w-4 h-4 text-amber-400" /> Social & Portfolio Links
+              <LinkIcon className="w-4 h-4 text-blue-400" /> Social & Portfolio Links
             </button>
           </nav>
         </div>
 
         {/* Content Section Panel */}
         <div className="lg:col-span-9">
-          <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/90 shadow-xl space-y-6">
+          <div className="bg-[#0d121f] rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-6">
             {/* 1. Basic Information */}
             {activeTab === 'basic' && (
               <div className="space-y-5">
@@ -537,7 +539,7 @@ export default function CandidateProfilePage() {
                     <select
                       value={profile.workMode || 'REMOTE'}
                       onChange={(e) => setProfile({ ...profile, workMode: e.target.value as WorkMode })}
-                      className="w-full rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 p-2.5 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 outline-none"
+                      className="w-full rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 p-2.5 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none"
                     >
                       <option value="REMOTE">Remote</option>
                       <option value="HYBRID">Hybrid</option>
@@ -572,7 +574,7 @@ export default function CandidateProfilePage() {
                     value={profile.summary || ''}
                     onChange={(e) => setProfile({ ...profile, summary: e.target.value })}
                     placeholder="Describe your engineering leadership, architectures built, and technical strengths..."
-                    className="w-full rounded-2xl bg-slate-900/80 border border-slate-800 p-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 outline-none transition-all"
+                    className="w-full rounded-2xl bg-slate-900/80 border border-slate-800 p-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
                   />
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <span>Recommended minimum: 30 characters</span>
@@ -599,13 +601,13 @@ export default function CandidateProfilePage() {
                       placeholder="Search or add a skill (e.g. ReactJS, NodeJS, Postgres, TypeScript, Docker)..."
                       value={newSkillName}
                       onChange={(e) => setNewSkillName(e.target.value)}
-                      className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 outline-none"
+                      className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none"
                     />
                   </div>
                   <select
                     value={newSkillProficiency}
                     onChange={(e) => setNewSkillProficiency(e.target.value as SkillProficiency)}
-                    className="rounded-xl bg-slate-900 border border-slate-800 px-3 py-2.5 text-xs text-slate-200 outline-none focus:border-teal-500"
+                    className="rounded-xl bg-slate-900 border border-slate-800 px-3 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
                   >
                     <option value="BEGINNER">Beginner</option>
                     <option value="INTERMEDIATE">Intermediate</option>
@@ -641,7 +643,7 @@ export default function CandidateProfilePage() {
                             item.proficiency === 'EXPERT'
                               ? 'bg-purple-500/20 text-purple-300'
                               : item.proficiency === 'ADVANCED'
-                              ? 'bg-teal-500/20 text-teal-300'
+                              ? 'bg-blue-500/20 text-blue-300'
                               : 'bg-slate-800 text-slate-400'
                           }`}
                         >
@@ -687,9 +689,9 @@ export default function CandidateProfilePage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <h3 className="text-sm font-bold text-white">{exp.title}</h3>
-                            <span className="text-xs text-teal-400 font-medium">@ {exp.company}</span>
+                            <span className="text-xs text-blue-400 font-medium">@ {exp.company}</span>
                             {exp.current && (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30">
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30">
                                 Current Role
                               </span>
                             )}
@@ -737,7 +739,7 @@ export default function CandidateProfilePage() {
                       <div key={edu.id} className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start justify-between gap-4">
                         <div className="space-y-1">
                           <h3 className="text-sm font-bold text-white">{edu.degree} in {edu.fieldOfStudy}</h3>
-                          <div className="text-xs text-teal-400 font-medium">{edu.institution}</div>
+                          <div className="text-xs text-blue-400 font-medium">{edu.institution}</div>
                           <div className="text-xs text-slate-400">
                             {new Date(edu.startDate).toLocaleDateString(undefined, { year: 'numeric' })} — {edu.endDate ? new Date(edu.endDate).toLocaleDateString(undefined, { year: 'numeric' }) : 'Present'}
                             {edu.grade && ` • Grade: ${edu.grade}`}
@@ -828,7 +830,7 @@ export default function CandidateProfilePage() {
                           willingToRelocate: e.target.checked,
                         })
                       }
-                      className="rounded bg-slate-900 border-slate-800 text-teal-500 focus:ring-teal-500/20"
+                      className="rounded bg-slate-900 border-slate-800 text-blue-500 focus:ring-blue-500/20"
                     />
                     <label htmlFor="relocate-checkbox" className="text-xs text-slate-300 cursor-pointer">
                       Willing to relocate for the right role
@@ -886,7 +888,7 @@ export default function CandidateProfilePage() {
       {/* Experience Modal */}
       {showExpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel max-w-lg w-full rounded-3xl p-6 border border-slate-800 space-y-4 shadow-2xl">
+          <div className="bg-[#0d121f] max-w-lg w-full rounded-3xl p-6 border border-slate-800 space-y-4 shadow-2xl">
             <h3 className="text-lg font-bold text-white">Add Work Experience</h3>
             <form onSubmit={handleAddExperience} className="space-y-3.5">
               <Input
@@ -929,7 +931,7 @@ export default function CandidateProfilePage() {
                   id="current-role"
                   checked={expForm.current}
                   onChange={(e) => setExpForm({ ...expForm, current: e.target.checked })}
-                  className="rounded bg-slate-900 border-slate-800 text-teal-500"
+                  className="rounded bg-slate-900 border-slate-800 text-blue-500"
                 />
                 <label htmlFor="current-role" className="text-xs text-slate-300">This is my current role</label>
               </div>
@@ -939,7 +941,7 @@ export default function CandidateProfilePage() {
                   rows={3}
                   value={expForm.description}
                   onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
-                  className="w-full rounded-xl bg-slate-900 border border-slate-800 p-2.5 text-xs text-slate-100 outline-none focus:border-teal-500"
+                  className="w-full rounded-xl bg-slate-900 border border-slate-800 p-2.5 text-xs text-slate-100 outline-none focus:border-blue-500"
                 />
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">

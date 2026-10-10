@@ -20,7 +20,7 @@ export default function ArchitecturePage() {
       title: 'PostgreSQL (Transactional Ground Truth)',
       description:
         'Single source of truth for accounts, candidate profiles, resumes, jobs, applications, match scores, and observability logs.',
-      icon: <Database className="w-5 h-5 text-teal-400" />,
+      icon: <Database className="w-5 h-5 text-blue-400" />,
       tag: 'PostgreSQL 16',
     },
     {
@@ -64,21 +64,21 @@ export default function ArchitecturePage() {
     <main id="main-content" className="min-h-screen py-10 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
       {/* Top Breadcrumb */}
       <div>
-        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-teal-300 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-blue-300 transition-colors">
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to Home
         </Link>
       </div>
 
       {/* Header Banner */}
-      <section className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-800/80 bg-gradient-to-b from-slate-900/90 via-slate-950 to-[#090d16] shadow-2xl space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/25 text-teal-300 text-xs font-semibold">
-          <Layers className="w-3.5 h-3.5 text-teal-400" aria-hidden="true" />
+      <section className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-800 bg-[#0d121f] shadow-xl space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold">
+          <Layers className="w-3.5 h-3.5 text-blue-400" aria-hidden="true" />
           <span>System Design & Architectural Topology</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
           CareerForge AI{' '}
-          <span className="bg-gradient-to-r from-teal-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+          <span className="text-blue-400">
             Architecture
           </span>
         </h1>
@@ -91,12 +91,12 @@ export default function ArchitecturePage() {
       {/* Microservices Topology */}
       <section className="space-y-6">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Server className="w-5 h-5 text-teal-400" /> Microservices Grid
+          <Server className="w-5 h-5 text-blue-400" /> Microservices Grid
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3">
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
               PORT 3000
             </span>
             <h3 className="text-base font-bold text-white">Next.js 14 Frontend</h3>

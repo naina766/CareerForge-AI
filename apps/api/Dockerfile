@@ -28,6 +28,9 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 COPY --from=builder /app ./
 
+RUN mkdir -p /app/storage/uploads/resumes && \
+    chown -R careerforge:nodejs /app/storage
+
 USER careerforge
 
 EXPOSE 4000

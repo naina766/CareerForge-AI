@@ -472,14 +472,14 @@ export default function RecruiterJobApplicationsPage() {
             )}
 
             {/* Phase 13 AI Match Compatibility */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-teal-500/30 space-y-3">
+            <div className="p-4 rounded-2xl bg-slate-950 border border-blue-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-teal-400" />
+                  <Target className="w-4 h-4 text-blue-400" />
                   <span className="text-xs font-bold text-white">Hybrid Match Score</span>
                 </div>
                 {loadingInspectMatch ? (
-                  <span className="text-[10px] text-teal-400 animate-pulse flex items-center gap-1">
+                  <span className="text-[10px] text-blue-400 animate-pulse flex items-center gap-1">
                     <RefreshCw className="w-3 h-3 animate-spin" /> Scoring...
                   </span>
                 ) : inspectMatchReport ? (
@@ -510,7 +510,7 @@ export default function RecruiterJobApplicationsPage() {
                   <div className="grid grid-cols-5 gap-1.5 text-center">
                     <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
                       <span className="text-[9px] text-slate-400 block">Skills</span>
-                      <span className="text-[11px] font-bold text-teal-400">{inspectMatchReport.skillScore}%</span>
+                      <span className="text-[11px] font-bold text-blue-400">{inspectMatchReport.skillScore}%</span>
                     </div>
                     <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
                       <span className="text-[9px] text-slate-400 block">FAISS</span>

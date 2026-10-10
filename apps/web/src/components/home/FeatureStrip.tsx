@@ -4,11 +4,11 @@ import { Target, Bot, BarChart2, Compass, FileText } from 'lucide-react';
 export function FeatureStrip() {
   const features = [
     {
-      icon: <Target className="w-5 h-5 text-teal-400" />,
+      icon: <Target className="w-5 h-5 text-blue-400" />,
       title: 'Smart Job Matching',
       description: 'Hybrid scoring tailored to your career trajectory',
-      color: 'from-teal-500/10 to-teal-500/5',
-      borderColor: 'group-hover:border-teal-500/40',
+      color: 'from-blue-500/10 to-blue-500/5',
+      borderColor: 'group-hover:border-blue-500/40',
     },
     {
       icon: <Bot className="w-5 h-5 text-cyan-400" />,

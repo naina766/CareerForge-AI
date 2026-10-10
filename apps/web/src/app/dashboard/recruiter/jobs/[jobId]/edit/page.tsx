@@ -445,9 +445,9 @@ export default function EditJobPage() {
         </div>
 
         {/* Section 4: Canonical Skills Selector */}
-        <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/90 shadow-xl space-y-5">
+        <div className="rounded-3xl p-6 sm:p-8 bg-[#0d121f] border border-slate-800 shadow-xl space-y-5">
           <div className="flex items-center gap-3 pb-3 border-b border-slate-800/80">
-            <div className="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
               <Layers className="w-4 h-4" />
             </div>
             <div>
@@ -465,7 +465,7 @@ export default function EditJobPage() {
               onChange={(e) => setSkillInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
               placeholder="e.g. ReactJS, NodeJS, PostgreSQL, AWS..."
-              className="flex-1 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              className="flex-1 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
             <select
               value={skillImportance}
@@ -491,7 +491,7 @@ export default function EditJobPage() {
                   key={idx}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border ${
                     s.importance === 'REQUIRED'
-                      ? 'bg-teal-500/10 text-teal-300 border-teal-500/30'
+                      ? 'bg-blue-500/10 text-blue-300 border-blue-500/30'
                       : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
                   }`}
                 >

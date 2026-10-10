@@ -137,13 +137,13 @@ export default function RegisterPage() {
                   onClick={() => setRole('CANDIDATE')}
                   className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between ${
                     role === 'CANDIDATE'
-                      ? 'border-teal-500/80 bg-teal-500/10 shadow-lg shadow-teal-500/10 ring-1 ring-teal-500/40'
+                      ? 'border-blue-500/80 bg-blue-500/10 shadow-md shadow-blue-500/10 ring-1 ring-blue-500/40'
                       : 'border-slate-800 bg-slate-900/50 hover:bg-slate-900 text-slate-400'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <User className={`w-4 h-4 ${role === 'CANDIDATE' ? 'text-teal-400' : 'text-slate-500'}`} aria-hidden="true" />
-                    {role === 'CANDIDATE' && <div className="h-2 w-2 rounded-full bg-teal-400" aria-hidden="true" />}
+                    <User className={`w-4 h-4 ${role === 'CANDIDATE' ? 'text-blue-400' : 'text-slate-500'}`} aria-hidden="true" />
+                    {role === 'CANDIDATE' && <div className="h-2 w-2 rounded-full bg-blue-400" aria-hidden="true" />}
                   </div>
                   <div className="mt-2">
                     <span className={`text-sm font-semibold block ${role === 'CANDIDATE' ? 'text-white' : 'text-slate-300'}`}>
@@ -234,7 +234,7 @@ export default function RegisterPage() {
             <div className="text-center pt-1">
               <p className="text-xs text-slate-400">
                 Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-teal-400 hover:text-teal-300 transition-colors">
+                <Link href="/login" className="font-semibold text-blue-400 hover:text-blue-300 transition-colors">
                   Sign in instead
                 </Link>
               </p>

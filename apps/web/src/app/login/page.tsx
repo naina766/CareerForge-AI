@@ -187,7 +187,7 @@ export default function LoginPage() {
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="rounded bg-slate-900 border-slate-800 text-teal-500 focus:ring-teal-500/20"
+                    className="rounded bg-slate-900 border-slate-800 text-blue-500 focus:ring-blue-500/20"
                   />
                   <span>Keep me signed in</span>
                 </label>
@@ -202,7 +202,7 @@ export default function LoginPage() {
             <div className="text-center pt-2">
               <p className="text-xs text-slate-400">
                 Don't have an account?{' '}
-                <Link href="/register" className="font-semibold text-teal-400 hover:text-teal-300 transition-colors">
+                <Link href="/register" className="font-semibold text-blue-400 hover:text-blue-300 transition-colors">
                   Create an account
                 </Link>
               </p>

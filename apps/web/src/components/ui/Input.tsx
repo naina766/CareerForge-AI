@@ -33,7 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={Boolean(error)}
             aria-describedby={errorId}
             className={`w-full rounded-xl bg-slate-900/80 border ${
-              error ? 'border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-800 focus:border-teal-500 focus:ring-teal-500/20'
+              error ? 'border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-800 focus:border-blue-500 focus:ring-blue-500/20'
             } ${
               icon ? 'pl-10' : 'pl-3.5'
             } pr-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition-all duration-200 focus:ring-4 ${className}`}

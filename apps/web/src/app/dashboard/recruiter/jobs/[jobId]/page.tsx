@@ -163,7 +163,7 @@ export default function JobDetailPage() {
             size="sm"
             variant="outline"
             onClick={handleDuplicateJob}
-            leftIcon={<Copy className="w-3.5 h-3.5 text-teal-400" />}
+            leftIcon={<Copy className="w-3.5 h-3.5 text-blue-400" />}
           >
             Duplicate
           </Button>
@@ -342,7 +342,7 @@ export default function JobDetailPage() {
                 key={idx}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border ${
                   js.importance === 'REQUIRED'
-                    ? 'bg-teal-500/10 text-teal-300 border-teal-500/30'
+                    ? 'bg-blue-500/10 text-blue-300 border-blue-500/30'
                     : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
                 }`}
               >

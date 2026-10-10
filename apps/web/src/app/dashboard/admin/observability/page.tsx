@@ -100,14 +100,14 @@ export default function AdminObservabilityDashboard() {
   if (authLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
       </div>
     );
   }
 
   if (!isAuthenticated || user?.role !== 'ADMIN') {
     return (
-      <div className="glass-panel rounded-3xl p-10 max-w-lg mx-auto text-center space-y-4 my-16 border border-rose-500/30">
+      <div className="bg-[#0d121f] rounded-3xl p-10 max-w-lg mx-auto text-center space-y-4 my-16 border border-rose-500/30">
         <div className="h-14 w-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20">
           <AlertTriangle className="w-7 h-7" />
         </div>

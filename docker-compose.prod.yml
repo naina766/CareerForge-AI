@@ -48,6 +48,9 @@ services:
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
+      - RESUME_STORAGE_DIR=${RESUME_STORAGE_DIR:-/app/storage/uploads/resumes}
+    volumes:
+      - api_resume_prod_data:/app/storage/uploads/resumes
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4000/live || exit 1"]
       interval: 15s
@@ -237,6 +240,8 @@ volumes:
     name: careerforge_kafka_prod_data
   ai_faiss_prod_data:
     name: careerforge_ai_faiss_prod_data
+  api_resume_prod_data:
+    name: careerforge_api_resume_prod_data
 
 networks:
   careerforge-network:

@@ -247,7 +247,7 @@ export default function PublicJobDetailPage() {
     return (
       <div className="min-h-[calc(100vh-4rem)] max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
         <div className="space-y-4 text-center">
-          <div className="h-10 w-10 rounded-full border-2 border-teal-400 border-t-transparent animate-spin mx-auto" />
+          <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-transparent animate-spin mx-auto" />
           <p className="text-xs text-slate-400 font-medium">Loading opportunity details...</p>
         </div>
       </div>
@@ -257,7 +257,7 @@ export default function PublicJobDetailPage() {
   if (error || !job) {
     return (
       <div className="min-h-[calc(100vh-4rem)] max-w-2xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="glass-panel rounded-3xl p-10 border border-slate-800/90 space-y-4">
+        <div className="rounded-3xl p-10 bg-[#0d121f] border border-slate-800 space-y-4">
           <AlertCircle className="w-12 h-12 text-rose-400 mx-auto" />
           <h2 className="text-xl font-bold text-white">Job Unavailable</h2>
           <p className="text-xs text-slate-400">
@@ -301,11 +301,11 @@ export default function PublicJobDetailPage() {
       </div>
 
       {/* Main Job Hero Card */}
-      <div className="glass-panel rounded-3xl p-8 sm:p-10 border border-slate-800/90 shadow-2xl space-y-6 relative overflow-hidden bg-gradient-to-b from-slate-900/90 via-slate-950/90 to-slate-950/90">
+      <div className="rounded-3xl p-8 sm:p-10 border border-slate-800 shadow-xl space-y-6 relative overflow-hidden bg-[#0d121f]">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/20">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
                 {job.workMode}
               </span>
               <span className="text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
@@ -322,7 +322,7 @@ export default function PublicJobDetailPage() {
 
             <p className="text-sm text-slate-400 flex flex-wrap items-center gap-4">
               <span className="flex items-center gap-1.5 text-white font-medium">
-                <Building className="w-4 h-4 text-teal-400" /> {job.companyName}
+                <Building className="w-4 h-4 text-blue-400" /> {job.companyName}
               </span>
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-slate-500" /> {job.location || 'Remote'}
@@ -396,14 +396,14 @@ export default function PublicJobDetailPage() {
                 </Button>
               ) : hasApplied ? (
                 <Link href={`/dashboard/applications/${existingApplicationId || ''}`}>
-                  <Button size="md" variant="outline" className="w-full border-teal-500/50 text-teal-300" leftIcon={<Check className="w-4 h-4" />}>
+                  <Button size="md" variant="outline" className="w-full border-emerald-500/50 text-emerald-300" leftIcon={<Check className="w-4 h-4" />}>
                     View Submitted Application
                   </Button>
                 </Link>
               ) : (
                 <Button
                   size="md"
-                  className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-bold"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold"
                   onClick={handleOpenApplyModal}
                   leftIcon={<Send className="w-4 h-4" />}
                 >
@@ -419,30 +419,30 @@ export default function PublicJobDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left 2 Cols: Description, Responsibilities, Requirements, Benefits */}
         <div className="md:col-span-2 space-y-6">
-          {/* Phase 13: Hybrid AI Match Score & Explanation Widget */}
+          {/* Multi-Factor Match Compatibility Widget */}
           {isAuthenticated && user?.role === 'CANDIDATE' && (
-            <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-teal-500/30 bg-gradient-to-b from-teal-950/20 via-slate-900/60 to-slate-900/90 space-y-6 relative overflow-hidden">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+            <div className="bg-[#0d121f] rounded-2xl p-6 border border-slate-800 space-y-6 relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400">
-                    <Target className="w-6 h-6" />
+                  <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                    <Target className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-base font-bold text-white">Your AI Match Compatibility</h2>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                        Phase 13 Hybrid Engine
+                      <h2 className="text-base font-bold text-white">Match Compatibility</h2>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                        Multi-Factor Engine
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Deterministic 5-signal evaluation grounded in your verified profile and resume
+                      Deterministic evaluation grounded in your verified profile and resume chunks
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 self-start sm:self-auto">
                   {loadingMatch ? (
-                    <div className="flex items-center gap-2 text-xs text-teal-400 animate-pulse">
+                    <div className="flex items-center gap-2 text-xs text-blue-400 animate-pulse">
                       <RefreshCw className="w-4 h-4 animate-spin" /> Evaluating...
                     </div>
                   ) : matchReport ? (
@@ -453,11 +453,11 @@ export default function PublicJobDetailPage() {
                           <span className="text-xs font-normal text-slate-400">/100</span>
                         </div>
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mt-1 ${
+                          className={`text-[10px] font-mono px-2 py-0.5 rounded-full inline-block mt-1 ${
                             matchReport.matchLevel === 'EXCELLENT'
                               ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                               : matchReport.matchLevel === 'STRONG'
-                              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                               : matchReport.matchLevel === 'MODERATE'
                               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                               : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
@@ -470,7 +470,7 @@ export default function PublicJobDetailPage() {
                         type="button"
                         onClick={() => fetchMatchReport(true)}
                         title="Recompute fresh match"
-                        className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
                       >
                         <RefreshCw className="w-4 h-4" />
                       </button>
@@ -480,7 +480,7 @@ export default function PublicJobDetailPage() {
               </div>
 
               {matchError ? (
-                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center justify-between">
                   <span>{matchError}</span>
                   <Button size="sm" variant="outline" onClick={() => fetchMatchReport(true)}>
                     Retry
@@ -491,10 +491,10 @@ export default function PublicJobDetailPage() {
                   {/* Signal Breakdown Progress Bars */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* Skills 40% */}
-                    <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                    <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800 space-y-2">
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-semibold text-slate-400">Skills (40%)</span>
-                        <span className="font-bold text-teal-400">{matchReport.skillScore}%</span>
+                        <span className="font-bold text-blue-400">{matchReport.skillScore}%</span>
                       </div>
                       <div
                         role="progressbar"
@@ -505,11 +505,11 @@ export default function PublicJobDetailPage() {
                         className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"
                       >
                         <div
-                          className="bg-teal-400 h-1.5 rounded-full transition-all duration-500"
+                          className="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, matchReport.skillScore)}%` }}
                         />
                       </div>
-                      <span className="text-[10px] text-slate-500 block">
+                      <span className="text-[10px] text-slate-500 block font-mono">
                         {matchReport.matchedSkills.length} matched
                       </span>
                     </div>
@@ -607,7 +607,7 @@ export default function PublicJobDetailPage() {
 
                   {/* Grounded Factual Explanation */}
                   <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-2">
-                    <span className="text-[11px] uppercase font-bold text-teal-400 tracking-wider block">
+                    <span className="text-[11px] uppercase font-bold text-blue-400 tracking-wider block">
                       Deterministic Match Analysis
                     </span>
                     <p className="text-xs text-slate-300 leading-relaxed">
@@ -833,7 +833,7 @@ export default function PublicJobDetailPage() {
                   {/* Progress Bar */}
                   <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
                     <div
-                      className="bg-gradient-to-r from-cyan-500 to-teal-400 h-2 rounded-full transition-all duration-500"
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-500"
                       style={{ width: `${Math.min(100, learningPath.progressPercentage)}%` }}
                     />
                   </div>
@@ -968,9 +968,9 @@ export default function PublicJobDetailPage() {
           )}
 
           {/* About the Role */}
-          <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-3">
+          <div className="rounded-3xl p-6 sm:p-8 bg-[#0d121f] border border-slate-800 space-y-3">
             <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-4 h-4 text-teal-400" /> About the Opportunity
+              <FileText className="w-4 h-4 text-blue-400" /> About the Opportunity
             </h2>
             <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
               {job.description}
@@ -979,9 +979,9 @@ export default function PublicJobDetailPage() {
 
           {/* Key Responsibilities */}
           {job.responsibilities && (
-            <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-3">
+            <div className="rounded-3xl p-6 sm:p-8 bg-[#0d121f] border border-slate-800 space-y-3">
               <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-teal-400" /> Key Responsibilities
+                <CheckCircle2 className="w-4 h-4 text-blue-400" /> Key Responsibilities
               </h2>
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
                 {job.responsibilities}
@@ -991,9 +991,9 @@ export default function PublicJobDetailPage() {
 
           {/* Requirements & Qualifications */}
           {job.requirements && (
-            <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-3">
+            <div className="rounded-3xl p-6 sm:p-8 bg-[#0d121f] border border-slate-800 space-y-3">
               <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Layers className="w-4 h-4 text-teal-400" /> Requirements & Qualifications
+                <Layers className="w-4 h-4 text-blue-400" /> Requirements & Qualifications
               </h2>
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
                 {job.requirements}
@@ -1003,7 +1003,7 @@ export default function PublicJobDetailPage() {
 
           {/* Perks & Benefits */}
           {job.benefits && (
-            <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-3">
+            <div className="rounded-3xl p-6 sm:p-8 bg-[#0d121f] border border-slate-800 space-y-3">
               <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Perks & Benefits
               </h2>
@@ -1016,9 +1016,9 @@ export default function PublicJobDetailPage() {
 
         {/* Right 1 Col: Required Skills & Stack Breakdown */}
         <div className="space-y-6">
-          <div className="glass-panel rounded-3xl p-6 border border-slate-800/80 space-y-6 sticky top-20">
+          <div className="rounded-3xl p-6 bg-[#0d121f] border border-slate-800 space-y-6 sticky top-20">
             <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-teal-400" /> Skill Requirements
+              <Briefcase className="w-4 h-4 text-blue-400" /> Skill Requirements
             </h2>
 
             {/* Required Skills */}
@@ -1044,7 +1044,7 @@ export default function PublicJobDetailPage() {
 
             {/* Preferred Skills */}
             <div className="space-y-2.5 pt-4 border-t border-slate-800/60">
-              <span className="text-[11px] font-bold text-teal-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider block">
                 Preferred & Nice-to-Have
               </span>
               {preferredSkills.length > 0 ? (
@@ -1052,7 +1052,7 @@ export default function PublicJobDetailPage() {
                   {preferredSkills.map((sk: any, idx: number) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-1 rounded-xl bg-teal-500/10 text-teal-300 border border-teal-500/20 text-xs font-semibold"
+                      className="px-2.5 py-1 rounded-xl bg-blue-500/10 text-blue-300 border border-blue-500/20 text-xs font-semibold"
                     >
                       {sk.name || sk.skill?.name || 'Skill'}
                     </span>
@@ -1093,7 +1093,7 @@ export default function PublicJobDetailPage() {
 
             {appSuccess ? (
               <div role="status" aria-live="polite" className="text-center py-8 space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-teal-400 mx-auto" aria-hidden="true" />
+                <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" aria-hidden="true" />
                 <h4 className="text-base font-bold text-white">Application Submitted!</h4>
                 <p className="text-xs text-slate-400">Redirecting to your application dashboard...</p>
               </div>
@@ -1116,9 +1116,9 @@ export default function PublicJobDetailPage() {
                       Loading your active resume...
                     </div>
                   ) : candidateResume ? (
-                    <div className="p-4 rounded-2xl bg-slate-950 border border-teal-500/40 flex items-center justify-between">
+                    <div className="p-4 rounded-2xl bg-slate-950 border border-blue-500/40 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
+                        <div className="h-9 w-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
                           <FileText className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <div>
@@ -1126,7 +1126,7 @@ export default function PublicJobDetailPage() {
                           <p className="text-[10px] text-slate-400">Uploaded {new Date(candidateResume.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
                         Selected
                       </span>
                     </div>
@@ -1161,7 +1161,7 @@ export default function PublicJobDetailPage() {
                     value={coverLetter}
                     onChange={(e) => setCoverLetter(e.target.value)}
                     placeholder="Briefly introduce yourself and highlight your relevant experience for this role..."
-                    className="w-full p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+                    className="w-full p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -1174,7 +1174,7 @@ export default function PublicJobDetailPage() {
                     type="submit"
                     size="sm"
                     disabled={isSubmittingApp || !candidateResume}
-                    className="bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-bold"
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-semibold"
                     leftIcon={<Send className="w-4 h-4" aria-hidden="true" />}
                   >
                     {isSubmittingApp ? 'Submitting...' : 'Submit Application'}

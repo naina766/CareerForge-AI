@@ -465,7 +465,7 @@ export default function RecruiterJobsPage() {
                               onClick={() => handleDuplicateJob(job.id)}
                               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-slate-900 hover:text-white transition-colors text-left"
                             >
-                              <Copy className="w-3.5 h-3.5 text-teal-400" /> Duplicate
+                              <Copy className="w-3.5 h-3.5 text-blue-400" /> Duplicate
                             </button>
 
                             {/* Status Specific Actions */}

@@ -290,7 +290,7 @@ function JobsDiscoveryContent() {
                 <button
                   type="button"
                   onClick={handleClearAllFilters}
-                  className="text-xs text-teal-400 hover:text-teal-300 font-semibold"
+                  className="text-xs text-blue-400 hover:text-blue-300 font-semibold"
                 >
                   Clear all
                 </button>
@@ -308,7 +308,7 @@ function JobsDiscoveryContent() {
                     type="checkbox"
                     checked={selectedWorkModes.includes(mode)}
                     onChange={() => toggleWorkMode(mode)}
-                    className="rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                    className="rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-0 w-4 h-4 cursor-pointer"
                   />
                   <span>{mode === 'REMOTE' ? 'Remote' : mode === 'HYBRID' ? 'Hybrid' : 'Onsite'}</span>
                 </label>
@@ -465,7 +465,7 @@ function JobsDiscoveryContent() {
                   setSalaryMin(e.target.value);
                 }}
                 placeholder="e.g. 100000"
-                className="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
               />
             </div>
           </div>
@@ -482,7 +482,7 @@ function JobsDiscoveryContent() {
                 aria-label="Open job search filters"
                 className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
               >
-                <Filter className="w-3.5 h-3.5 text-teal-400" aria-hidden="true" /> Filters
+                <Filter className="w-3.5 h-3.5 text-blue-400" aria-hidden="true" /> Filters
               </button>
               <span className="text-xs text-slate-400 font-medium" role="status" aria-live="polite">
                 {isLoading ? 'Searching vacancies...' : `${pagination.total} active vacancies found`}
@@ -499,7 +499,7 @@ function JobsDiscoveryContent() {
                   setPage(1);
                   setSort(e.target.value as any);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white focus:outline-none focus:border-teal-500 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -730,7 +730,7 @@ function JobsDiscoveryContent() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 id="mobile-filters-title" className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Filter className="w-4 h-4 text-teal-400" aria-hidden="true" /> Filters
+                <Filter className="w-4 h-4 text-blue-400" aria-hidden="true" /> Filters
               </h3>
               <button
                 type="button"
@@ -751,7 +751,7 @@ function JobsDiscoveryContent() {
                     type="checkbox"
                     checked={selectedWorkModes.includes(mode)}
                     onChange={() => toggleWorkMode(mode)}
-                    className="rounded border-slate-700 bg-slate-800 text-teal-500"
+                    className="rounded border-slate-700 bg-slate-800 text-blue-500"
                   />
                   <span>{mode}</span>
                 </label>
@@ -767,7 +767,7 @@ function JobsDiscoveryContent() {
                     type="checkbox"
                     checked={selectedEmploymentTypes.includes(t)}
                     onChange={() => toggleEmploymentType(t)}
-                    className="rounded border-slate-700 bg-slate-800 text-teal-500"
+                    className="rounded border-slate-700 bg-slate-800 text-blue-500"
                   />
                   <span>{t.replace('_', ' ')}</span>
                 </label>
@@ -818,7 +818,7 @@ export default function CandidateJobsDiscoveryPage() {
     <Suspense
       fallback={
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-          <div className="h-8 w-8 rounded-full border-2 border-teal-400 border-t-transparent animate-spin" />
+          <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
         </div>
       }
     >

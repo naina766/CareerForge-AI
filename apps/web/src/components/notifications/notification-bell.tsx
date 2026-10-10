@@ -114,12 +114,12 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="relative p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 text-slate-300 hover:text-white transition-all focus:outline-none"
+        className="relative p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-slate-300 hover:text-white transition-all focus:outline-none"
         aria-label="Notifications"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-teal-500 text-[10px] font-bold text-slate-950 shadow-lg shadow-teal-500/50 animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-md shadow-blue-500/30">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -132,7 +132,7 @@ export function NotificationBell() {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-sm text-white">Notifications</span>
               {unreadCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-teal-500/20 text-teal-400 text-xs font-medium">
+                <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-medium">
                   {unreadCount} unread
                 </span>
               )}
@@ -140,7 +140,7 @@ export function NotificationBell() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-xs text-slate-400 hover:text-teal-300 flex items-center gap-1 transition-colors"
+                className="text-xs text-slate-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
               >
                 <Check className="w-3 h-3" /> Mark all read
               </button>
@@ -151,7 +151,7 @@ export function NotificationBell() {
           <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-800/50">
             {isLoading ? (
               <div className="p-8 text-center text-slate-400">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-400 mb-2" />
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400 mb-2" />
                 <p className="text-xs">Loading notifications...</p>
               </div>
             ) : notifications.length === 0 ? (
@@ -166,7 +166,7 @@ export function NotificationBell() {
                   key={item.id}
                   onClick={() => item.status === 'UNREAD' && markAsRead(item.id)}
                   className={`p-3.5 hover:bg-slate-900/60 transition-all cursor-pointer flex items-start gap-3 ${
-                    item.status === 'UNREAD' ? 'bg-teal-950/10' : 'opacity-75'
+                    item.status === 'UNREAD' ? 'bg-blue-950/20' : 'opacity-75'
                   }`}
                 >
                   <div className="mt-0.5 p-2 rounded-lg bg-slate-900 border border-slate-800 shrink-0">
@@ -176,7 +176,7 @@ export function NotificationBell() {
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <h4 className="text-xs font-semibold text-white truncate">{item.title}</h4>
                       {item.status === 'UNREAD' && (
-                        <span className="w-2 h-2 rounded-full bg-teal-400 shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0" />
                       )}
                     </div>
                     <p className="text-xs text-slate-400 line-clamp-2">{item.message}</p>
@@ -197,7 +197,7 @@ export function NotificationBell() {
             <Link
               href="/dashboard/notifications"
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg text-xs font-medium text-teal-400 hover:bg-teal-500/10 transition-colors"
+              className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg text-xs font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
             >
               Open Notification Center <ChevronRight className="w-3 h-3" />
             </Link>
